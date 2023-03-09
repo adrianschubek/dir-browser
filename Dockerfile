@@ -33,13 +33,14 @@ COPY server/php/php.ini /usr/local/etc/php/conf.d/custom.ini
 COPY src /var/www/html
 
 # Make sure files/folders needed by the processes are accessable when they run under the nobody user
-RUN chown -R nobody.nobody /var/www/html /run /var/lib/nginx /var/log/nginx
+# FIXME RUN chown -R nobody.nobody /var/www/html /run /var/lib/nginx /var/log/nginx
 
 # Switch to use a non-root user from here on
-USER nobody
+# FIXME USER nobody
 
 # Add application
-COPY --chown=nobody src/ /var/www/html/
+# FIXME COPY --chown=nobody src/ /var/www/html/
+COPY src/ /var/www/html/
 
 # Expose the port nginx is reachable on
 EXPOSE 8080
