@@ -29,19 +29,23 @@ var_dump($url_parts);
   <h1>Hello, world!</h1>
 
   <div class="container">
-    <ul>
+    <div class="list-group">
       <?php
       foreach (($files = scandir($local_path)) as $file) {
         // skip current folder '.'
         if ($file === '.') continue;
 
         $url = '/' . implode(separator: '/', array: $url_parts) . (count($url_parts) !== 0 ? '/' : '') /* fixes // at root url */ . $file;
-        echo $url;
+
         $type = is_dir($local_path . '/' . $file) ? 'dir' : 'file';
-        echo "<li><a href=\"$url\"> $file ($type)</a></li>";
+      ?>
+        <a href="<?= $url ?>" class="list-group-item list-group-item-action">
+          <?= $file ?> (<?= $type ?>)
+        </a>
+      <?php
       }
       ?>
-    </ul>
+    </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
 </body>
