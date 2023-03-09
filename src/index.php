@@ -110,7 +110,8 @@ if ($path_is_dir) {
           <path d="M12 17v.01"></path>
           <path d="M12 14a1.5 1.5 0 1 0 -1.14 -2.474"></path>
         </svg>
-        Not Found
+        Not Found<br>
+        <a class="btn btn-outline-secondary mt-2" href="/">Back to Home</a>
       </div>
     <?php } elseif (count($sorted_files) === 0 && (count($sorted_folders) === 0 || count($sorted_folders) === 1 && $sorted_folders[0]->name === "..")) { ?>
       <div class="alert alert-secondary text-center" role="alert">
@@ -119,7 +120,8 @@ if ($path_is_dir) {
           <path d="M3 3l18 18"></path>
           <path d="M19 19h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 1.172 -1.821m3.828 -.179h1l3 3h7a2 2 0 0 1 2 2v8"></path>
         </svg>
-        Empty Folder
+        Empty Folder<br>
+        <a class="btn btn-outline-secondary mt-2" href="/">Back to Home</a>
       </div>
     <?php } else { ?>
       <div class="list-group">
