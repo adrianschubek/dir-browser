@@ -2,7 +2,6 @@
 
 define('VERSION', '0.1.0');
 
-
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
 function human_filesize($bytes, $decimals = 2): string
@@ -17,6 +16,54 @@ $url_parts = array_filter(explode(separator: '/', string: $_SERVER['REQUEST_URI'
 $local_path = PUBLIC_FOLDER . $_SERVER['REQUEST_URI'];
 
 $path_is_dir = is_dir($local_path);
+
+class File
+{
+  public string $name;
+  public string $url;
+  public string $size;
+  public bool $is_dir;
+  public string $modified_date;
+  public string $type;
+}
+
+/* @var array<File> */
+$sorted = [];
+
+// local path exists
+if ($path_is_dir) {
+  $sorted_files = [];
+  $sorted_folders = [];
+  foreach (($files = scandir($local_path)) as $file) {
+    // always skip current folder '.' or parent folder '..' if current path is root
+    if ($file === '.' || $file === '..' && count($url_parts) === 0) continue;
+
+    $url = '/' . implode(separator: '/', array: $url_parts) . (count($url_parts) !== 0 ? '/' : '') /* fixes // -> / at root url */ . $file;
+
+    $file_size = human_filesize(filesize($local_path . '/' . $file));
+
+    $is_dir = is_dir($local_path . '/' . $file);
+
+    $file_modified_date = date('Y-m-d H:i:s', filemtime($local_path . '/' . $file));
+
+    $file_type = mime_content_type($local_path . '/' . $file);
+
+    $item = new File();
+    $item->name = $file;
+    $item->url = $url;
+    $item->size = $file_size;
+    $item->is_dir = $is_dir;
+    $item->modified_date = $file_modified_date;
+    $item->type = $file_type;
+    if ($is_dir) {
+      array_push($sorted_folders, $item);
+    } else {
+      array_push($sorted_files, $item);
+    }
+  }
+
+  $sorted = array_merge($sorted_folders, $sorted_files);
+}
 
 ?>
 <!doctype html>
@@ -53,10 +100,9 @@ $path_is_dir = is_dir($local_path);
     </div>
   </nav>
 
-
   <div class="container pb-3">
     <?php if (!$path_is_dir) { ?>
-      <div class="alert alert-secondary" role="alert">
+      <div class="alert alert-secondary text-center" role="alert">
         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-unknown" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
           <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
@@ -66,32 +112,27 @@ $path_is_dir = is_dir($local_path);
         </svg>
         Not Found
       </div>
+    <?php } elseif (count($sorted_files) === 0 && (count($sorted_folders) === 0 || count($sorted_folders) === 1 && $sorted_folders[0]->name === "..")) { ?>
+      <div class="alert alert-secondary text-center" role="alert">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folder-off" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+          <path d="M3 3l18 18"></path>
+          <path d="M19 19h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 1.172 -1.821m3.828 -.179h1l3 3h7a2 2 0 0 1 2 2v8"></path>
+        </svg>
+        Empty Folder
+      </div>
     <?php } else { ?>
       <div class="list-group">
         <?php
-        foreach (($files = scandir($local_path)) as $file) {
-          // always skip current folder '.' or parent folder '..' if current path is root
-          if ($file === '.' || $file === '..' && count($url_parts) === 0) continue;
-
-          $url = '/' . implode(separator: '/', array: $url_parts) . (count($url_parts) !== 0 ? '/' : '') /* fixes // -> / at root url */ . $file;
-
-          $file_size = human_filesize(filesize($local_path . '/' . $file));
-
-          $is_dir = is_dir($local_path . '/' . $file);
-
-          $file_modified_date = date('Y-m-d H:i:s', filemtime($local_path . '/' . $file));
-
-          $file_type = mime_content_type($local_path . '/' . $file);
+        foreach ($sorted as $file) {
         ?>
-
-
-          <a href="<?= $url ?>" class="list-group-item list-group-item-action">
-            <?php if ($file === "..") { ?>
+          <a href="<?= $file->url ?>" class="list-group-item list-group-item-action">
+            <?php if ($file->name === "..") { ?>
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-corner-left-up" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                 <path d="M18 18h-6a3 3 0 0 1 -3 -3v-10l-4 4m8 0l-4 -4"></path>
               </svg>
-            <?php } elseif ($is_dir) { ?>
+            <?php } elseif ($file->is_dir) { ?>
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folder-filled" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                 <path d="M9 3a1 1 0 0 1 .608 .206l.1 .087l2.706 2.707h6.586a3 3 0 0 1 2.995 2.824l.005 .176v8a3 3 0 0 1 -2.824 2.995l-.176 .005h-14a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-11a3 3 0 0 1 2.824 -2.995l.176 -.005h4z" stroke-width="0" fill="currentColor"></path>
@@ -103,7 +144,7 @@ $path_is_dir = is_dir($local_path);
                 <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
               </svg>
             <?php } ?>
-            <?= $file ?> <?= !$is_dir ? "(" . $file_size . ")" : "" ?> (<?= $file_modified_date ?>)
+            <?= $file->name ?> <?= !$file->is_dir ? "(" . $file->size . ")" : "" ?> (<?= $file->modified_date ?>)
           </a>
         <?php
         }
@@ -154,18 +195,18 @@ $path_is_dir = is_dir($local_path);
       }
     })
 
-/*     window.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('[data-color-toggler]')
-        .forEach(toggle => {
-          toggle.addEventListener('click', () => {
-            const theme = getPreferredTheme() === 'dark' ? 'light' : 'dark'
-            console.log("click set to " + theme);
-            document.querySelector("[data-bs-theme]").setAttribute('data-bs-theme', theme)
-            localStorage.setItem('theme', theme)
-            setTheme(theme)
-          })
-        })
-    }) */
+    /*     window.addEventListener('DOMContentLoaded', () => {
+          document.querySelectorAll('[data-color-toggler]')
+            .forEach(toggle => {
+              toggle.addEventListener('click', () => {
+                const theme = getPreferredTheme() === 'dark' ? 'light' : 'dark'
+                console.log("click set to " + theme);
+                document.querySelector("[data-bs-theme]").setAttribute('data-bs-theme', theme)
+                localStorage.setItem('theme', theme)
+                setTheme(theme)
+              })
+            })
+        }) */
 
     function toggletheme() {
       const theme = getPreferredTheme() === 'dark' ? 'light' : 'dark'
