@@ -1,5 +1,8 @@
 <?php
 
+define('VERSION', '0.1.0');
+
+
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
 function human_filesize($bytes, $decimals = 2): string
@@ -22,44 +25,66 @@ $path_is_dir = is_dir($local_path);
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Bootstrap demo</title>
+  <title>Dir Browser - <?= '/' . implode(separator: '/', array: $url_parts) ?></title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
-
-  <script async defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
-  <script async defer src="https://cdnjs.cloudflare.com/ajax/libs/turbolinks/5.0.0/turbolinks.min.js"></script>
-  <!-- integrity="sha512-ifx27fvbS52NmHNCt7sffYPtKIvIzYo38dILIVHQ9am5XGDQ2QjSXGfUZ54Bs3AXdVi7HaItdhAtdhKz8fOFrA==" -->
 </head>
 
-<body>
-  <h1><?= '/' . implode(separator: '/', array: $url_parts) ?></h1>
-
-  <?php if (!$path_is_dir) { ?>
-    <div class="alert alert-secondary" role="alert">
-      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-unknown" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-        <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
-        <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
-        <path d="M12 17v.01"></path>
-        <path d="M12 14a1.5 1.5 0 1 0 -1.14 -2.474"></path>
-      </svg>
-      Not Found
+<body class="d-flex flex-column min-vh-100">
+  <nav class="navbar navbar-expand-lg bg-body-tertiary mb-3 shadow-sm">
+    <div class="container-fluid">
+      <span class="navbar-brand"><?= '/' . implode(separator: '/', array: $url_parts) ?></span>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        </ul>
+        <div class="nav-item" data-color-toggler onclick="toggletheme()">
+          <a class="btn">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brightness-half" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <path d="M12 9a3 3 0 0 0 0 6v-6z"></path>
+              <path d="M6 6h3.5l2.5 -2.5l2.5 2.5h3.5v3.5l2.5 2.5l-2.5 2.5v3.5h-3.5l-2.5 2.5l-2.5 -2.5h-3.5v-3.5l-2.5 -2.5l2.5 -2.5z">
+              </path>
+            </svg>
+          </a>
+        </div>
+      </div>
     </div>
-  <?php } else { ?>
-    <div class="container">
+  </nav>
+
+
+  <div class="container pb-3">
+    <?php if (!$path_is_dir) { ?>
+      <div class="alert alert-secondary" role="alert">
+        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-unknown" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+          <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
+          <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
+          <path d="M12 17v.01"></path>
+          <path d="M12 14a1.5 1.5 0 1 0 -1.14 -2.474"></path>
+        </svg>
+        Not Found
+      </div>
+    <?php } else { ?>
       <div class="list-group">
         <?php
         foreach (($files = scandir($local_path)) as $file) {
           // always skip current folder '.' or parent folder '..' if current path is root
           if ($file === '.' || $file === '..' && count($url_parts) === 0) continue;
 
-          $url = '/' . implode(separator: '/', array: $url_parts) . (count($url_parts) !== 0 ? '/' : '') /* fixes // at root url */ . $file;
+          $url = '/' . implode(separator: '/', array: $url_parts) . (count($url_parts) !== 0 ? '/' : '') /* fixes // -> / at root url */ . $file;
 
           $file_size = human_filesize(filesize($local_path . '/' . $file));
 
           $is_dir = is_dir($local_path . '/' . $file);
 
-          $file_date = date('Y-m-d H:i:s', filemtime($local_path . '/' . $file));
+          $file_modified_date = date('Y-m-d H:i:s', filemtime($local_path . '/' . $file));
+
+          $file_type = mime_content_type($local_path . '/' . $file);
         ?>
+
+
           <a href="<?= $url ?>" class="list-group-item list-group-item-action">
             <?php if ($file === "..") { ?>
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-corner-left-up" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -78,15 +103,80 @@ $path_is_dir = is_dir($local_path);
                 <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
               </svg>
             <?php } ?>
-            <?= $file ?> <?= !$is_dir ? "(" . $file_size . ")" : "" ?> (<?= $file_date ?>)
+            <?= $file ?> <?= !$is_dir ? "(" . $file_size . ")" : "" ?> (<?= $file_modified_date ?>)
           </a>
         <?php
         }
         ?>
       </div>
-    </div>
-  <?php } ?>
+    <?php } ?>
+  </div>
 
+  <div class="bg-body-tertiary mt-auto">
+    <div class="container py-2 text-secondary text-center">
+      Powered by <a href="https://github.com/adrianschubek/dir-browser" class="text-decoration-none" target="_blank">adrianschubek/dir-browser</a> | Version <?= VERSION ?>
+    </div>
+  </div>
+
+
+  <script data-turbolinks-eval="false" async defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+  <script data-turbolinks-eval="false" async defer src="https://cdnjs.cloudflare.com/ajax/libs/turbolinks/5.0.0/turbolinks.min.js"></script>
+  <!-- integrity="sha512-ifx27fvbS52NmHNCt7sffYPtKIvIzYo38dILIVHQ9am5XGDQ2QjSXGfUZ54Bs3AXdVi7HaItdhAtdhKz8fOFrA==" -->
+  <script data-turbolinks-eval="false">
+    /*!
+     * Color mode toggler for Bootstrap's docs (https://getbootstrap.com/)
+     * Copyright 2011-2022 The Bootstrap Authors
+     * Licensed under the Creative Commons Attribution 3.0 Unported License.
+     */
+
+    // (() => {
+    const getPreferredTheme = () => {
+      if (localStorage.getItem('theme')) {
+        return localStorage.getItem('theme')
+      }
+
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    }
+
+    const setTheme = (theme) => {
+      if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.setAttribute('data-bs-theme', 'dark')
+      } else {
+        document.documentElement.setAttribute('data-bs-theme', theme)
+      }
+    }
+
+    setTheme(getPreferredTheme())
+
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (storedTheme !== 'light' || storedTheme !== 'dark') {
+        setTheme(getPreferredTheme())
+      }
+    })
+
+/*     window.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('[data-color-toggler]')
+        .forEach(toggle => {
+          toggle.addEventListener('click', () => {
+            const theme = getPreferredTheme() === 'dark' ? 'light' : 'dark'
+            console.log("click set to " + theme);
+            document.querySelector("[data-bs-theme]").setAttribute('data-bs-theme', theme)
+            localStorage.setItem('theme', theme)
+            setTheme(theme)
+          })
+        })
+    }) */
+
+    function toggletheme() {
+      const theme = getPreferredTheme() === 'dark' ? 'light' : 'dark'
+      console.log("click set to " + theme);
+      document.querySelector("[data-bs-theme]").setAttribute('data-bs-theme', theme)
+      localStorage.setItem('theme', theme)
+      setTheme(theme)
+    }
+
+    // })()
+  </script>
 </body>
 
 </html>

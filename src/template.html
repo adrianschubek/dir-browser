@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Bootstrap demo</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+</head>
+
+<body class="d-flex flex-column min-vh-100">
+  <nav class="navbar navbar-expand-lg bg-body-tertiary mb-3 shadow-sm">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">/foo/bar/baz/foobar/barfoo/alpha/beta</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <!--           <li class="nav-item">
+            <a class="nav-link" href="#">Link</a>
+          </li> -->
+          <!--   <li class="nav-item" data-color-toggler>
+            <a class="btn">
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-shadow" width="24" height="24"
+                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path>
+                <path d="M13 12h5"></path>
+                <path d="M13 15h4"></path>
+                <path d="M13 18h1"></path>
+                <path d="M13 9h4"></path>
+                <path d="M13 6h1"></path>
+              </svg>
+            </a>
+          </li> -->
+        </ul>
+        <div class="nav-item" data-color-toggler>
+          <a class="btn">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brightness-half" width="24"
+              height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+              stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <path d="M12 9a3 3 0 0 0 0 6v-6z"></path>
+              <path
+                d="M6 6h3.5l2.5 -2.5l2.5 2.5h3.5v3.5l2.5 2.5l-2.5 2.5v3.5h-3.5l-2.5 2.5l-2.5 -2.5h-3.5v-3.5l-2.5 -2.5l2.5 -2.5z">
+              </path>
+            </svg>
+          </a>
+        </div>
+        <!--  <form class="d-flex" role="search">
+          <div class="input-group">
+            <input class="form-control" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-primary" type="submit">Search</button>
+          </div>
+        </form> -->
+      </div>
+    </div>
+  </nav>
+
+
+  <div class="container pb-3">
+
+    <div class="alert alert-secondary" role="alert">
+      <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-unknown" width="24" height="24"
+        viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+        stroke-linejoin="round">
+        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+        <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
+        <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
+        <path d="M12 17v.01"></path>
+        <path d="M12 14a1.5 1.5 0 1 0 -1.14 -2.474"></path>
+      </svg>
+      Not Found
+    </div>
+
+    <div class="list-group">
+
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+<!--       <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a>
+      <a href="<?= $url ?>" class="list-group-item list-group-item-action">xxx</a> -->
+
+    </div>
+  </div>
+
+  <div class="bg-body-tertiary mt-auto">
+    <div class="container py-2 text-secondary text-center">
+      Powered by <a href="https://github.com/adrianschubek/dir-browser" class="text-decoration-none" target="_blank">dir-browser</a>
+    </div>
+  </div>
+
+
+  <script data-turbolinks-eval="false" async defer
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN"
+    crossorigin="anonymous"></script>
+  <script data-turbolinks-eval="false" async defer
+    src="https://cdnjs.cloudflare.com/ajax/libs/turbolinks/5.0.0/turbolinks.min.js"></script>
+  <!-- integrity="sha512-ifx27fvbS52NmHNCt7sffYPtKIvIzYo38dILIVHQ9am5XGDQ2QjSXGfUZ54Bs3AXdVi7HaItdhAtdhKz8fOFrA==" -->
+  <script data-turbolinks-eval="false">
+    /*!
+     * Color mode toggler for Bootstrap's docs (https://getbootstrap.com/)
+     * Copyright 2011-2022 The Bootstrap Authors
+     * Licensed under the Creative Commons Attribution 3.0 Unported License.
+     */
+
+    // (() => {
+    const getPreferredTheme = () => {
+      if (localStorage.getItem('theme')) {
+        return localStorage.getItem('theme')
+      }
+
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    }
+
+    const setTheme = (theme) => {
+      if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.setAttribute('data-bs-theme', 'dark')
+      } else {
+        document.documentElement.setAttribute('data-bs-theme', theme)
+      }
+    }
+
+    setTheme(getPreferredTheme())
+
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (storedTheme !== 'light' || storedTheme !== 'dark') {
+        setTheme(getPreferredTheme())
+      }
+    })
+
+    window.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('[data-color-toggler]')
+        .forEach(toggle => {
+          toggle.addEventListener('click', () => {
+            const theme = getPreferredTheme() === 'dark' ? 'light' : 'dark'
+            console.log("click set to " + theme);
+            document.querySelector("[data-bs-theme]").setAttribute('data-bs-theme', theme)
+            localStorage.setItem('theme', theme)
+            setTheme(theme)
+          })
+        })
+    })
+    // })()
+  </script>
+</body>
+
+</html>
