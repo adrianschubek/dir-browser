@@ -113,22 +113,13 @@ if ($path_is_dir) {
         Not Found<br>
         <a class="btn btn-outline-secondary mt-2" href="/">Back to Home</a>
       </div>
-    <?php } elseif (count($sorted_files) === 0 && (count($sorted_folders) === 0 || count($sorted_folders) === 1 && $sorted_folders[0]->name === "..")) { ?>
-      <div class="alert alert-secondary text-center" role="alert">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folder-off" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-          <path d="M3 3l18 18"></path>
-          <path d="M19 19h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 1.172 -1.821m3.828 -.179h1l3 3h7a2 2 0 0 1 2 2v8"></path>
-        </svg>
-        Empty Folder<br>
-        <a class="btn btn-outline-secondary mt-2" href="/">Back to Home</a>
-      </div>
+
     <?php } else { ?>
       <div class="list-group">
         <?php
         foreach ($sorted as $file) {
         ?>
-          <a href="<?= $file->url ?>" class="list-group-item list-group-item-action">
+          <a href="<?= $file->url ?>" class="list-group-item list-group-item-action d-flex gap-2">
             <?php if ($file->name === "..") { ?>
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-corner-left-up" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -146,11 +137,28 @@ if ($path_is_dir) {
                 <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
               </svg>
             <?php } ?>
-            <?= $file->name ?> <?= !$file->is_dir ? "(" . $file->size . ")" : "" ?> (<?= $file->modified_date ?>)
+            <?= $file->name ?>
+            <span class="ms-auto">
+              <?= !$file->is_dir ? $file->size : "" ?>
+            </span>
+            <span>
+              <?= $file->modified_date ?>
+            </span>
           </a>
         <?php
         }
         ?>
+
+        <?php if (count($sorted_files) === 0 && (count($sorted_folders) === 0 || count($sorted_folders) === 1 && $sorted_folders[0]->name === "..")) { ?>
+          <div class="list-group-item bg-body-tertiary text-center" role="alert">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folder-off" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+              <path d="M3 3l18 18"></path>
+              <path d="M19 19h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 1.172 -1.821m3.828 -.179h1l3 3h7a2 2 0 0 1 2 2v8"></path>
+            </svg>
+            Empty Folder
+          </div>
+        <?php } ?>
       </div>
     <?php } ?>
   </div>
