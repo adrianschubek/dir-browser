@@ -30,6 +30,9 @@ class File
 /* @var array<File> */
 $sorted = [];
 
+$total_items = 0;
+$total_size = 0;
+
 // local path exists
 if ($path_is_dir) {
   $sorted_files = [];
@@ -40,7 +43,7 @@ if ($path_is_dir) {
 
     $url = '/' . implode(separator: '/', array: $url_parts) . (count($url_parts) !== 0 ? '/' : '') /* fixes // -> / at root url */ . $file;
 
-    $file_size = human_filesize(filesize($local_path . '/' . $file));
+    $file_size = filesize($local_path . '/' . $file);
 
     $is_dir = is_dir($local_path . '/' . $file);
 
@@ -51,7 +54,7 @@ if ($path_is_dir) {
     $item = new File();
     $item->name = $file;
     $item->url = $url;
-    $item->size = $file_size;
+    $item->size = human_filesize($file_size);
     $item->is_dir = $is_dir;
     $item->modified_date = $file_modified_date;
     $item->type = $file_type;
@@ -60,6 +63,10 @@ if ($path_is_dir) {
     } else {
       array_push($sorted_files, $item);
     }
+
+    // don't count parent folder
+    if ($file !== "..") $total_items++;
+    $total_size += $file_size;
   }
 
   $sorted = array_merge($sorted_folders, $sorted_files);
@@ -165,7 +172,7 @@ if ($path_is_dir) {
 
   <div class="bg-body-tertiary mt-auto">
     <div class="container py-2 text-secondary text-center">
-      Powered by <a href="https://github.com/adrianschubek/dir-browser" class="text-decoration-none" target="_blank">adrianschubek/dir-browser</a> | Version <?= VERSION ?>
+      <?= $total_items ?> Items | <?= human_filesize($total_size) ?> | Powered by <a href="https://github.com/adrianschubek/dir-browser" class="text-decoration-none" target="_blank">adrianschubek/dir-browser</a> | Version <?= VERSION ?>
     </div>
   </div>
 
@@ -174,13 +181,6 @@ if ($path_is_dir) {
   <script data-turbolinks-eval="false" async defer src="https://cdnjs.cloudflare.com/ajax/libs/turbolinks/5.0.0/turbolinks.min.js"></script>
   <!-- integrity="sha512-ifx27fvbS52NmHNCt7sffYPtKIvIzYo38dILIVHQ9am5XGDQ2QjSXGfUZ54Bs3AXdVi7HaItdhAtdhKz8fOFrA==" -->
   <script data-turbolinks-eval="false">
-    /*!
-     * Color mode toggler for Bootstrap's docs (https://getbootstrap.com/)
-     * Copyright 2011-2022 The Bootstrap Authors
-     * Licensed under the Creative Commons Attribution 3.0 Unported License.
-     */
-
-    // (() => {
     const getPreferredTheme = () => {
       if (localStorage.getItem('theme')) {
         return localStorage.getItem('theme')
@@ -205,19 +205,6 @@ if ($path_is_dir) {
       }
     })
 
-    /*     window.addEventListener('DOMContentLoaded', () => {
-          document.querySelectorAll('[data-color-toggler]')
-            .forEach(toggle => {
-              toggle.addEventListener('click', () => {
-                const theme = getPreferredTheme() === 'dark' ? 'light' : 'dark'
-                console.log("click set to " + theme);
-                document.querySelector("[data-bs-theme]").setAttribute('data-bs-theme', theme)
-                localStorage.setItem('theme', theme)
-                setTheme(theme)
-              })
-            })
-        }) */
-
     function toggletheme() {
       const theme = getPreferredTheme() === 'dark' ? 'light' : 'dark'
       console.log("click set to " + theme);
@@ -225,8 +212,6 @@ if ($path_is_dir) {
       localStorage.setItem('theme', theme)
       setTheme(theme)
     }
-
-    // })()
   </script>
 </body>
 
