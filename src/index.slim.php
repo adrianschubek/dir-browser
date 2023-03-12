@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '0.1.0');
+define('VERSION', '0.1.0-slim');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -11,18 +11,9 @@ function human_filesize($bytes, $decimals = 2): string
   return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$sz[$factor];
 }
 
-function numsize($size, $round = 2)
-{
-  if ($size === 0) return '0';
-  $unit = ['', 'K', 'M', 'B', 'T'];
-  return round($size / pow(1000, ($i = floor(log($size, 1000)))), $round) . $unit[$i];
-}
-
-
 $url_parts = array_filter(explode(separator: '/', string: $_SERVER['REQUEST_URI']), fn ($part) => $part !== '');
 
-// die($_SERVER['REQUEST_URI']);
-$local_path = realpath(PUBLIC_FOLDER . $_SERVER['REQUEST_URI']);
+$local_path = PUBLIC_FOLDER . $_SERVER['REQUEST_URI'];
 
 $path_is_dir = is_dir($local_path);
 
@@ -33,7 +24,7 @@ class File
   public string $size;
   public bool $is_dir;
   public string $modified_date;
-  public int $dl_count;
+  public string $type;
 }
 
 /* @var array<File> */
@@ -44,12 +35,6 @@ $total_size = 0;
 
 // local path exists
 if ($path_is_dir) {
-
-  $redis = new Redis();
-  $redis->connect('127.0.0.1', 6379);
-
-  // TODO: refactor use MGET instead of loop GET
-
   $sorted_files = [];
   $sorted_folders = [];
   foreach (($files = scandir($local_path)) as $file) {
@@ -64,13 +49,15 @@ if ($path_is_dir) {
 
     $file_modified_date = date('Y-m-d H:i:s', filemtime($local_path . '/' . $file));
 
+    $file_type = mime_content_type($local_path . '/' . $file);
+
     $item = new File();
     $item->name = $file;
     $item->url = $url;
     $item->size = human_filesize($file_size);
     $item->is_dir = $is_dir;
     $item->modified_date = $file_modified_date;
-    $item->dl_count = !$is_dir ? $redis->get($url) : 0;
+    $item->type = $file_type;
     if ($is_dir) {
       array_push($sorted_folders, $item);
     } else {
@@ -83,24 +70,8 @@ if ($path_is_dir) {
   }
 
   $sorted = array_merge($sorted_folders, $sorted_files);
-} elseif (file_exists($local_path)) {
-  // local path is file. serve it directly using nginx
-
-  $relative_path = substr($local_path, strlen(PUBLIC_FOLDER));
-
-  // increment redis view counter
-  $redis = new Redis();
-  $redis->connect('127.0.0.1', 6379);
-  $redis->incr($relative_path);
-  // let nginx guess content type
-  header("Content-Type: ");
-  // let nginx handle file serving
-  header("X-Accel-Redirect: /__internal_public__" . $relative_path);
-  die();
-} else {
-  // local path does not exist
-  http_response_code(404);
 }
+
 ?>
 <!doctype html>
 <html lang="en" data-bs-theme="dark">
@@ -155,7 +126,7 @@ if ($path_is_dir) {
         <?php
         foreach ($sorted as $file) {
         ?>
-          <a href="<?= $file->url ?>" class="list-group-item list-group-item-action d-grid gap-2" style="grid-auto-flow: column dense;grid-template-columns: 20px auto 100px 70px 150px;">
+          <a href="<?= $file->url ?>" class="list-group-item list-group-item-action d-flex gap-2">
             <?php if ($file->name === "..") { ?>
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-corner-left-up" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -174,29 +145,10 @@ if ($path_is_dir) {
               </svg>
             <?php } ?>
             <?= $file->name ?>
-            <?php if (!$file->is_dir) { ?>
-              <span class="ms-auto d-none d-md-block border rounded-1 text-end px-1 <?= $file->dl_count === 0 ? "text-body-tertiary" : "" ?>">
-                <?= numsize($file->dl_count) ?>
-                <!-- <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye " width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                  <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
-                  <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"></path>
-                </svg> -->
-                <svg style="margin-top: -5px;" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                  <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
-                  <path d="M7 11l5 5l5 -5"></path>
-                  <path d="M12 4l0 12"></path>
-                </svg>
-              </span>
-              <span class="ms-auto d-none d-md-block border rounded-1 text-end px-1">
-                <?= $file->size ?>
-              </span>
-            <?php } else { /* dummy cols for folders */ ?>
-              <span></span>
-              <span></span>
-            <?php } ?>
-            <span class="d-none d-md-block">
+            <span class="ms-auto">
+              <?= !$file->is_dir ? $file->size : "" ?>
+            </span>
+            <span>
               <?= $file->modified_date ?>
             </span>
           </a>
