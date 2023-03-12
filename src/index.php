@@ -21,9 +21,10 @@ function numsize($size, $round = 2)
 
 $url_parts = array_filter(explode(separator: '/', string: $_SERVER['REQUEST_URI']), fn ($part) => $part !== '');
 
-// die($_SERVER['REQUEST_URI']);
+// get real path and check if accessible (open_basedir)
 $local_path = realpath(PUBLIC_FOLDER . $_SERVER['REQUEST_URI']);
 
+// check if path is dir
 $path_is_dir = is_dir($local_path);
 
 class File
@@ -56,7 +57,8 @@ if ($path_is_dir) {
     // always skip current folder '.' or parent folder '..' if current path is root
     if ($file === '.' || $file === '..' && count($url_parts) === 0) continue;
 
-    $url = '/' . implode(separator: '/', array: $url_parts) . (count($url_parts) !== 0 ? '/' : '') /* fixes // -> / at root url */ . $file;
+    // remove '/var/www/public' from path
+    $url = substr($local_path, strlen(PUBLIC_FOLDER)) . '/' . $file;
 
     $file_size = filesize($local_path . '/' . $file);
 
