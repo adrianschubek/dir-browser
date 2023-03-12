@@ -1,4 +1,10 @@
+<div align="center">
+
 ![](dir-browser.png)
+![](p1.png)
+![](p2.png)
+
+</div>
 
 Directory Browser / Lister drop-in
 
