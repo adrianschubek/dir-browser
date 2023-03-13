@@ -17,6 +17,7 @@ https://bp.adriansoftware.de
 - Extremly **fast** file serving through **nginx**
 - **Low memory** footprint (~30MB)
 - Easy setup using single **Docker** image
+- Secure by default. **Read-only** access
 
 ## Installation
 
