@@ -21,9 +21,18 @@ https://bp.adriansoftware.de
 
 ## Installation
 
+Use the prebuilt image from [Docker Hub](https://hub.docker.com/r/adrianschubek/dir-browser/tags).
+
+
 ```
 docker run -p 8080:80 -v /my/local/folder:/var/www/html/public:ro -v redissave:/var/lib/redis/ -it adrianschubek/dir-browser:dev
 ```
+
+where `/my/local/folder` is the local folder you want to serve.
+
+Access the directory browser at `http://localhost:8080`.
+
+
 
 ## Roadmap
 - [ ] Password protection per file/folder
