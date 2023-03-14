@@ -18,8 +18,6 @@ RUN apk add --no-cache nginx
 
 RUN apk add --no-cache supervisor
 
-RUN apk add --no-cache curl
-
 COPY server/nginx/nginx.conf /etc/nginx/nginx.conf
 
 COPY server/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
