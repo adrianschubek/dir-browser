@@ -12,12 +12,14 @@ https://bp.adriansoftware.de
 
 ## Features
 - **Download count** for all files
-- File stats like modification dates and sizes
-- Light and Darkmode
+- Secure by default. **Read-only** access
 - Extremly **fast** file serving through **nginx**
 - **Low memory** footprint (~30MB)
+- Light and Darkmode
 - Easy setup using single **Docker** image
-- Secure by default. **Read-only** access
+- File stats like modification dates, sizes and hashes*
+- **Responsive** design for mobile devices and desktop
+- **Password protection** for files and folders*
 
 ## Installation
 
