@@ -39,6 +39,7 @@ Access the directory browser at `http://localhost:8080`.
 ## Roadmap
 - [ ] Password protection per file/folder
 - [ ] File hashes
+- [ ] i18n: more languages
 
 <!-- Directory Browser / Lister drop-in
 
