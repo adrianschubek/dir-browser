@@ -17,9 +17,9 @@ https://bp.adriansoftware.de
 - **Low memory** footprint (~30MB)
 - Light and Darkmode
 - Easy setup using single **Docker** image
-- File stats like modification dates, sizes and hashes*
+- File stats like modification dates, sizes and hashes
 - **Responsive** design for mobile devices and desktop
-- **Password protection** for files and folders*
+<!-- - **Password protection** for files and folders -->
 
 ## Installation
 
