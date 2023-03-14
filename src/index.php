@@ -112,6 +112,19 @@ if ($path_is_dir) {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dir Browser - <?= '/' . implode(separator: '/', array: $url_parts) ?></title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+  <style>
+    .item {
+      grid-auto-flow: column dense;
+      grid-template-columns: 20px auto 100px 70px 150px;
+    }
+
+    @media screen and (max-width: 768px) {
+      .item {
+        grid-auto-flow: column dense;
+        grid-template-columns: 20px auto 0 0 0;
+      }
+    }
+  </style>
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -157,7 +170,7 @@ if ($path_is_dir) {
         <?php
         foreach ($sorted as $file) {
         ?>
-          <a href="<?= $file->url ?>" class="list-group-item list-group-item-action d-grid gap-2" style="grid-auto-flow: column dense;grid-template-columns: 20px auto 100px 70px 150px;">
+          <a href="<?= $file->url ?>" class="list-group-item list-group-item-action d-grid gap-2 item">
             <?php if ($file->name === "..") { ?>
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-corner-left-up" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>

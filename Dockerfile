@@ -20,10 +20,6 @@ RUN apk add --no-cache supervisor
 
 RUN apk add --no-cache curl
 
-RUN curl -fsSL https://github.com/adrianschubek/utpp/releases/download/0.1.2/utpp-alpine-x64 -o /usr/local/bin/utpp
-
-RUN chmod +x /usr/local/bin/utpp
-
 COPY server/nginx/nginx.conf /etc/nginx/nginx.conf
 
 COPY server/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
