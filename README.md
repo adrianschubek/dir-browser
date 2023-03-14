@@ -30,7 +30,7 @@ Use the prebuilt image from [Docker Hub](https://hub.docker.com/r/adrianschubek/
 docker run -p 8080:80 -v /my/local/folder:/var/www/html/public:ro -v redissave:/var/lib/redis/ -it adrianschubek/dir-browser:dev
 ```
 
-where `/my/local/folder` is the local folder you want to serve.
+where `/my/local/folder` is the local folder you want to serve and `8080` is the port you want to use.
 
 Access the directory browser at `http://localhost:8080`.
 
