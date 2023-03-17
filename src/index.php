@@ -35,6 +35,11 @@ class File
   public bool $is_dir;
   public string $modified_date;
   public int $dl_count;
+
+  public function __toString(): string
+  {
+    return $this->name;
+  }
 }
 
 /* @var array<File> */
@@ -84,8 +89,8 @@ if ($path_is_dir) {
     $total_size += $file_size;
   }
 
-  natsort($sorted_folders);
-  natsort($sorted_files);
+  natcasesort($sorted_folders);
+  natcasesort($sorted_files);
   $sorted = array_merge($sorted_folders, $sorted_files);
 } elseif (file_exists($local_path)) {
   // local path is file. serve it directly using nginx
