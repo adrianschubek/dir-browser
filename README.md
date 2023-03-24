@@ -76,7 +76,7 @@ TODO
 TODO
 </details>
 
-Also make sure to run the container with the `--restart always` flag to ensure that the container is always running in case of a host reboot.
+Also make sure to run the container with the `--restart always` flag to ensure that the container is always running even after a reboot.
 
 ## Roadmap
 - [ ] Password protection per file/folder
