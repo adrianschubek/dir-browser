@@ -73,9 +73,9 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       // Replace with your project's social card
-      image: 'img/utpp.png',
+      image: 'img/dir-browser.png',
       navbar: {
-        title: 'utpp',
+        title: 'dir-browser',
         logo: {
           alt: 'My Site Logo',
           src: 'img/logo.svg',
@@ -93,7 +93,7 @@ const config = {
             position: 'right',
           },
           {
-            href: 'https://github.com/adrianschubek/utpp',
+            href: 'https://github.com/adrianschubek/dir-browser',
             label: 'GitHub',
             position: 'right',
           },
