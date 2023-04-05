@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '1.0.0');
+define('VERSION', '1.0.1');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
