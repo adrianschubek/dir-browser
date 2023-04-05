@@ -12,10 +12,11 @@ Files are tracked based on their (full) file path. Therefore renaming a file wil
 :::info
 This feature is **enabled** by default. 
 
-To disable it, set the environment variable `DOWNLOAD_COUNT` to `false` when starting the container.
-For example: 
+To disable it, set the environment variable `NO_DL_COUNT` when starting the container. 
+This will also disable Redis completely (and save some processing power).
 ```
-docker run -d -p 8080:80 -v /my/local/folder:/var/www/html/public:ro -v redissave:/var/lib/redis/ -e DOWNLOAD_COUNT=false -it adrianschubek/dir-browser
+docker run -d -p 8080:80 -v /my/local/folder:/var/www/html/public:ro -e NO_DL_COUNT=1 -v redissave:/var/lib/redis/ -it adrianschubek/dir-browser
 ```
 :::
+
 

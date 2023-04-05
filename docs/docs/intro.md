@@ -5,7 +5,8 @@ slug: /
 
 # 👋 Welcome
 
-![](/img/dir-browser.png)
+![](/img/p1.png)
+<!-- ![](/img/dir-browser.png) -->
 
 ## Demo
 
@@ -25,7 +26,8 @@ https://bp.adriansoftware.de
 <details>
 <summary>Screenshots</summary>
 
-![](/img/p1.png)
+![](/img/dir-browser.png)
+<!-- ![](/img/p1.png) -->
 ![](/img/p2.png)
 
 </details>

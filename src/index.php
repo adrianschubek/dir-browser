@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '0.1.0');
+define('VERSION', '1.0.0');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -17,7 +17,6 @@ function numsize($size, $round = 2)
   $unit = ['', 'K', 'M', 'B', 'T'];
   return round($size / pow(1000, ($i = floor(log($size, 1000)))), $round) . $unit[$i];
 }
-
 
 $url_parts = array_filter(explode(separator: '/', string: $_SERVER['REQUEST_URI']), fn ($part) => $part !== '');
 
@@ -50,10 +49,10 @@ $total_size = 0;
 
 // local path exists
 if ($path_is_dir) {
-
+  $[if `!process.env.NO_DL_COUNT`]$
   $redis = new Redis();
   $redis->connect('127.0.0.1', 6379);
-
+  $[end]$
   // TODO: refactor use MGET instead of loop GET
 
   $sorted_files = [];
@@ -77,7 +76,7 @@ if ($path_is_dir) {
     $item->size = human_filesize($file_size);
     $item->is_dir = $is_dir;
     $item->modified_date = $file_modified_date;
-    $item->dl_count = !$is_dir ? $redis->get($url) : 0;
+    $item->dl_count =  $[if `!process.env.NO_DL_COUNT`]$!$is_dir ? $redis->get($url) :$[end]$ 0;
     if ($is_dir) {
       array_push($sorted_folders, $item);
     } else {
@@ -91,6 +90,10 @@ if ($path_is_dir) {
 
   natcasesort($sorted_folders);
   natcasesort($sorted_files);
+  $[if `!process.env.REVERSE_SORT`]$
+  $sorted_folders = array_reverse($sorted_folders);
+  $sorted_files = array_reverse($sorted_files);
+  $[end]$
   $sorted = array_merge($sorted_folders, $sorted_files);
 } elseif (file_exists($local_path)) {
   // local path is file. serve it directly using nginx
@@ -98,9 +101,11 @@ if ($path_is_dir) {
   $relative_path = substr($local_path, strlen(PUBLIC_FOLDER));
 
   // increment redis view counter
+  $[if `!process.env.NO_DL_COUNT`]$
   $redis = new Redis();
   $redis->connect('127.0.0.1', 6379);
   $redis->incr($relative_path);
+  $[end]$
   // let nginx guess content type
   header("Content-Type: ");
   // let nginx handle file serving
@@ -197,6 +202,7 @@ if ($path_is_dir) {
             <?php } ?>
             <?= $file->name ?>
             <?php if (!$file->is_dir) { ?>
+              $[if `!process.env.NO_DL_COUNT`]$
               <span class="ms-auto d-none d-md-block border rounded-1 text-end px-1 <?= $file->dl_count === 0 ? "text-body-tertiary" : "" ?>">
                 <?= numsize($file->dl_count) ?>
                 <!-- <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye " width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -211,6 +217,9 @@ if ($path_is_dir) {
                   <path d="M12 4l0 12"></path>
                 </svg>
               </span>
+              $[else]$
+              <span></span>
+              $[end]$
               <span class="ms-auto d-none d-md-block border rounded-1 text-end px-1">
                 <?= $file->size ?>
               </span>
@@ -242,7 +251,7 @@ if ($path_is_dir) {
 
   <div class="bg-body-tertiary mt-auto">
     <div class="container py-2 text-secondary text-center">
-      <?= $total_items ?> Items | <?= human_filesize($total_size) ?> | Powered by <a href="https://github.com/adrianschubek/dir-browser" class="text-decoration-none" target="_blank">adrianschubek/dir-browser</a> | Version <?= VERSION ?>
+      <?= $total_items ?> Items | <?= human_filesize($total_size) ?> | Powered by <a href="https://github.com/adrianschubek/dir-browser" class="text-decoration-none" target="_blank">adrianschubek/dir-browser</a> <span style="opacity: 0.8;"><?= VERSION ?></span>
     </div>
   </div>
 

@@ -18,6 +18,10 @@ RUN apk add --no-cache nginx
 
 RUN apk add --no-cache supervisor
 
+RUN apk add --no-cache curl \
+  && curl -fSsL https://github.com/adrianschubek/utpp/releases/latest/download/utpp-alpine -o /usr/local/bin/utpp && chmod +x /usr/local/bin/utpp \
+  && apk del curl
+
 COPY server/nginx/nginx.conf /etc/nginx/nginx.conf
 
 COPY server/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
@@ -30,7 +34,11 @@ COPY server/php/php.ini /usr/local/etc/php/conf.d/custom.ini
 
 COPY src/index.php /var/www/html
 
+COPY src/init.sh /init.sh
+
+RUN chmod +x /init.sh
+
 EXPOSE 8080
 
 # Let supervisord start nginx & php-fpm
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD ["/init.sh"]
