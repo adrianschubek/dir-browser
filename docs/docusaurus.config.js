@@ -93,6 +93,11 @@ const config = {
             position: 'right',
           },
           {
+            href: 'https://bp.adriansoftware.de',
+            label: 'Demo',
+            position: 'right',
+          },
+          {
             href: 'https://github.com/adrianschubek/dir-browser',
             label: 'GitHub',
             position: 'right',
