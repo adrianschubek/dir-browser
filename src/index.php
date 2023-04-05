@@ -90,7 +90,7 @@ if ($path_is_dir) {
 
   natcasesort($sorted_folders);
   natcasesort($sorted_files);
-  $[if `!process.env.REVERSE_SORT`]$
+  $[if `process.env.REVERSE_SORT`]$
   $sorted_folders = array_reverse($sorted_folders);
   $sorted_files = array_reverse($sorted_files);
   $[end]$
