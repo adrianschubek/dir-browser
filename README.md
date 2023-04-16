@@ -1,6 +1,8 @@
 <div align="center">
 
-![](dir-browser.png)
+# Directory Browser
+_Easiest way to browse your files and folders on the web._
+<!-- ![](dir-browser.png) -->
 ![](p1.png)
 ![](p2.png)
 
