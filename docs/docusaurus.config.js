@@ -53,13 +53,13 @@ const config = {
 
           sidebarCollapsible: false,
 
-         /*  lastVersion: 'current',
+          lastVersion: 'current',
           versions: {
             current: {
-              label: '0.3.x',
-              path: '0.3.x',
+              label: '1.x',
+              path: '/',
             },
-          }, */
+          },
         },
         blog: false,
         theme: {

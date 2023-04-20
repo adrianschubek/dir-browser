@@ -68,7 +68,7 @@ if ($path_is_dir) {
 
     $is_dir = is_dir($local_path . '/' . $file);
 
-    $file_modified_date = date('Y-m-d H:i:s', filemtime($local_path . '/' . $file));
+    $file_modified_date = date('${{`process.env.DATE_FORMAT ?? 'Y-m-d H:i:s'`}}$', filemtime($local_path . '/' . $file));
 
     $item = new File();
     $item->name = $file;
@@ -247,6 +247,12 @@ if ($path_is_dir) {
         <?php } ?>
       </div>
     <?php } ?>
+  </div>
+
+  <div class="container pb-3">
+    <div class="card p-3">
+      h
+    </div>
   </div>
 
   <div class="bg-body-tertiary mt-auto">
