@@ -19,8 +19,14 @@ RUN apk add --no-cache nginx
 RUN apk add --no-cache supervisor
 
 RUN apk add --no-cache curl \
-  && curl -fSsL https://github.com/adrianschubek/utpp/releases/latest/download/utpp-alpine -o /usr/local/bin/utpp && chmod +x /usr/local/bin/utpp \
+  && curl -fSsL https://github.com/adrianschubek/utpp/releases/latest/download/utpp-alpine -o /usr/local/bin/utpp && chmod +x /usr/local/bin/utpp\
   && apk del curl
+
+RUN apk add --no-cache composer
+
+WORKDIR /var/www/html
+
+RUN composer require "league/commonmark:^2.4"
 
 COPY server/nginx/nginx.conf /etc/nginx/nginx.conf
 

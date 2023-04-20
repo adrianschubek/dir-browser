@@ -18,9 +18,28 @@ Access the directory browser at `http://localhost:8080`.
 Also make sure to run the container with the `--restart always` flag to ensure that the container is always running even after a system reboot.
 :::
 
-### Multiple instances
+## Docker Compose
 
-Make sure to change the _port_ when running multiple instances.
+You can also use [Docker Compose](https://docs.docker.com/compose/) to run the container.
+
+```yaml title="docker-compose.yml"
+version: 3
+services:
+  dir-browser:
+    image: adrianschubek/dir-browser:latest
+    restart: always
+    ports:
+      - 8080:80
+    volumes:
+      - /my/local/folder:/var/www/html/public:ro
+      - redissave:/var/lib/redis/
+    environment: # here you can set configuration options (see configuration section for more details)
+      - NO_DL_COUNT=false
+```
+
+```
+docker compose up -d
+```
 
 ## Updating
 

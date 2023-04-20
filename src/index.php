@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '1.0.1');
+define('VERSION', '1.1.0');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -249,11 +249,53 @@ if ($path_is_dir) {
     <?php } ?>
   </div>
 
+  $[if `!process.env.NO_README_RENDER`]$
+  <?php
+    // check if readme exists
+    foreach ($sorted_files as $file) {
+      if (strtolower($file->name) === "readme.md") {
+        $readme = $file;
+        break;
+      }
+    }
+
+    require_once __DIR__ . "/vendor/autoload.php";
+    use League\CommonMark\Environment\Environment;
+    use League\CommonMark\Extension\Autolink\AutolinkExtension;
+    use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
+    use League\CommonMark\Extension\DisallowedRawHtml\DisallowedRawHtmlExtension;
+    use League\CommonMark\Extension\Strikethrough\StrikethroughExtension;
+    use League\CommonMark\Extension\Table\TableExtension;
+    use League\CommonMark\Extension\TaskList\TaskListExtension;
+    use League\CommonMark\MarkdownConverter;
+
+    if ($readme) {
+      // Define your configuration, if needed
+      $config = [];
+
+      // Configure the Environment with all the CommonMark parsers/renderers
+      $environment = new Environment($config);
+      $environment->addExtension(new CommonMarkCoreExtension());
+
+      // Remove any of the lines below if you don't want a particular feature
+      $environment->addExtension(new AutolinkExtension());
+      ${{`process.env.ALLOW_RAW_HTML ? "$environment->addExtension(new DisallowedRawHtmlExtension());" : ""`}}$ 
+      $environment->addExtension(new StrikethroughExtension());
+      $environment->addExtension(new TableExtension());
+      $environment->addExtension(new TaskListExtension());
+      $converter = new MarkdownConverter($environment);
+
+      $readme_render = $converter->convert(file_get_contents(PUBLIC_FOLDER . $readme->url));
+  ?>
   <div class="container pb-3">
     <div class="card p-3">
-      h
+      <?= $readme_render ?>
     </div>
   </div>
+  <?php 
+  }
+  ?>
+  $[end]$
 
   <div class="bg-body-tertiary mt-auto">
     <div class="container py-2 text-secondary text-center">
