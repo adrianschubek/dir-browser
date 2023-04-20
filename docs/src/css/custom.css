@@ -45,7 +45,7 @@ token-line {
 .menu__link--active {
   background: #2c2c2c !important;
   border-width: 3px;
-  border-style: none none none dotted;
+  border-style: none none none groove;
 }
 
 /* You can override the default Infima variables here. */
