@@ -32,6 +32,6 @@ Find the container ID using `docker ps`.
 
 ```
 docker pull adrianschubek/dir-browser
-docker stop <containerID>
+docker rm -f <containerID>
 docker run -d -p 8080:80 -v /my/local/folder:/var/www/html/public:ro -v redissave:/var/lib/redis/ -it adrianschubek/dir-browser
 ```
