@@ -16,6 +16,7 @@ https://bp.adriansoftware.de
 - **Download count** for all files
 - Secure by default. **Read-only** access
 - Extremly **fast** file serving through **nginx**
+- **README** markdown rendering support
 - **Low memory** footprint (~10MB)
 - Light and **Darkmode**
 - Easy setup using single **Docker** image
