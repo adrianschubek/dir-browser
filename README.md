@@ -29,6 +29,7 @@ https://bp.adriansoftware.de
 - Light and **Darkmode**
 - Easy setup using single **Docker** image
 - **Responsive** design for mobile devices and desktop
+- Easily configurable using **environment variables**
 - File stats like modification dates, sizes and hashes
 - **arm64** support
 
