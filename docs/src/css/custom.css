@@ -85,3 +85,31 @@ token-line {
   --ifm-color-primary-lightest: #ffffff;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
 }
+
+.code-block-red-line {
+  background-color: #af272b8a;
+  display: block;
+  margin: 0 calc(-1 * var(--ifm-pre-padding));
+  padding: 0 var(--ifm-pre-padding);
+  border-left: 9px solid #E53935;
+}
+
+.code-block-red-line::before {
+  content: "-";
+  position: absolute;
+  left: 1px;
+}
+
+.code-block-green-line {
+  background-color: #1B5E20;
+  display: block;
+  margin: 0 calc(-1 * var(--ifm-pre-padding));
+  padding: 0 var(--ifm-pre-padding);
+  border-left: 9px solid #4CAF50;
+}
+
+.code-block-green-line::before {
+  content: "+";
+  position: absolute;
+  left: 1px;
+}

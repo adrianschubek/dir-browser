@@ -37,9 +37,17 @@ services:
       - NO_DL_COUNT=false
 ```
 
+:::info
+If you are using a [reverse proxy](/getting-started/reverse-proxy) you may want the dir-browser to be accessible *only* from the reverse proxy. 
+In this case you should modify the `ports` section and add `127.0.0.1` before the port number.
+```yaml
+    ports: 
+    // red-next-line
+     - 8080:80
+    // green-next-line
+     - 127.0.0.1:8080:80
 ```
-docker compose up -d
-```
+:::
 
 ## Updating
 
