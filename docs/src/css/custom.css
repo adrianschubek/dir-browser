@@ -113,3 +113,9 @@ token-line {
   position: absolute;
   left: 1px;
 }
+
+figcaption {
+  text-align: center;
+  color: #828282;
+  margin-top: -1em;
+}
