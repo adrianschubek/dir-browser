@@ -84,6 +84,8 @@ token-line {
   --ifm-color-primary-lighter: #ffffff;
   --ifm-color-primary-lightest: #ffffff;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.3);
+
+  --ifm-color-gray-100: var(--ifm-color-gray-900);
 }
 
 .code-block-red-line {
@@ -118,4 +120,8 @@ figcaption {
   text-align: center;
   color: #828282;
   margin-top: -1em;
+}
+
+xxx {
+  background: var(--ifm-color-gray-900);
 }

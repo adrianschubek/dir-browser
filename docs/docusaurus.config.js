@@ -8,7 +8,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/oceanicNext');
 const config = {
   title: 'dir-browser',
   tagline: 'Dir Browser',
-  favicon: 'img/favicon.ico',
+  // favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
   url: 'https://dir.adriansoftware.de',
@@ -76,17 +76,18 @@ const config = {
       image: 'img/dir-browser.png',
       navbar: {
         title: 'dir-browser',
-        logo: {
+        /* logo: {
           alt: 'My Site Logo',
-          src: 'img/logo.svg',
-        },
+          // src: 'img/logo.svg',
+          src:'img/dir-browser.png'
+        }, */
         items: [
-          /*   {
-              type: 'docSidebar',
-              sidebarId: 'tutorialSidebar',
-              position: 'left',
-              label: 'Tutorial',
-            },
+          {
+            type: 'docSidebar',
+            sidebarId: 'tutorialSidebar',
+            position: 'left',
+            label: 'Docs',
+          }, /*
             { to: '/blog', label: 'Blog', position: 'left' }, */
           {
             type: 'docsVersionDropdown',
@@ -162,7 +163,7 @@ const config = {
           {
             className: 'theme-code-block-highlighted-line',
             line: 'highlight-next-line',
-            block: {start: 'highlight-start', end: 'highlight-end'},
+            block: { start: 'highlight-start', end: 'highlight-end' },
           },
           {
             className: 'code-block-red-line',
