@@ -12,7 +12,7 @@ _Easiest way to browse your files and folders on the web._
 
 <h2 align="center">
 
-  Visit [dir.adriansoftware.de](https://dir.adriansoftware.de) for docs, guides, API & more! 
+  Visit [dir.adriansoftware.de](https://dir.adriansoftware.de) for documentation & more! 
 
 </h2>
 
