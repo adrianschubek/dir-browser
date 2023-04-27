@@ -12,7 +12,7 @@ import CodeBlock from '@theme/CodeBlock';
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
   return (
-    <header /* style={{background: "#2e4385"}} */ className={clsx('hero hero--white', styles.heroBanner)}>
+    <header /* style={{background: "#2e4385"}} */ className={clsx('hero hero--white bg-1', styles.heroBanner)}>
       {/* <div className="container">
         <h1 className="hero__title">{siteConfig.title}</h1>
         <p className="hero__subtitle">{siteConfig.tagline}</p>
@@ -25,7 +25,7 @@ function HomepageHeader() {
         </div>
       </div> */}
 
-      <div className="container">
+      <div className="container" style={{color:"white"}}>
         <div className="row">
           <div className="col col--6">
             <img style={{ boxShadow: "0px 0px 10px 0px #8585857d" }} src="/img/z1.png" />
@@ -36,8 +36,8 @@ function HomepageHeader() {
             <p>Directory Listing in a single Docker Image</p>
             <div className={styles.buttons} style={{marginBottom: "1em"}}>
               <Link
-                className="button button--secondary button--outline button--lg"
-                style={{ marginRight: "1em" }}
+                className="button button--info button--outline button--lg"
+                style={{ marginRight: "1em", color: "white" }}
                 to="https://bp.adriansoftware.de">
                 Demo
               </Link>
