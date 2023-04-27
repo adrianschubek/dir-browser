@@ -1,6 +1,7 @@
 import React from "react";
 import clsx from "clsx";
 import styles from "./styles.module.css";
+import Checkmark from "../Checkmark";
 
 export default function HomepageFeatures(): JSX.Element {
   return (
@@ -12,7 +13,7 @@ export default function HomepageFeatures(): JSX.Element {
               <img style={{ maxHeight: "100px" }} src="/img/docker.webp"></img>
             </div>
             <div className="text--center padding-horiz--md">
-              <h3>Easy Docker deployment✅</h3>
+              <h3>Easy Docker deployment<Checkmark/></h3>
               <p>
                 Application is self-contained in a single image and ready to be
                 deployed.
@@ -24,7 +25,7 @@ export default function HomepageFeatures(): JSX.Element {
               <img style={{ maxHeight: "100px" }} src="/img/counter.svg"></img>
             </div>
             <div className="text--center padding-horiz--md">
-              <h3>Download Counter✅</h3>
+              <h3>Download Counter<Checkmark/></h3>
               <p>
                 Tracks the number of times a file has been downloaded and stores
                 it in a <i>Redis</i> database.
@@ -36,7 +37,7 @@ export default function HomepageFeatures(): JSX.Element {
               <img style={{ maxHeight: "100px" }} src="/img/secure.svg"></img>
             </div>
             <div className="text--center padding-horiz--md">
-              <h3>Secure by default✅</h3>
+              <h3>Secure by default<Checkmark/></h3>
               <p>
                 Strict <b>Read-only</b> access to files and folders.
               </p>
@@ -49,7 +50,7 @@ export default function HomepageFeatures(): JSX.Element {
               <img style={{ maxHeight: "100px" }} src="/img/readme.svg"></img>
             </div>
             <div className="text--center padding-horiz--md">
-              <h3>README Markdown Rendering✅</h3>
+              <h3>README Markdown Rendering<Checkmark/></h3>
               <p>Automatically renders Markdown README files.</p>
             </div>
           </div>
@@ -58,7 +59,7 @@ export default function HomepageFeatures(): JSX.Element {
               <img style={{ maxHeight: "100px" }} src="/img/settings.svg"></img>
             </div>
             <div className="text--center padding-horiz--md">
-              <h3>Highly configurable✅</h3>
+              <h3>Highly configurable<Checkmark/></h3>
               <p>
                 <b>Customize</b> the application to your needs by using
                 environment variables.
@@ -73,7 +74,7 @@ export default function HomepageFeatures(): JSX.Element {
               ></img>
             </div>
             <div className="text--center padding-horiz--md">
-              <h3>Fast file serving✅</h3>
+              <h3>Fast file serving<Checkmark/></h3>
               <p>
                 NGINX, a high performance reverse proxy, handles all file
                 serving to maximize performance.
