@@ -7,6 +7,7 @@ import HomepageFeatures from '@site/src/components/HomepageFeatures';
 
 import styles from './index.module.css';
 
+import CodeBlock from '@theme/CodeBlock';
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
@@ -33,7 +34,7 @@ function HomepageHeader() {
             <h1 className="hero__title">{siteConfig.title}</h1>
             <p className="hero__subtitle">Browse your files and folders on the web</p>
             <p>Directory Listing in a single Docker Image</p>
-            <div className={styles.buttons}>
+            <div className={styles.buttons} style={{marginBottom: "1em"}}>
               <Link
                 className="button button--secondary button--outline button--lg"
                 style={{ marginRight: "1em" }}
@@ -46,6 +47,10 @@ function HomepageHeader() {
                 Get started 🚀
               </Link>
             </div>
+
+            <CodeBlock className="xxx">
+            docker run -d -p 8080:80 -v /my/local/folder:/var/www/html/public:ro -v redissave:/var/lib/redis/ -it adrianschubek/dir-browser
+            </CodeBlock>
 
           </div>
         </div>
