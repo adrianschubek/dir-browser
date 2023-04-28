@@ -82,6 +82,41 @@ export default function HomepageFeatures(): JSX.Element {
             </div>
           </div>
         </div>
+        <div className="row">
+          <div className={clsx("col col--4")}>
+            <div className="text--center">
+              <img style={{ maxHeight: "100px" }} src="/img/auth.svg"></img>
+            </div>
+            <div className="text--center padding-horiz--md">
+              <h3>Password Protection<Checkmark/></h3>
+              <p>
+                Want to share files with a small group of people? Simply protect everything with a password.
+              </p>
+            </div>
+          </div>
+          <div className={clsx("col col--4")}>
+            <div className="text--center">
+              <img style={{ maxHeight: "100px" }} src="/img/ignore.svg"></img>
+            </div>
+            <div className="text--center padding-horiz--md">
+              <h3>Hide files & folders<Checkmark/></h3>
+              <p>
+                Want to hide your dot files? Hide old documents? You can do it.
+              </p>
+            </div>
+          </div>
+          <div className={clsx("col col--4")}>
+            <div className="text--center">
+              <img style={{ maxHeight: "100px" }} src="/img/mit.svg"></img>
+            </div>
+            <div className="text--center padding-horiz--md">
+              <h3>MIT License<Checkmark/></h3>
+              <p>
+                Open Source and MIT licensed.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
   );
