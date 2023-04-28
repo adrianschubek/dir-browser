@@ -53,8 +53,3 @@ server {
 ```
 
 </details>
-
-<details>
-<summary>traefik</summary>
-TODO
-</details>

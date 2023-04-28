@@ -35,7 +35,16 @@ https://bp.adriansoftware.de
 
 <!-- 
 v1.1
-add reaedme markdown thephpleague/commonmark renderer !!cache!!
-fix santiaizte inout url 
-+ themes bootswatch
+  add reaedme markdown thephpleague/commonmark renderer !!cache!!
+  fix santiaizte inout url 
+
+v1.2
+  add ignore pattern
+  add remove attribution option
+  add password protection
+ 
+tbd
+  add file stats
+  themes bootswatch
+
 -->

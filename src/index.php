@@ -1,14 +1,14 @@
 <?php
 
-define('VERSION', '1.1.0');
+define('VERSION', '1.2.0');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
 function human_filesize($bytes, $decimals = 2): string
 {
-  $sz = 'BKMGTP';
+  $sz = ' KMGTP';
   $factor = floor((strlen($bytes) - 1) / 3);
-  return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$sz[$factor];
+  return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$sz[$factor] . "B";
 }
 
 function numsize($size, $round = 2)
@@ -19,6 +19,8 @@ function numsize($size, $round = 2)
 }
 
 $url_parts = array_filter(explode(separator: '/', string: $_SERVER['REQUEST_URI']), fn ($part) => $part !== '');
+
+var_dump($url_parts);
 
 // get real path and check if accessible (open_basedir)
 $local_path = realpath(PUBLIC_FOLDER . $_SERVER['REQUEST_URI']);
@@ -58,8 +60,17 @@ if ($path_is_dir) {
   $sorted_files = [];
   $sorted_folders = [];
   foreach (($files = scandir($local_path)) as $file) {
-    // always skip current folder '.' or parent folder '..' if current path is root
-    if ($file === '.' || $file === '..' && count($url_parts) === 0) continue;
+    // always skip current folder '.' or parent folder '..' if current path is root or file should be ignored
+    if ($file === '.' || $file === '..' && count($url_parts) === 0 $[if `process.env.IGNORE`]$|| $file !== '..' && fnmatch("${{`process.env.IGNORE ?? ""`}}$", $file)$[end]$) continue;
+
+    $[if `process.env.IGNORE`]$
+    foreach ($url_parts as $int_path) { /* check if parent folders are hidden */
+      if (fnmatch("${{`process.env.IGNORE ?? ""`}}$", $int_path)) {
+        $path_is_dir = false;
+        goto skip; /* Folder should be ignored so skip to 404 */
+      }
+    }
+    $[end]$
 
     // remove '/var/www/public' from path
     $url = substr($local_path, strlen(PUBLIC_FOLDER)) . '/' . $file;
@@ -100,6 +111,14 @@ if ($path_is_dir) {
 
   $relative_path = substr($local_path, strlen(PUBLIC_FOLDER));
 
+  $[if `process.env.IGNORE`]$
+  foreach ($url_parts as $int_path) { /* check if parent folders are hidden */
+    if (fnmatch("${{`process.env.IGNORE ?? ""`}}$", $int_path)) {      
+      goto skip; /* File should be ignored so skip to 404 */
+    }
+  }
+  $[end]$
+
   // increment redis view counter
   $[if `!process.env.NO_DL_COUNT`]$
   $redis = new Redis();
@@ -113,6 +132,7 @@ if ($path_is_dir) {
   die();
 } else {
   // local path does not exist
+skip:
   http_response_code(404);
 }
 ?>
@@ -127,7 +147,7 @@ if ($path_is_dir) {
   <style>
     .item {
       grid-auto-flow: column dense;
-      grid-template-columns: 20px auto 100px 70px 150px;
+      grid-template-columns: 20px auto 100px 75px 150px;
     }
 
     @media screen and (max-width: 768px) {
@@ -205,11 +225,6 @@ if ($path_is_dir) {
               $[if `!process.env.NO_DL_COUNT`]$
               <span class="ms-auto d-none d-md-block border rounded-1 text-end px-1 <?= $file->dl_count === 0 ? "text-body-tertiary" : "" ?>">
                 <?= numsize($file->dl_count) ?>
-                <!-- <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-eye " width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                  <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"></path>
-                  <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"></path>
-                </svg> -->
                 <svg style="margin-top: -5px;" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                   <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
@@ -299,14 +314,13 @@ if ($path_is_dir) {
 
   <div class="bg-body-tertiary mt-auto">
     <div class="container py-2 text-secondary text-center">
-      <?= $total_items ?> Items | <?= human_filesize($total_size) ?> | Powered by <a href="https://github.com/adrianschubek/dir-browser" class="text-decoration-none" target="_blank">adrianschubek/dir-browser</a> <span style="opacity: 0.8;"><?= VERSION ?></span>
+      <?= $total_items ?> Items | <?= human_filesize($total_size) ?> $[if `!process.env.HIDE_ATTRIBUTION`]$| Powered by <a href="https://github.com/adrianschubek/dir-browser" class="text-decoration-none" target="_blank">adrianschubek/dir-browser</a> <span style="opacity: 0.8;"><?= VERSION ?>$[end]$</span>
     </div>
   </div>
 
-
   <script data-turbolinks-eval="false" async defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
   <script data-turbolinks-eval="false" async defer src="https://cdnjs.cloudflare.com/ajax/libs/turbolinks/5.0.0/turbolinks.min.js"></script>
-  <!-- integrity="sha512-ifx27fvbS52NmHNCt7sffYPtKIvIzYo38dILIVHQ9am5XGDQ2QjSXGfUZ54Bs3AXdVi7HaItdhAtdhKz8fOFrA==" -->
+  <!-- Powered by https://github.com/adrianschubek/dir-browser -->
   <script data-turbolinks-eval="false">
     const getPreferredTheme = () => {
       if (localStorage.getItem('theme')) {
