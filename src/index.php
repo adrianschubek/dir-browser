@@ -20,8 +20,6 @@ function numsize($size, $round = 2)
 
 $url_parts = array_filter(explode(separator: '/', string: $_SERVER['REQUEST_URI']), fn ($part) => $part !== '');
 
-var_dump($url_parts);
-
 // get real path and check if accessible (open_basedir)
 $local_path = realpath(PUBLIC_FOLDER . $_SERVER['REQUEST_URI']);
 
