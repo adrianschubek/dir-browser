@@ -100,7 +100,7 @@ const config = {
           },
           {
             href: 'https://github.com/adrianschubek/dir-browser',
-            label: 'GitHub',
+            className: 'header-github-link',
             position: 'right',
           },
         ],
