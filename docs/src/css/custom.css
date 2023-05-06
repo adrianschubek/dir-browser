@@ -52,6 +52,16 @@ token-line {
   opacity: 0.9;
 }
 
+.menu__link:hover {
+  /* animate movement to the right */
+  transform: translateX(5px);
+  transition: transform 0.2s ease-in-out;
+}
+
+.menu {
+  background: var(--sidebar-style);
+}
+
 /* You can override the default Infima variables here. */
 :root {
   --ifm-menu-color: rgb(24, 24, 24);
@@ -71,6 +81,8 @@ token-line {
 
   --ifm-code-font-size: 95%;
   --docusaurus-highlighted-code-line-bg: rgba(0, 0, 0, 0.1);
+
+  --sidebar-style: rgba(0, 0, 0, 0.03);
 }
 
 /* For readability concerns, you should choose a lighter palette in dark mode. */
@@ -91,6 +103,8 @@ token-line {
   --ifm-menu-color-active: #7fa9ff;
 
   --ifm-color-gray-100: var(--ifm-color-gray-900);
+
+  --sidebar-style: rgba(0, 0, 0, 0.1);
 }
 
 .code-block-red-line {
