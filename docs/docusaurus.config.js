@@ -38,6 +38,20 @@ const config = {
 
   themes: ['@docusaurus/theme-mermaid'],
 
+  plugins: [
+    [
+      '@docusaurus/plugin-ideal-image',
+      {
+        quality: 100,
+        // max: 1030, // max resized image's size.
+        // min: 640, // min resized image's size. if original is lower, use that size.
+        steps: 2, // the max number of images generated between min and max (inclusive)
+        disableInDev: false,
+      },
+    ],
+    require.resolve("docusaurus-plugin-image-zoom"),
+  ],
+
   presets: [
     [
       'classic',
@@ -74,6 +88,16 @@ const config = {
     ({
       // Replace with your project's social card
       image: 'img/dir-browser.png',
+      zoom: {
+        selector: '.markdown :not(em) > img',
+        config: {
+          // options you can specify via https://github.com/francoischalifour/medium-zoom#usage
+          background: {
+            light: 'rgb(255, 255, 255)',
+            dark: 'rgb(50, 50, 50)'
+          }
+        }
+      },
       algolia: {
         // The application ID provided by Algolia
         appId: '18XYMP4MYT',

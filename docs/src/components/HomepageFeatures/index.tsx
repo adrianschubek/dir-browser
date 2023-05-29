@@ -53,16 +53,15 @@ export default function HomepageFeatures(): JSX.Element {
               <h3>README Markdown Rendering<Checkmark/></h3>
               <p>Automatically renders Markdown README files.</p>
             </div>
-          </div>
+          </div>          
           <div className={clsx("col col--4")}>
             <div className="text--center">
-              <img style={{ maxHeight: "100px" }} src="/img/settings.svg"></img>
+              <img style={{ maxHeight: "100px" }} src="/img/colorp.svg"></img>
             </div>
             <div className="text--center padding-horiz--md">
-              <h3>Highly configurable<Checkmark/></h3>
+              <h3>Themes & Darkmode<Checkmark/></h3>
               <p>
-                <b>Customize</b> the application to your needs by using
-                environment variables.
+                Choose from many different <b>themes</b> with <b>darkmode</b> support.
               </p>
             </div>
           </div>
@@ -107,12 +106,13 @@ export default function HomepageFeatures(): JSX.Element {
           </div>
           <div className={clsx("col col--4")}>
             <div className="text--center">
-              <img style={{ maxHeight: "100px" }} src="/img/mit.svg"></img>
+              <img style={{ maxHeight: "100px" }} src="/img/settings.svg"></img>
             </div>
             <div className="text--center padding-horiz--md">
-              <h3>MIT License<Checkmark/></h3>
+              <h3>Highly configurable<Checkmark/></h3>
               <p>
-                Open Source and MIT licensed.
+                <b>Customize</b> the application to your needs by using
+                environment variables.
               </p>
             </div>
           </div>

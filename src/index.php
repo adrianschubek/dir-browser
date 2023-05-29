@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '1.2.0');
+define('VERSION', '1.3.0');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -141,7 +141,23 @@ skip:
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dir Browser - <?= '/' . implode(separator: '/', array: $url_parts) ?></title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-GLhlTQ8iRABdZLl6O3oVMWSktQOp6b7In1Zl3/Jr59b6EGGoI1aFkw7cmDA6j6gD" crossorigin="anonymous">
+  $[ifeq env:THEME cerulean]$
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cerulean/bootstrap.min.css" rel="stylesheet">
+  $[ifeq env:THEME materia]$
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/materia/bootstrap.min.css" rel="stylesheet">
+  $[ifeq env:THEME quartz]$
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/quartz/bootstrap.min.css" rel="stylesheet">
+  $[ifeq env:THEME sandstone]$
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/sandstone/bootstrap.min.css" rel="stylesheet">
+  $[ifeq env:THEME sketchy]$
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/sketchy/bootstrap.min.css" rel="stylesheet">
+  $[ifeq env:THEME united]$
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/united/bootstrap.min.css" rel="stylesheet">
+  $[ifeq env:THEME yeti]$
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/yeti/bootstrap.min.css" rel="stylesheet">
+  $[else]$
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cosmo/bootstrap.min.css" rel="stylesheet">
+  $[end]$
   <style>
     .item {
       grid-auto-flow: column dense;
@@ -319,7 +335,10 @@ skip:
   <script data-turbolinks-eval="false" async defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
   <script data-turbolinks-eval="false" async defer src="https://cdnjs.cloudflare.com/ajax/libs/turbolinks/5.0.0/turbolinks.min.js"></script>
   <!-- Powered by https://github.com/adrianschubek/dir-browser -->
+  <script data-turbolinks-eval="false" src="https://cdn.jsdelivr.net/npm/darkreader@4.9/darkreader.min.js"></script>
   <script data-turbolinks-eval="false">
+    DarkReader.setFetchMethod(window.fetch)
+    
     const getPreferredTheme = () => {
       if (localStorage.getItem('theme')) {
         return localStorage.getItem('theme')
@@ -331,8 +350,10 @@ skip:
     const setTheme = (theme) => {
       if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         document.documentElement.setAttribute('data-bs-theme', 'dark')
+        DarkReader.enable();
       } else {
-        document.documentElement.setAttribute('data-bs-theme', theme)
+        document.documentElement.setAttribute('data-bs-theme', theme);
+        (theme === "dark") ? DarkReader.enable() : DarkReader.disable();
       }
     }
 

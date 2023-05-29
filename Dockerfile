@@ -42,6 +42,8 @@ COPY src/index.php /var/www/html
 
 COPY src/init.sh /init.sh
 
+ENV THEME=default
+
 RUN chmod +x /init.sh
 
 EXPOSE 8080

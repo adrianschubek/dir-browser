@@ -34,7 +34,7 @@ services:
       - /my/local/folder:/var/www/html/public:ro
       - redissave:/var/lib/redis/
     environment: # here you can set configuration options (see configuration section for more details)
-      - NO_DL_COUNT=false
+      - THEME=cosmo
 ```
 
 :::info
