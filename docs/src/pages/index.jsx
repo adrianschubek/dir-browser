@@ -49,7 +49,7 @@ function HomepageHeader() {
             </div>
 
             <CodeBlock className="xxx">
-            docker run -d -p 8080:80 -v /my/local/folder:/var/www/html/public:ro -v redissave:/var/lib/redis/ -it adrianschubek/dir-browser
+            docker run --rm -p 8080:80 -v /my/local/folder:/var/www/html/public:ro -v redissave:/var/lib/redis/ -it adrianschubek/dir-browser
             </CodeBlock>
 
           </div>
