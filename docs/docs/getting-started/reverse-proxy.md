@@ -54,6 +54,17 @@ server {
 
 </details>
 
-:::tip
-Since version 1.3.1 you can deploy the application to a subpath/subfolder e.g. `/bar` and all links, files and folders will be relative to this path.
+### Subfolder/Subpath
+Since version 1.3.1 you can deploy the application to a different basepath/subfolder e.g. `/foobar/` and all links, files and folders will be relative to this path.
+
+You may need to modify your reverse proxy configuration. In NGINX adapt the `location` block to the following:
+
+```nginx
+  location /foobar/ {
+    proxy_pass http://127.0.0.1:8080/;
+  }
+```
+
+:::warning
+Make sure to add the `/` at the end of the `location` block and after the `proxy_pass` URL. Otherwise the application will not work correctly.
 :::
