@@ -19,7 +19,7 @@ RUN apk add --no-cache nginx
 RUN apk add --no-cache supervisor
 
 RUN apk add --no-cache curl \
-  && curl -fSsL https://github.com/adrianschubek/utpp/releases/latest/download/utpp-alpine -o /usr/local/bin/utpp && chmod +x /usr/local/bin/utpp\
+  && curl -fSsL https://github.com/adrianschubek/utpp/releases/download/0.5.0/utpp-alpine -o /usr/local/bin/utpp && chmod +x /usr/local/bin/utpp\
   && apk del curl
 
 RUN apk add --no-cache composer
