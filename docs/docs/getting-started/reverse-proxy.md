@@ -18,8 +18,6 @@ server {
 
   location / {
     proxy_pass http://127.0.0.1:8080/;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
   }
 
   ssl_certificate /path/to/cert.pem;
@@ -54,10 +52,16 @@ server {
 
 </details>
 
-### Subfolder/Subpath
-Since version 1.3.1 you can deploy the application to a different basepath/subfolder e.g. `/foobar/` and all links, files and folders will be relative to this path.
+### Subfolder/Different basepath
+Since version 1.3.3 you can deploy the application to a different basepath/subfolder e.g. `/foobar/` and all links, files and folders will be relative to this path.
 
-You may need to modify your reverse proxy configuration. In NGINX adapt the `location` block to the following:
+Set the `BASE_PATH` environment variable to the subfolder you want to deploy the application to. For example:
+
+```bash
+docker run -d -p 8080:80 -e BASE_PATH="/foobar" -v /my/local/folder:/var/www/html/public:ro -v redissave:/var/lib/redis/ -it adrianschubek/dir-browser
+```
+
+And you may need to modify your reverse proxy configuration. In NGINX adapt the `location` block to the following:
 
 ```nginx
   location /foobar/ {

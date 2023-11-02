@@ -216,7 +216,7 @@ skip:
         <?php
         foreach ($sorted as $file) {
         ?>
-          <a href=".<?= $file->url ?>" class="list-group-item list-group-item-action d-grid gap-2 item">
+          <a href="${{`process.env.BASE_PATH ?? ''`}}$<?= $file->url ?>" class="list-group-item list-group-item-action d-grid gap-2 item">
             <?php if ($file->name === "..") { ?>
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-corner-left-up" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
