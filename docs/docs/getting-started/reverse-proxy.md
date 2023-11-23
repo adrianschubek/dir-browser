@@ -70,5 +70,5 @@ And you may need to modify your reverse proxy configuration. In NGINX adapt the 
 ```
 
 :::warning
-Make sure to add the `/` at the end of the `location` block and after the `proxy_pass` URL. Otherwise the application will not work correctly.
+Make sure to add the `/` at the end of the `location` line and after the `proxy_pass` URL. Otherwise the application will not work correctly.
 :::
