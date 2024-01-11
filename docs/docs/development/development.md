@@ -12,6 +12,7 @@ Contributions are welcome. If you would like to contribute, please follow the st
 ```
 docker run --rm --name dir -p 8080:80 -v /some/local/folder:/var/www/html/public:ro -v redissave:/var/lib/redis/  -it $(docker build -q -f Dockerfile .)
 ```
+It may take a few minutes to build the image.
 
 3. Open http://localhost:8080 in your browser
 
