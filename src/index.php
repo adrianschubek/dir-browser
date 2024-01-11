@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '1.3.3');
+define('VERSION', '1.4.0');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -155,6 +155,8 @@ skip:
   <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/united/bootstrap.min.css" rel="stylesheet">
   $[ifeq env:THEME yeti]$
   <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/yeti/bootstrap.min.css" rel="stylesheet">
+  $[ifeq env:THEME litera]$
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/litera/bootstrap.min.css" rel="stylesheet">
   $[else]$
   <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cosmo/bootstrap.min.css" rel="stylesheet">
   $[end]$

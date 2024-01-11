@@ -33,6 +33,17 @@ Right-click on the images and select "Open image in new tab" to see the full siz
   </TabItem>
 </Tabs>
 
+## `litera`
+
+<Tabs>
+  <TabItem value="light" label="Light" default>
+    <Image img={require("../../static/img/litera_light.png")} />
+  </TabItem>
+  <TabItem value="dark" label="Dark">
+    <Image img={require("../../static/img/litera_dark.png")} />
+  </TabItem>
+</Tabs>
+
 ## `cerulean`
 
 <Tabs>
