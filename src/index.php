@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '2.0.0');
+define('VERSION', '2.0.1');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -210,7 +210,7 @@ skip:
           <path d="M12 14a1.5 1.5 0 1 0 -1.14 -2.474"></path>
         </svg>
         Not Found<br>
-        <a class="btn btn-outline-secondary mt-2" href="/">Back to Home</a>
+        <a class="btn btn-outline-secondary mt-2" href="${{`process.env.BASE_PATH ?? ''`}}$/">Back to Home</a>
       </div>
 
     <?php } else { ?>
