@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '1.4.0');
+define('VERSION', '2.0.0');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -77,7 +77,7 @@ if ($path_is_dir) {
 
     $is_dir = is_dir($local_path . '/' . $file);
 
-    $file_modified_date = date('${{`process.env.DATE_FORMAT ?? 'Y-m-d H:i:s'`}}$', filemtime($local_path . '/' . $file));
+    $file_modified_date = gmdate('Y-m-d\TH:i:s\Z', filemtime($local_path . '/' . $file));
 
     $item = new File();
     $item->name = $file;
@@ -163,7 +163,7 @@ skip:
   <style>
     .item {
       grid-auto-flow: column dense;
-      grid-template-columns: 20px auto 100px 75px 150px;
+      grid-template-columns: 20px auto 100px 75px max-content;
     }
 
     @media screen and (max-width: 768px) {
@@ -216,9 +216,12 @@ skip:
     <?php } else { ?>
       <div class="list-group">
         <?php
+        $now = new DateTime();
         foreach ($sorted as $file) {
+          $fileDate = new DateTime($file->modified_date);
+          $diff = $now->diff($fileDate)->days;
         ?>
-          <a href="${{`process.env.BASE_PATH ?? ''`}}$<?= $file->url ?>" class="list-group-item list-group-item-action d-grid gap-2 item">
+          <a href="${{`process.env.BASE_PATH ?? ''`}}$<?= $file->url ?>" class="list-group-item list-group-item-action d-grid gap-2 item" ${{`process.env.HIGHLIGHT_UPDATED !== "false" && 'style="border-right-width: thick; border-right-color: <?= ($diff < 2 ? "var(--bs-blue) !important;": "var(--bs-gray-300) !important;") ?>"'`}}$>
             <?php if ($file->name === "..") { ?>
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-corner-left-up" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -258,7 +261,7 @@ skip:
               <span></span>
               <span></span>
             <?php } ?>
-            <span class="d-none d-md-block">
+            <span class="d-none d-md-block text-end filedatetime">
               <?= $file->modified_date ?>
             </span>
           </a>
@@ -338,7 +341,49 @@ skip:
   <script data-turbolinks-eval="false" async defer src="https://cdnjs.cloudflare.com/ajax/libs/turbolinks/5.0.0/turbolinks.min.js"></script>
   <!-- Powered by https://github.com/adrianschubek/dir-browser -->
   <script data-turbolinks-eval="false" src="https://cdn.jsdelivr.net/npm/darkreader@4.9/darkreader.min.js"></script>
-  <script data-turbolinks-eval="false">
+  <script>
+    $[if `process.env.DATE_FORMAT === "relative"`]$
+    function getRelativeTimeString(
+      date,
+      lang = navigator.language
+    ) {
+      // Allow dates or times to be passed
+      const timeMs = typeof date === "number" ? date : date.getTime();
+
+      // Get the amount of seconds between the given date and now
+      const deltaSeconds = Math.round((timeMs - Date.now()) / 1000);
+
+      // Array reprsenting one minute, hour, day, week, month, etc in seconds
+      const cutoffs = [60, 3600, 86400, 86400 * 7, 86400 * 30, 86400 * 365, Infinity];
+
+      // Array equivalent to the above but in the string representation of the units
+      const units = ["second", "minute", "hour", "day", "week", "month", "year"];
+
+      // Grab the ideal cutoff unit
+      const unitIndex = cutoffs.findIndex(cutoff => cutoff > Math.abs(deltaSeconds));
+
+      // Get the divisor to divide from the seconds. E.g. if our unit is "day" our divisor
+      // is one day in seconds, so we can divide our seconds by this to get the # of days
+      const divisor = unitIndex ? cutoffs[unitIndex - 1] : 1;
+
+      // Intl.RelativeTimeFormat do its magic
+      const rtf = new Intl.RelativeTimeFormat(lang, { /* style:"short", */ numeric: "auto" });
+      return rtf.format(Math.floor(deltaSeconds / divisor), units[unitIndex]);
+    }
+    $[end]$
+
+    document.querySelectorAll(".filedatetime").forEach(function(element) {
+      console.log(element.innerHTML.trim());
+      $[if `process.env.DATE_FORMAT === "local"`]$
+      element.innerHTML = new Date(element.innerHTML.trim()).toLocaleString()
+      $[if `process.env.DATE_FORMAT === "relative"`]$
+      element.innerHTML = getRelativeTimeString(new Date(element.innerHTML.trim())${{`process.env.DATE_FORMAT_RELATIVE_LANG ? ",'"+process.env.DATE_FORMAT_RELATIVE_LANG+"'" : ""`}}$)
+      $[else]$
+      element.innerHTML = new Date(element.innerHTML.trim()).toISOString().slice(0, 19).replace("T", " ") + " UTC"
+      $[end]$
+    })
+  </script>
+  <script data-turbolinks-eval="false">    
     DarkReader.setFetchMethod(window.fetch)
     
     const getPreferredTheme = () => {
