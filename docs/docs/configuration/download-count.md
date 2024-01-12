@@ -1,7 +1,7 @@
 ---
 sidebar_position: 1
 ---
-# Download Count
+# Download count
 
 Download count tracks the number of times a file has been downloaded/visited/opened. It will be saved in a persistent redis database (`-v redissave:/var/lib/redis/`).
 Folders will not be tracked.
