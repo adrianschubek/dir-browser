@@ -1,0 +1,13 @@
+---
+sidebar_position: 4
+---
+
+# Language
+
+Available Languages: `en` (English), `de` (Deutsch)
+
+By default the language is set to `en`. You can change it by setting the `LANGUAGE` environment variable.
+
+```
+docker run -d -p 8080:80 -v /my/local/folder:/var/www/html/public:ro -e LANGUAGE=de -v redissave:/var/lib/redis/ -it adrianschubek/dir-browser
+```
