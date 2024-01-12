@@ -221,7 +221,7 @@ skip:
           $fileDate = new DateTime($file->modified_date);
           $diff = $now->diff($fileDate)->days;
         ?>
-          <a href="${{`process.env.BASE_PATH ?? ''`}}$<?= $file->url ?>" class="list-group-item list-group-item-action d-grid gap-2 item" ${{`process.env.HIGHLIGHT_UPDATED !== "false" && 'style="border-right-width: thick; border-right-color: <?= ($diff < 2 ? "var(--bs-blue) !important;": "var(--bs-gray-300) !important;") ?>"'`}}$>
+          <a href="${{`process.env.BASE_PATH ?? ''`}}$<?= $file->url ?>" class="list-group-item list-group-item-action d-grid gap-2 item" ${{`process.env.HIGHLIGHT_UPDATED !== "false" && 'style="border-right-width: thick; border-right-color: <?= ($diff <= 2 ? "var(--bs-blue) !important;": "var(--bs-gray-300) !important;") ?>"'`}}$>
             <?php if ($file->name === "..") { ?>
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-corner-left-up" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -373,13 +373,12 @@ skip:
     $[end]$
 
     document.querySelectorAll(".filedatetime").forEach(function(element) {
-      console.log(element.innerHTML.trim());
-      $[if `process.env.DATE_FORMAT === "local"`]$
-      element.innerHTML = new Date(element.innerHTML.trim()).toLocaleString()
+      $[if `process.env.DATE_FORMAT === "utc"`]$
+      element.innerHTML = new Date(element.innerHTML.trim()).toISOString().slice(0, 19).replace("T", " ") + " UTC"
       $[if `process.env.DATE_FORMAT === "relative"`]$
       element.innerHTML = getRelativeTimeString(new Date(element.innerHTML.trim())${{`process.env.DATE_FORMAT_RELATIVE_LANG ? ",'"+process.env.DATE_FORMAT_RELATIVE_LANG+"'" : ""`}}$)
       $[else]$
-      element.innerHTML = new Date(element.innerHTML.trim()).toISOString().slice(0, 19).replace("T", " ") + " UTC"
+      element.innerHTML = new Date(element.innerHTML.trim()).toLocaleString()
       $[end]$
     })
   </script>
