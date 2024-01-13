@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '2.0.1');
+define('VERSION', '2.0.2');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -343,32 +343,30 @@ skip:
   <script data-turbolinks-eval="false" src="https://cdn.jsdelivr.net/npm/darkreader@4.9/darkreader.min.js"></script>
   <script>
     $[if `process.env.DATE_FORMAT === "relative"`]$
-    function getRelativeTimeString(
-      date,
-      lang = navigator.language
-    ) {
-      // Allow dates or times to be passed
+    function getRelativeTimeString(date, lang = navigator.language) {
       const timeMs = typeof date === "number" ? date : date.getTime();
-
-      // Get the amount of seconds between the given date and now
       const deltaSeconds = Math.round((timeMs - Date.now()) / 1000);
 
-      // Array reprsenting one minute, hour, day, week, month, etc in seconds
       const cutoffs = [60, 3600, 86400, 86400 * 7, 86400 * 30, 86400 * 365, Infinity];
-
-      // Array equivalent to the above but in the string representation of the units
       const units = ["second", "minute", "hour", "day", "week", "month", "year"];
 
-      // Grab the ideal cutoff unit
-      const unitIndex = cutoffs.findIndex(cutoff => cutoff > Math.abs(deltaSeconds));
+      // Find the ideal cutoff unit by iterating manually
+      let unitIndex = 0;
+      while (unitIndex < cutoffs.length && Math.abs(deltaSeconds) >= cutoffs[unitIndex]) {
+        unitIndex++;
+      }
 
-      // Get the divisor to divide from the seconds. E.g. if our unit is "day" our divisor
-      // is one day in seconds, so we can divide our seconds by this to get the # of days
-      const divisor = unitIndex ? cutoffs[unitIndex - 1] : 1;
+      // Calculate the time difference in the current unit
+      const timeInCurrentUnit = Math.abs(deltaSeconds) / (unitIndex ? cutoffs[unitIndex - 1] : 1);
 
-      // Intl.RelativeTimeFormat do its magic
-      const rtf = new Intl.RelativeTimeFormat(lang, { /* style:"short", */ numeric: "auto" });
-      return rtf.format(Math.floor(deltaSeconds / divisor), units[unitIndex]);
+      // Adjust the displayed time based on the 50% threshold
+      const adjustedTime = Math.floor(timeInCurrentUnit);
+
+      // Include the negative sign for time that has passed
+      const sign = deltaSeconds < 0 ? "-" : "";
+
+      const rtf = new Intl.RelativeTimeFormat(lang, { numeric: "auto" });
+      return rtf.format(sign + adjustedTime, units[unitIndex]);
     }
     $[end]$
 
