@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '2.0.2');
+define('VERSION', '2.1.0');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -142,25 +142,25 @@ skip:
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dir Browser - <?= '/' . implode(separator: '/', array: $url_parts) ?></title>
   $[ifeq env:THEME cerulean]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cerulean/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cerulean/bootstrap.min.css" rel="stylesheet" data-turbolinks-eval="false">
   $[ifeq env:THEME materia]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/materia/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/materia/bootstrap.min.css" rel="stylesheet" data-turbolinks-eval="false">
   $[ifeq env:THEME quartz]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/quartz/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/quartz/bootstrap.min.css" rel="stylesheet" data-turbolinks-eval="false">
   $[ifeq env:THEME sandstone]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/sandstone/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/sandstone/bootstrap.min.css" rel="stylesheet" data-turbolinks-eval="false">
   $[ifeq env:THEME sketchy]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/sketchy/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/sketchy/bootstrap.min.css" rel="stylesheet" data-turbolinks-eval="false">
   $[ifeq env:THEME united]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/united/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/united/bootstrap.min.css" rel="stylesheet" data-turbolinks-eval="false">
   $[ifeq env:THEME yeti]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/yeti/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/yeti/bootstrap.min.css" rel="stylesheet" data-turbolinks-eval="false">
   $[ifeq env:THEME litera]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/litera/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/litera/bootstrap.min.css" rel="stylesheet" data-turbolinks-eval="false">
   $[else]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cosmo/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cosmo/bootstrap.min.css" rel="stylesheet" data-turbolinks-eval="false">
   $[end]$
-  <style>
+  <style data-turbolinks-eval="false">
     .item {
       grid-auto-flow: column dense;
       grid-template-columns: 20px auto 100px 75px max-content;
@@ -172,7 +172,20 @@ skip:
         grid-template-columns: 20px auto 0 0 0;
       }
     }
+
+    .icon:before {
+      font-size: 18px !important;
+      width: 18px !important;
+    }
+    .icon {
+      width: 24px !important;
+      height: 24px !important;
+      text-align: center;
+    }
   </style>
+  $[if `process.env.ICONS !== "false"`]$
+  <link data-turbolinks-eval="false" href="https://cdn.jsdelivr.net/npm/file-icons-js@1/css/style.css" rel="stylesheet"></link>
+  $[end]$
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -228,16 +241,20 @@ skip:
                 <path d="M18 18h-6a3 3 0 0 1 -3 -3v-10l-4 4m8 0l-4 -4"></path>
               </svg>
             <?php } elseif ($file->is_dir) { ?>
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folder-filled" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <path d="M9 3a1 1 0 0 1 .608 .206l.1 .087l2.706 2.707h6.586a3 3 0 0 1 2.995 2.824l.005 .176v8a3 3 0 0 1 -2.824 2.995l-.176 .005h-14a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-11a3 3 0 0 1 2.824 -2.995l.176 -.005h4z" stroke-width="0" fill="currentColor"></path>
-              </svg>
+              <div class="dir-icon-placeholder" dirname="<?= $file->name ?>">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folder-filled" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                  <path d="M9 3a1 1 0 0 1 .608 .206l.1 .087l2.706 2.707h6.586a3 3 0 0 1 2.995 2.824l.005 .176v8a3 3 0 0 1 -2.824 2.995l-.176 .005h-14a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-11a3 3 0 0 1 2.824 -2.995l.176 -.005h4z" stroke-width="0" fill="currentColor"></path>
+                </svg>
+              </div>
             <?php } else { ?>
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
-                <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
-              </svg>
+              <div class="file-icon-placeholder" filename="<?= $file->name ?>">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                  <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
+                  <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
+                </svg>
+              </div>
             <?php } ?>
             <?= $file->name ?>
             <?php if (!$file->is_dir) { ?>
@@ -380,6 +397,16 @@ skip:
       $[end]$
     })
   </script>
+  $[if `process.env.ICONS !== "false"`]$
+  <script data-turbolinks-eval="false" src="https://cdn.jsdelivr.net/npm/file-icons-js@1/dist/file-icons.js"></script>
+  <script>
+    var icons = window.FileIcons;
+    document.querySelectorAll(".file-icon-placeholder").forEach(function(element) {
+      element.classList = ("icon " + icons.getClassWithColor(element.getAttribute("filename"))).replace("null","binary-icon")
+      element.innerHTML = ""
+    })
+  </script>
+  $[end]$
   <script data-turbolinks-eval="false">    
     DarkReader.setFetchMethod(window.fetch)
     
