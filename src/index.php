@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '2.1.0');
+define('VERSION', '2.1.1');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -188,7 +188,7 @@ skip:
   $[end]$
 </head>
 
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100 bg-light">
   <nav class="navbar navbar-expand-lg bg-body-tertiary mb-3 shadow-sm">
     <div class="container-fluid">
       <span class="navbar-brand"><?= '/' . implode(separator: '/', array: $url_parts) ?></span>
