@@ -184,7 +184,7 @@ skip:
     }
   </style>
   $[if `process.env.ICONS !== "false"`]$
-  <link data-turbolinks-eval="false" href="https://cdn.jsdelivr.net/npm/file-icons-js@1/css/style.css" rel="stylesheet"></link>
+  <link data-turbolinks-eval="false" href="https://cdn.jsdelivr.net/npm/file-icons-js@1/css/style.min.css" rel="stylesheet"></link>
   $[end]$
 </head>
 
@@ -398,7 +398,7 @@ skip:
     })
   </script>
   $[if `process.env.ICONS !== "false"`]$
-  <script data-turbolinks-eval="false" src="https://cdn.jsdelivr.net/npm/file-icons-js@1/dist/file-icons.js"></script>
+  <script data-turbolinks-eval="false" src="https://cdn.jsdelivr.net/npm/file-icons-js@1/dist/file-icons.min.js"></script>
   <script>
     var icons = window.FileIcons;
     document.querySelectorAll(".file-icon-placeholder").forEach(function(element) {
