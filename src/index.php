@@ -359,7 +359,7 @@ skip:
     </div>
   </div>
 
-  <script data-turbo-eval="false" async defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+  <script data-turbo-eval="false" async defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <!-- Powered by https://github.com/adrianschubek/dir-browser -->
   <script>
     $[if `process.env.DATE_FORMAT === "relative"`]$
