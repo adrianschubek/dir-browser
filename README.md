@@ -59,4 +59,9 @@ tbd
 
 TODO https://github.com/TechEmpower/FrameworkBenchmarks/blob/master/frameworks/PHP/php-ngx/deploy/nginx.conf#L49
 diretly embed pohpo in nginx maximum performance
+
+== BUGS ==
+
+- when path contains a dot it triggers full reload -> turbolinks
+
 -->

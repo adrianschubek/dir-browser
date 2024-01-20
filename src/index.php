@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '2.1.1');
+define('VERSION', '2.2.0');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -142,37 +142,35 @@ skip:
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dir Browser - <?= '/' . implode(separator: '/', array: $url_parts) ?></title>
   $[ifeq env:THEME cerulean]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cerulean/bootstrap.min.css" rel="stylesheet" data-turbolinks-eval="false">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/cerulean/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
   $[ifeq env:THEME materia]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/materia/bootstrap.min.css" rel="stylesheet" data-turbolinks-eval="false">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/materia/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
   $[ifeq env:THEME quartz]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/quartz/bootstrap.min.css" rel="stylesheet" data-turbolinks-eval="false">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/quartz/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
   $[ifeq env:THEME sandstone]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/sandstone/bootstrap.min.css" rel="stylesheet" data-turbolinks-eval="false">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/sandstone/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
   $[ifeq env:THEME sketchy]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/sketchy/bootstrap.min.css" rel="stylesheet" data-turbolinks-eval="false">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/sketchy/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
   $[ifeq env:THEME united]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/united/bootstrap.min.css" rel="stylesheet" data-turbolinks-eval="false">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/united/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
   $[ifeq env:THEME yeti]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/yeti/bootstrap.min.css" rel="stylesheet" data-turbolinks-eval="false">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/yeti/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
   $[ifeq env:THEME litera]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/litera/bootstrap.min.css" rel="stylesheet" data-turbolinks-eval="false">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/litera/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
   $[else]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.2.3/dist/cosmo/bootstrap.min.css" rel="stylesheet" data-turbolinks-eval="false">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.0/dist/cosmo/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
   $[end]$
-  <style data-turbolinks-eval="false">
+  <style data-turbo-eval="false">
     .item {
       grid-auto-flow: column dense;
       grid-template-columns: 20px auto 100px 75px max-content;
     }
-
     @media screen and (max-width: 768px) {
       .item {
         grid-auto-flow: column dense;
         grid-template-columns: 20px auto 0 0 0;
       }
     }
-
     .icon:before {
       font-size: 18px !important;
       width: 18px !important;
@@ -182,13 +180,20 @@ skip:
       height: 24px !important;
       text-align: center;
     }
+    body {
+      background-color: var(--bs-secondary-bg);
+    }
+    .footer {
+      color: var(--bs-tertiary-color)
+    }
   </style>
   $[if `process.env.ICONS !== "false"`]$
-  <link data-turbolinks-eval="false" href="https://cdn.jsdelivr.net/npm/file-icons-js@1/css/style.min.css" rel="stylesheet"></link>
+  <link data-turbo-eval="false" href="https://cdn.jsdelivr.net/npm/file-icons-js@1/css/style.min.css" rel="stylesheet"></link>
   $[end]$
+  <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@7.3.0/dist/turbo.es2017-umd.min.js"></script>
 </head>
 
-<body class="d-flex flex-column min-vh-100 bg-light">
+<body class="d-flex flex-column min-vh-100">
   <nav class="navbar navbar-expand-lg bg-body-tertiary mb-3 shadow-sm">
     <div class="container-fluid">
       <span class="navbar-brand"><?= '/' . implode(separator: '/', array: $url_parts) ?></span>
@@ -349,15 +354,13 @@ skip:
   $[end]$
 
   <div class="bg-body-tertiary mt-auto">
-    <div class="container py-2 text-secondary text-center">
+    <div class="container py-2 text-center" id="footer">
       <?= $total_items ?> Items | <?= human_filesize($total_size) ?> $[if `!process.env.HIDE_ATTRIBUTION`]$| Powered by <a href="https://github.com/adrianschubek/dir-browser" class="text-decoration-none" target="_blank">adrianschubek/dir-browser</a> <span style="opacity: 0.8;"><?= VERSION ?>$[end]$</span>
     </div>
   </div>
 
-  <script data-turbolinks-eval="false" async defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
-  <script data-turbolinks-eval="false" async defer src="https://cdnjs.cloudflare.com/ajax/libs/turbolinks/5.0.0/turbolinks.min.js"></script>
+  <script data-turbo-eval="false" async defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
   <!-- Powered by https://github.com/adrianschubek/dir-browser -->
-  <script data-turbolinks-eval="false" src="https://cdn.jsdelivr.net/npm/darkreader@4.9/darkreader.min.js"></script>
   <script>
     $[if `process.env.DATE_FORMAT === "relative"`]$
     function getRelativeTimeString(date, lang = navigator.language) {
@@ -398,7 +401,7 @@ skip:
     })
   </script>
   $[if `process.env.ICONS !== "false"`]$
-  <script data-turbolinks-eval="false" src="https://cdn.jsdelivr.net/npm/file-icons-js@1/dist/file-icons.min.js"></script>
+  <script data-turbo-eval="false" src="https://cdn.jsdelivr.net/npm/file-icons-js@1/dist/file-icons.min.js"></script>
   <script>
     var icons = window.FileIcons;
     document.querySelectorAll(".file-icon-placeholder").forEach(function(element) {
@@ -407,24 +410,19 @@ skip:
     })
   </script>
   $[end]$
-  <script data-turbolinks-eval="false">    
-    DarkReader.setFetchMethod(window.fetch)
-    
+  <script data-turbo-eval="false">    
     const getPreferredTheme = () => {
       if (localStorage.getItem('theme')) {
         return localStorage.getItem('theme')
       }
-
       return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
     }
 
     const setTheme = (theme) => {
       if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         document.documentElement.setAttribute('data-bs-theme', 'dark')
-        DarkReader.enable();
       } else {
         document.documentElement.setAttribute('data-bs-theme', theme);
-        (theme === "dark") ? DarkReader.enable() : DarkReader.disable();
       }
     }
 
