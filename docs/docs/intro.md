@@ -18,10 +18,12 @@ https://bp.adriansoftware.de
 - **README** markdown rendering support
 - **Low memory** footprint (~10MB)
 - Light and **Darkmode**
+- File **icons**
 - Many **Themes** available
 - Easy setup using single **Docker** image
 - **Responsive** design for mobile devices and desktop
 - Easily configurable using **environment variables**
-- File stats like modification dates, sizes and hashes
+- File stats like modification dates and sizes
+- Highlight recently updated files
 - **arm64** support
-
+- Works **without JavaScript** enabled
