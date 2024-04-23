@@ -140,7 +140,6 @@ skip:
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- Disable caching as this causes Invalid Date errors on browser back button press -->
   <meta name="turbo-cache-control" content="no-cache">
   <title>Dir Browser - <?= '/' . implode(separator: '/', array: $url_parts) ?></title>
   $[ifeq env:THEME cerulean]$
