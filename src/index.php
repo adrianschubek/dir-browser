@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '2.2.0');
+define('VERSION', '2.3.0');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -135,11 +135,13 @@ skip:
 }
 ?>
 <!doctype html>
-<html lang="en" data-bs-theme="dark">
+<html lang="en" data-bs-theme="light">
 
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Disable caching as this causes Invalid Date errors on browser back button press -->
+  <meta name="turbo-cache-control" content="no-cache">
   <title>Dir Browser - <?= '/' . implode(separator: '/', array: $url_parts) ?></title>
   $[ifeq env:THEME cerulean]$
   <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.2/dist/cerulean/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
