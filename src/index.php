@@ -18,10 +18,13 @@ function numsize($size, $round = 2)
   return round($size / pow(1000, ($i = floor(log($size, 1000)))), $round) . $unit[$i];
 }
 
-$url_parts = array_filter(explode(separator: '/', string: $_SERVER['REQUEST_URI']), fn ($part) => $part !== '');
+// fix whitespace in path results in not found errors
+$request_uri = urldecode($_SERVER['REQUEST_URI']);
+
+$url_parts = array_filter(explode(separator: '/', string: $request_uri), fn ($part) => $part !== '');
 
 // get real path and check if accessible (open_basedir)
-$local_path = realpath(PUBLIC_FOLDER . $_SERVER['REQUEST_URI']);
+$local_path = realpath(PUBLIC_FOLDER . $request_uri);
 
 // check if path is dir
 $path_is_dir = is_dir($local_path);
