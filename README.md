@@ -34,6 +34,7 @@ https://bp.adriansoftware.de
 - Secure by default. **Read-only** access
 - Extremly **fast** file serving through **nginx**
 - **README** markdown rendering support
+- add **custom description and labels** to files and folders
 - **Low memory** footprint (~10MB)
 - Light and **Darkmode**
 - Many **Themes** available
@@ -63,5 +64,11 @@ diretly embed pohpo in nginx maximum performance
 == BUGS ==
 
 - when path contains a dot it triggers full reload -> turbolinks
+
+
+TODO Features:
+- add descripton,labels metadata in item use <file/folder>.dbmeta.json
+
+- replace github utpp download with npm i -g utpp
 
 -->

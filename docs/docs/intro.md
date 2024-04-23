@@ -16,6 +16,7 @@ https://bp.adriansoftware.de
 - Secure by default. **Read-only** access
 - Extremly **fast** file serving through **nginx**
 - **README** markdown rendering support
+- add **custom description and labels** to files and folders
 - **Low memory** footprint (~10MB)
 - Light and **Darkmode**
 - File **icons**

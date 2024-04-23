@@ -211,7 +211,7 @@ const config = {
       prism: {
         theme: lightCodeTheme,
         darkTheme: darkCodeTheme,
-        additionalLanguages: ['php'],
+        additionalLanguages: ['php','json'],
         magicComments: [
           {
             className: 'theme-code-block-highlighted-line',

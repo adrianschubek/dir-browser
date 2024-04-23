@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '2.2.1');
+define('VERSION', '2.3.0');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -37,6 +37,7 @@ class File
   public bool $is_dir;
   public string $modified_date;
   public int $dl_count;
+  public ?object $meta;
 
   public function __toString(): string
   {
@@ -61,8 +62,8 @@ if ($path_is_dir) {
   $sorted_files = [];
   $sorted_folders = [];
   foreach (($files = scandir($local_path)) as $file) {
-    // always skip current folder '.' or parent folder '..' if current path is root or file should be ignored
-    if ($file === '.' || $file === '..' && count($url_parts) === 0 $[if `process.env.IGNORE`]$|| $file !== '..' && fnmatch("${{`process.env.IGNORE ?? ""`}}$", $file)$[end]$) continue;
+    // always skip current folder '.' or parent folder '..' if current path is root or file should be ignored or .dbmeta.json
+    if ($file === '.' || $file === '..' && count($url_parts) === 0 $[if `process.env.IGNORE`]$|| $file !== '..' && fnmatch("${{`process.env.IGNORE ?? ""`}}$", $file)$[end]$ || str_contains($file, ".dbmeta.json")) continue;
 
     $[if `process.env.IGNORE`]$
     foreach ($url_parts as $int_path) { /* check if parent folders are hidden */
@@ -82,6 +83,12 @@ if ($path_is_dir) {
 
     $file_modified_date = gmdate('Y-m-d\TH:i:s\Z', filemtime($local_path . '/' . $file));
 
+    // load metadata if file exists
+    $meta_file = realpath($local_path . '/' . $file . '.dbmeta.json');
+    if ($meta_file !== false) {
+      $meta = json_decode(file_get_contents($meta_file));
+    }
+
     $item = new File();
     $item->name = $file;
     $item->url = $url;
@@ -89,6 +96,7 @@ if ($path_is_dir) {
     $item->is_dir = $is_dir;
     $item->modified_date = $file_modified_date;
     $item->dl_count =  $[if `!process.env.NO_DL_COUNT`]$!$is_dir ? $redis->get($url) :$[end]$ 0;
+    $item->meta = $meta ?? null;
     if ($is_dir) {
       array_push($sorted_folders, $item);
     } else {
@@ -119,6 +127,9 @@ if ($path_is_dir) {
     }
   }
   $[end]$
+
+  // skip if file is .dbmeta.json
+  if (str_contains($local_path, ".dbmeta.json")) goto skip;
 
   // increment redis view counter
   $[if `!process.env.NO_DL_COUNT`]$
@@ -265,7 +276,24 @@ skip:
                 </svg>
               </div>
             <?php } ?>
+            <span>
             <?= $file->name ?>
+            <?php 
+              if ($file->meta !== null) {
+                if ($file->meta->description !== null) {
+            ?> 
+                  <span class="text-body-secondary"><?= $file->meta->description ?></span>
+            <?php
+                }
+                foreach ($file->meta->labels as $lbl) {
+                  $l = explode(":", $lbl, 2);
+            ?>
+                  <span class="badge bg-<?= $l[0] ?>"><?= $l[1] ?></span>
+            <?php
+                }
+              }
+            ?>
+            </span>
             <?php if (!$file->is_dir) { ?>
               $[if `!process.env.NO_DL_COUNT`]$
               <span class="ms-auto d-none d-md-block border rounded-1 text-end px-1 <?= $file->dl_count === 0 ? "text-body-tertiary" : "" ?>">

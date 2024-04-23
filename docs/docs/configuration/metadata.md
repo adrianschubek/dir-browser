@@ -1,0 +1,36 @@
+---
+sidebar_position: -1
+---
+
+import Image from "@theme/IdealImage";
+
+# Metadata
+
+Files and folder can be enriched with metadata and displayed. Metadata is stored in a file called `<name>.dbmeta.json`, where `<name>` is the exact file/folder name, in the same folder as the file or folder. Metadata is stored in a JSON format specified below. 
+
+The `*.dbmeta.json` files are hidden from the user and cannot be viewed.
+
+<!-- This feature is enabled by default. To disable this, set the environment variable `NO_METADATA` to `true` when starting the container. -->
+
+<Image img={require("@site/static/img/metadata.png")} />
+
+```json title="/foo   bar/cool project.dbmeta.json"
+{
+  "description": "A short project description ⭐",
+  "labels": ["danger:Laravel", "primary:PHP 8", "dark:Hot 🔥"]
+}
+```
+<!-- TODO: "password": "mysecurepassword" -->
+
+#### Labels
+
+Labels always start with a style and a colon `:`, followed by the label text. The following styles are available:
+- `primary`
+- `secondary`
+- `success`
+- `danger`
+- `warning`
+- `info`
+- `light`
+- `dark`
+
