@@ -20,8 +20,8 @@ _Easiest way to browse your files and folders on the web._
 
 </h2>
 
-![image](https://user-images.githubusercontent.com/19362349/235142390-47505cd4-34b8-4a93-8ce8-04438c906924.png)
-![image](https://user-images.githubusercontent.com/19362349/235142944-90397b16-fc85-476a-8f80-048393d09c0e.png)
+![image](https://github.com/adrianschubek/dir-browser/assets/19362349/102e058f-7d9e-457f-bde5-d61a8b0733f7)
+
 
 
 
