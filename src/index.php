@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '2.3.1');
+define('VERSION', '2.4.0');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -19,7 +19,7 @@ function numsize($size, $round = 2)
 }
 
 // fix whitespace in path results in not found errors
-$request_uri = urldecode($_SERVER['REQUEST_URI']);
+$request_uri = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 
 $url_parts = array_filter(explode(separator: '/', string: $request_uri), fn ($part) => $part !== '');
 
