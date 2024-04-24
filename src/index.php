@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '2.3.0');
+define('VERSION', '2.3.1');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -367,7 +367,7 @@ skip:
 
       // Remove any of the lines below if you don't want a particular feature
       $environment->addExtension(new AutolinkExtension());
-      ${{`process.env.ALLOW_RAW_HTML ? "$environment->addExtension(new DisallowedRawHtmlExtension());" : ""`}}$ 
+      ${{`!process.env.ALLOW_RAW_HTML ? "$environment->addExtension(new DisallowedRawHtmlExtension());" : ""`}}$ 
       $environment->addExtension(new StrikethroughExtension());
       $environment->addExtension(new TableExtension());
       $environment->addExtension(new TaskListExtension());
