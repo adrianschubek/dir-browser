@@ -131,6 +131,18 @@ if ($path_is_dir) {
   // skip if file is .dbmeta.json
   if (str_contains($local_path, ".dbmeta.json")) goto skip;
 
+  // check if password proteced
+  if (file_exists($local_path . '.dbmeta.json')) {
+    $meta = json_decode(file_get_contents($local_path . '.dbmeta.json'));
+    if (isset($meta->password)) {
+      if (!isset($_REQUEST["key"]) || $_REQUEST["key"] !== $meta->password) { // allows get and post reqeusts
+        http_response_code(401);
+        define('AUTH_REQUIRED', true);
+        goto end;
+      }
+    }
+  }
+
   // increment redis view counter
   $[if `!process.env.NO_DL_COUNT`]$
   $redis = new Redis();
@@ -146,6 +158,7 @@ if ($path_is_dir) {
   // local path does not exist
 skip:
   http_response_code(404);
+end: 
 }
 ?>
 <!doctype html>
@@ -201,6 +214,39 @@ skip:
     .footer {
       color: var(--bs-tertiary-color)
     }
+
+    /* Key icon */
+    .gg-key {
+      box-sizing: border-box;
+      position: relative;
+      display: inline-block;
+      transform: scale(var(--ggs,1));
+      width: 6px;
+      height: 8px;
+      border: 2px solid;
+      border-radius: 100px;
+      }
+      .gg-key::after,
+      .gg-key::before {
+      content: "";
+      display: inline-block;
+      box-sizing: border-box;
+      position: absolute;
+      right: -12px
+      }
+      .gg-key::before {
+      background: currentColor;
+      width: 12px;
+      height: 2px;
+      top: 1px
+      }
+      .gg-key::after {
+      width: 5px;
+      height: 3px;
+      top: 2px;
+      border-left: 2px solid;
+      border-right: 2px solid
+      } 
   </style>
   $[if `process.env.ICONS !== "false"`]$
   <link data-turbo-eval="false" href="https://cdn.jsdelivr.net/npm/file-icons-js@1/css/style.min.css" rel="stylesheet"></link>
@@ -233,7 +279,20 @@ skip:
   </nav>
 
   <div class="container pb-3">
-    <?php if (!$path_is_dir) { ?>
+    <?php if (defined("AUTH_REQUIRED")) { ?>
+      <div class="alert alert-warning" role="alert">
+        <h4 class="alert-heading">Protected file</h4>
+        <p>This file is password protected. Please enter the password to access the content.</p>
+        <form method="post">
+          <div class="mb-3">
+            <label for="key" class="form-label">Password</label>
+            <input type="password" class="form-control" id="key" name="key" required>
+          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+        <a class="btn btn-outline-secondary mt-2" href="${{`process.env.BASE_PATH ?? ''`}}$/">Back to Home</a>
+      </div>
+    <?php } else if (!$path_is_dir) { ?>
       <div class="alert alert-secondary text-center" role="alert">
         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-unknown" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
           <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -289,6 +348,11 @@ skip:
                   $l = explode(":", $lbl, 2);
             ?>
                   <span class="badge bg-<?= $l[0] ?>"><?= $l[1] ?></span>
+            <?php
+                }
+                if ($file->meta->password !== null) {
+            ?>
+              <span class="gg-key"></span>
             <?php
                 }
               }
@@ -347,7 +411,7 @@ skip:
       }
     }
 
-    require_once __DIR__ . "/vendor/autoload.php";
+    require __DIR__ . "/vendor/autoload.php";
     use League\CommonMark\Environment\Environment;
     use League\CommonMark\Extension\Autolink\AutolinkExtension;
     use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
