@@ -147,7 +147,7 @@ const config = {
             position: 'right',
           },
           {
-            href: 'https://bp.adriansoftware.de',
+            href: 'https://dir-demo.adriansoftware.de',
             label: 'Demo',
             position: 'right',
           },

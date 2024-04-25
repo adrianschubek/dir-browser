@@ -38,7 +38,7 @@ function HomepageHeader() {
               <Link
                 className="button button--info button--outline button--lg"
                 style={{ marginRight: "1em", color: "white" }}
-                to="https://bp.adriansoftware.de">
+                to="https://dir-demo.adriansoftware.de">
                 Demo
               </Link>
               <Link

@@ -9,7 +9,7 @@ slug: /
 
 ## Demo
 
-https://bp.adriansoftware.de
+https://dir-demo.adriansoftware.de
 
 ## Features
 - **Download count** for all files

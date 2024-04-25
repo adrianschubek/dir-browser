@@ -27,7 +27,7 @@ _Easiest way to browse your files and folders on the web._
 
 ## Demo
 
-https://bp.adriansoftware.de
+https://dir-demo.adriansoftware.de
 
 ## Features
 - **Download count** for all files
