@@ -117,6 +117,7 @@ export default function HomepageFeatures(): JSX.Element {
               </h3>
               <p>
                 Strict <b>Read-only</b> access to files and folders.
+                Additionaly protect your files with a <b>password</b>.
               </p>
             </div>
           </div>

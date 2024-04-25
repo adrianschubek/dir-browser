@@ -21,6 +21,7 @@ https://bp.adriansoftware.de
 - Light and **Darkmode**
 - File **icons**
 - Many **Themes** available
+- **Password** protect files
 - Easy setup using single **Docker** image
 - **Responsive** design for mobile devices and desktop
 - Easily configurable using **environment variables**

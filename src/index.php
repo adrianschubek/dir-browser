@@ -214,39 +214,6 @@ end:
     .footer {
       color: var(--bs-tertiary-color)
     }
-
-    /* Key icon */
-    .gg-key {
-      box-sizing: border-box;
-      position: relative;
-      display: inline-block;
-      transform: scale(var(--ggs,1));
-      width: 6px;
-      height: 8px;
-      border: 2px solid;
-      border-radius: 100px;
-      }
-      .gg-key::after,
-      .gg-key::before {
-      content: "";
-      display: inline-block;
-      box-sizing: border-box;
-      position: absolute;
-      right: -12px
-      }
-      .gg-key::before {
-      background: currentColor;
-      width: 12px;
-      height: 2px;
-      top: 1px
-      }
-      .gg-key::after {
-      width: 5px;
-      height: 3px;
-      top: 2px;
-      border-left: 2px solid;
-      border-right: 2px solid
-      } 
   </style>
   $[if `process.env.ICONS !== "false"`]$
   <link data-turbo-eval="false" href="https://cdn.jsdelivr.net/npm/file-icons-js@1/css/style.min.css" rel="stylesheet"></link>
@@ -280,17 +247,15 @@ end:
 
   <div class="container pb-3">
     <?php if (defined("AUTH_REQUIRED")) { ?>
-      <div class="alert alert-warning" role="alert">
-        <h4 class="alert-heading">Protected file</h4>
-        <p>This file is password protected. Please enter the password to access the content.</p>
-        <form method="post">
-          <div class="mb-3">
-            <label for="key" class="form-label">Password</label>
-            <input type="password" class="form-control" id="key" name="key" required>
-          </div>
-          <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-        <a class="btn btn-outline-secondary mt-2" href="${{`process.env.BASE_PATH ?? ''`}}$/">Back to Home</a>
+      <div class="card m-auto" style="max-width: 500px;">
+        <div class="card-body">
+          <h4 class="alert-heading key-icon">Protected file</h4>
+          <p class="mb-2">Please enter the password to access this file.</p>
+          <form method="post">
+            <input autofocus type="password" class="form-control mb-2" id="key" name="key" required>
+            <button type="submit" class="btn btn-primary key-icon form-control">Continue</button>
+          </form>
+        </div>
       </div>
     <?php } else if (!$path_is_dir) { ?>
       <div class="alert alert-secondary text-center" role="alert">
@@ -352,7 +317,7 @@ end:
                 }
                 if ($file->meta->password !== null) {
             ?>
-              <span class="gg-key"></span>
+              <span class="key-icon"></span>
             <?php
                 }
               }

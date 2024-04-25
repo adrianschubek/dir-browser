@@ -38,6 +38,7 @@ https://bp.adriansoftware.de
 - **Low memory** footprint (~10MB)
 - Light and **Darkmode**
 - Many **Themes** available
+- **Password** protect files
 - Easy setup using single **Docker** image
 - **Responsive** design for mobile devices and desktop
 - Easily configurable using **environment variables**
@@ -67,7 +68,21 @@ diretly embed pohpo in nginx maximum performance
 
 
 TODO Features:
-- add descripton,labels metadata in item use <file/folder>.dbmeta.json
+- support parameters in URL ?key=password123 for protected directories/files
+      -> if key requried but no key present -> open dialog -> redirect to same url with ?key=...
+
+      ?action=download ?action=view
+      ?action=hash
+      - add hash using hash_file() !!!
+
+      - end to end encrypted files
+      - global config file`.dbmeta.json`in root folder
+- add password protection for folders
+  - cache db meta fields in redis for faster access ! not needed
+  - use supervisord php background job -> load dbmeta every 30seconds into redis
+  - add password protection for files- migrate from redis to dragonfly ! more latency. not needed right now
+    - mnot redis. filesystem file_get_contents is faster!!!
+    - maybe drop redis in favor of sqlite (in-memory). slqite only 1 writer at a time (bad). keep redis.
 
 - replace github utpp download with npm i -g utpp
 
