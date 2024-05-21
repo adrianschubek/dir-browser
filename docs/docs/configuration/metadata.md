@@ -17,10 +17,20 @@ The `*.dbmeta.json` files are hidden from the user and cannot be viewed.
 ```json title="/foo   bar/cool project.dbmeta.json"
 {
   "description": "A short project description ⭐",
-  "labels": ["danger:Laravel", "primary:PHP 8", "dark:Hot 🔥"]
+  "labels": ["danger:Laravel", "primary:PHP 8", "dark:Hot 🔥"],
+  "hidden": false,
+  "password": "mysecurepassword"
 }
 ```
 <!-- TODO: "password": "mysecurepassword" -->
+
+## Properties
+
+#### Description
+
+A short description of the file or folder. This is displayed in the file tree. 
+
+> Default is empty.
 
 #### Labels
 
@@ -34,3 +44,16 @@ Labels always start with a style and a colon `:`, followed by the label text. Th
 - `light`
 - `dark`
 
+> Default is empty.
+
+#### Hidden
+
+If set to `true`, the file or folder is hidden from the file tree. However, it can still be accessed by URL directly. Can be combined with password protection.
+
+> Default is `false`.
+
+#### Password
+
+See [Password Protection](password.mdx).
+
+> Default is empty.

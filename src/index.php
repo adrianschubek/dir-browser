@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '2.4.1');
+define('VERSION', '2.5.0');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -87,6 +87,7 @@ if ($path_is_dir) {
     $meta_file = realpath($local_path . '/' . $file . '.dbmeta.json');
     if ($meta_file !== false) {
       $meta = json_decode(file_get_contents($meta_file));
+      if ($meta !== null && $meta->hidden) continue;
     } else {
       // Variables stay alive in php so we need to reset it explicitly
       $meta = null;
