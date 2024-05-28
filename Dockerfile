@@ -44,6 +44,8 @@ COPY src/init.sh /init.sh
 
 ENV THEME=default
 
+ENV DATE_FORMAT=relative
+
 RUN chmod +x /init.sh
 
 EXPOSE 8080
