@@ -22,6 +22,7 @@ https://dir-demo.adriansoftware.de
 - File **icons**
 - Many **Themes** available
 - **Password** protect files
+- **Clean URLs** equivalent to file system paths
 - Easy setup using single **Docker** image
 - **Responsive** design for mobile devices and desktop
 - Easily configurable using **environment variables**
