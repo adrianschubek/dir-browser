@@ -4,6 +4,10 @@ define('VERSION', '2.5.0');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
+$[if `process.env.TIMING`]$
+$time_start = hrtime(true); 
+$[end]$
+
 function human_filesize($bytes, $decimals = 2): string
 {
   $sz = ' KMGTP';
@@ -420,7 +424,8 @@ end:
 
   <div class="bg-body-tertiary mt-auto">
     <div class="container py-2 text-center" id="footer">
-      <?= $total_items ?> Items | <?= human_filesize($total_size) ?> $[if `!process.env.HIDE_ATTRIBUTION`]$| Powered by <a href="https://github.com/adrianschubek/dir-browser" class="text-decoration-none" target="_blank">adrianschubek/dir-browser</a> <span style="opacity: 0.8;"><?= VERSION ?>$[end]$</span>
+      <?= $total_items ?> Items | <?= human_filesize($total_size) ?> $[if `process.env.TIMING`]$| <?= (hrtime(true) - $time_start)/1000000 ?>s $[end]$ $[if `!process.env.HIDE_ATTRIBUTION`]$<br>
+    <span style="opacity:0.8">Powered by <a href="https://github.com/adrianschubek/dir-browser" class="text-decoration-none" target="_blank">adrianschubek/dir-browser</a> <span style="opacity: 0.8;"><?= VERSION ?>$[end]$</span></span>  
     </div>
   </div>
 
