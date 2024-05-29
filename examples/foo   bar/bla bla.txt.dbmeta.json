@@ -1,0 +1,5 @@
+{
+  "password_hash": "$argon2id$v=19$m=65536,t=4,p=1$a2JCSjdIcjRQWXZHY0tGVA$dE8qgIPbbhboBJ8tCHBTfQmJrbdRS/sohBMXPpxm/CY",
+  "password": "foobar",
+  "hidden": "false"
+}

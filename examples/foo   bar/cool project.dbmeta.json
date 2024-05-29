@@ -1,0 +1,5 @@
+{
+  "description": "A short project description ⭐",
+  "labels": ["danger:Laravel", "primary:PHP 8", "dark:Hot 🔥"],
+  "password": "foo"
+}
