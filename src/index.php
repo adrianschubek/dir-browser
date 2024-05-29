@@ -327,10 +327,11 @@ end:
 
     <?php } else { ?>
       <div class="rounded container card px-3" id="filetree">
-        <div class="row db-row py-2">
+        <div class="row db-row py-2 text-muted">
           <div class="col">Name</div>
-          <div class="col col-auto text-end">Size</div>
-          <div class="col col-2 text-end">Last Modified</div>
+          <div class="col col-auto text-end d-none d-md-inline-block">Size</div>
+          <div class="col col-2 text-end d-none d-md-inline-block">Last Modified</div>
+          <!-- <div title="Last modified" class="col col-2 text-end d-sm-none">Mod.</div> -->
         </div>
         <?php
         $now = new DateTime();

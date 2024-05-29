@@ -80,7 +80,7 @@ diretly embed pohpo in nginx maximum performance
 
 - when path contains a dot it triggers full reload -> turbolinks
 
-TODO: add experimental nginx caching (only safe when no password protection is used)
+TODO: add search php glob() . add nginx ratelimit
 
 TODO Features:
 - support parameters in URL ?key=password123 for protected directories/files
