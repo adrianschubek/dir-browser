@@ -266,7 +266,7 @@ end:
       color: inherit;
       text-decoration: none;
     }
-    .navbar-brand > a:hover {
+    #path > a:hover {
       text-decoration:underline;
       text-decoration-style: dotted;
     }
@@ -290,9 +290,10 @@ end:
 </head>
 
 <body class="d-flex flex-column min-vh-100">
-  <nav class="navbar navbar-expand-lg bg-body-tertiary mb-3 shadow-sm">
+  <!-- TODO: MOVE darkmode to bottom footer -->
+  <nav class="navbar navbar-expand-lg bg-body-tertiary mb-3 shadow-sm d-none">
     <div class="container-fluid">
-      <span class="navbar-brand me-0">
+      <!-- <span class="navbar-brand me-0">
       <a href="${{`process.env.BASE_PATH ?? ''`}}$/">/</a><?php
       // create links e.g. from ["foo","bar","foobar"] to ["/foo", "/foo/bar", "/foo/bar/foobar"]
       $urls = [];
@@ -302,7 +303,7 @@ end:
         echo '<a href="${{`process.env.BASE_PATH ?? ''`}}$' . $urls[$i - 1] . '">' . $part . '/</a>';
       }
       ?>
-      </span>
+      </span> -->
       <button class="navbar-toggler rounded" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -323,7 +324,7 @@ end:
     </div>
   </nav>
 
-  <div class="container pb-3">
+  <div class="container py-3">
     <?php if (defined("AUTH_REQUIRED")) { ?>
       <div class="card m-auto" style="max-width: 500px;">
         <div class="card-body">
@@ -351,9 +352,22 @@ end:
     <?php } else { ?>
       <div class="rounded container card px-3" id="filetree">
         <div class="row db-row py-2 text-muted">
+          <div class="col" id="path">
+            <a href="${{`process.env.BASE_PATH ?? ''`}}$/">/</a><?php
+            // create links e.g. from ["foo","bar","foobar"] to ["/foo", "/foo/bar", "/foo/bar/foobar"]
+            $urls = [];
+            foreach ($url_parts as $i => $part) {
+              $urls[] = end($urls) . '/' . $part;
+              // var_dump($i, $part, $urls);
+              echo '<a href="${{`process.env.BASE_PATH ?? ''`}}$' . $urls[$i - 1] . '">' . $part . '/</a>';
+            }
+            ?>
+          </div>
+        </div>
+        <div class="row db-row py-2 text-muted">
           <div class="col">Name</div>
           $[if `!process.env.NO_DL_COUNT`]$<div class="col col-auto text-end d-none d-md-inline-block">Downloads</div>$[end]$
-          <div class="col col-1 text-end d-none d-md-inline-block">Size</div>
+          <div class="col col-2 text-end d-none d-md-inline-block">Size</div>
           <div class="col col-2 text-end d-none d-md-inline-block">Last Modified</div>
           <!-- <div title="Last modified" class="col col-2 text-end d-sm-none">Mod.</div> -->
         </div>
@@ -424,7 +438,7 @@ end:
               </span>
               $[end]$
             </div>
-            <div class="col col-1 text-end">    
+            <div class="col col-2 text-end">    
               <span title="File size" class="ms-auto d-none d-md-inline rounded-1 text-end px-1">
                 <?= $file->size ?>
               </span>
@@ -506,7 +520,7 @@ end:
   <div class="bg-body-tertiary mt-auto">
     <div class="container py-2 text-center" id="footer">
       <?= $total_items ?> Items | <?= human_filesize($total_size) ?> $[if `process.env.TIMING`]$| <?= (hrtime(true) - $time_start)/1000000 ?> ms $[end]$ $[if `!process.env.HIDE_ATTRIBUTION`]$<br>
-    <span style="opacity:0.8">Powered by <a href="https://github.com/adrianschubek/dir-browser" class="text-decoration-none" target="_blank">adrianschubek/dir-browser</a> <span style="opacity: 0.8;"><?= VERSION ?>$[end]$</span></span>  
+    <span style="opacity:0.8"><span style="opacity: 0.8;">Powered by</span>  <a href="https://github.com/adrianschubek/dir-browser" class="text-decoration-none text-primary" target="_blank">dir-browser</a> <?= VERSION ?>$[end]$</span>  
     </div>
   </div>
 
