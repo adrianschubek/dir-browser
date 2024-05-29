@@ -411,8 +411,8 @@ end:
               }
             ?>
             </div>
-            <div class="col col-auto text-end">            
             <?php if (!$file->is_dir) { ?>
+            <div class="col col-auto text-end">
               $[if `!process.env.NO_DL_COUNT`]$
               <span title="Total downloads" class="ms-auto d-none d-md-inline border rounded-1 text-end px-1 <?= $file->dl_count === 0 ? "text-body-tertiary" : "" ?>">
                 <?= numsize($file->dl_count) ?>
@@ -423,17 +423,14 @@ end:
                   <path d="M12 4l0 12"></path>
                 </svg>
               </span>
-              $[else]$
-              <span></span>
               $[end]$
-              <span title="File size" class="ms-auto d-none d-md-inline border rounded-1 text-end px-1">
+            </div>
+            <div class="col col-1 text-end">    
+              <span title="File size" class="ms-auto d-none d-md-inline rounded-1 text-end px-1">
                 <?= $file->size ?>
               </span>
-            <?php } else { /* dummy cols for folders */ ?>
-              <span></span>
-              <span></span>
-            <?php } ?>
             </div>
+            <?php } ?>
             <div class="col col-2">
               <span title="Last modified on <?= $file->modified_date ?>" class="d-none d-md-block text-end filedatetime" ${{`process.env.HIGHLIGHT_UPDATED !== "false" && 'style="font-weight:<?= ($diff > 2 ? "normal !important;": "bold !important;") ?>"'`}}$>
                 <?= $file->modified_date ?>

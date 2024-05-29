@@ -83,8 +83,6 @@ diretly embed pohpo in nginx maximum performance
 TODO: add search php glob() . add nginx ratelimit
 
 TODO Features:
-- support parameters in URL ?key=password123 for protected directories/files
-      -> if key requried but no key present -> open dialog -> redirect to same url with ?key=...
 
       ?action=download ?action=view
       ?action=hash
