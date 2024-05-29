@@ -80,6 +80,11 @@ diretly embed pohpo in nginx maximum performance
 
 - when path contains a dot it triggers full reload -> turbolinks
 
+TODO: file versions support -> dbmeta.json
+TODO: sidebar/modal when clicking on file (optional ENV)
+TODO:  - ?preview file preview
+TODO: maybe persisten sidebar 2:1 layout -> on hover file show live preview + info + download button
+
 TODO: add search php glob() . add nginx ratelimit
 
 TODO Features:

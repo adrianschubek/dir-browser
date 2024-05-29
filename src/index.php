@@ -303,8 +303,6 @@ end:
       }
       ?>
       </span>
-      <!-- <span class="navbar-brand me-0"><?= '/' . implode(separator: '/', array: $url_parts) ?></span>
-      <span class="navbar-brand me-0"><?= '/' . implode(separator: '/', array: $url_parts) ?></span> -->
       <button class="navbar-toggler rounded" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -354,7 +352,8 @@ end:
       <div class="rounded container card px-3" id="filetree">
         <div class="row db-row py-2 text-muted">
           <div class="col">Name</div>
-          <div class="col col-auto text-end d-none d-md-inline-block">Size</div>
+          $[if `!process.env.NO_DL_COUNT`]$<div class="col col-auto text-end d-none d-md-inline-block">Downloads</div>$[end]$
+          <div class="col col-1 text-end d-none d-md-inline-block">Size</div>
           <div class="col col-2 text-end d-none d-md-inline-block">Last Modified</div>
           <!-- <div title="Last modified" class="col col-2 text-end d-sm-none">Mod.</div> -->
         </div>
@@ -414,7 +413,7 @@ end:
             <?php if (!$file->is_dir) { ?>
             <div class="col col-auto text-end">
               $[if `!process.env.NO_DL_COUNT`]$
-              <span title="Total downloads" class="ms-auto d-none d-md-inline border rounded-1 text-end px-1 <?= $file->dl_count === 0 ? "text-body-tertiary" : "" ?>">
+              <span title="Total downloads" class="ms-auto d-none d-md-inline rounded-1 text-end px-1 <?= $file->dl_count === 0 ? "text-body-tertiary" : "" ?>">
                 <?= numsize($file->dl_count) ?>
                 <svg style="margin-top: -5px;" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
