@@ -236,6 +236,11 @@ end:
     }
     a {
       color: inherit;
+      text-decoration: none;
+    }
+    a:hover {
+      text-decoration:underline;
+      text-decoration-style: dotted;
     }
     #filetree > a {
       border-bottom: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
@@ -253,8 +258,19 @@ end:
 <body class="d-flex flex-column min-vh-100">
   <nav class="navbar navbar-expand-lg bg-body-tertiary mb-3 shadow-sm">
     <div class="container-fluid">
-      <span class="navbar-brand me-0"><?= '/' . implode(separator: '/', array: $url_parts) ?></span>
-      <span class="navbar-brand me-0"><?= '/' . implode(separator: '/', array: $url_parts) ?></span>
+      <span class="navbar-brand me-0">
+      <a href="${{`process.env.BASE_PATH ?? ''`}}$/">/</a><?php
+      // create links e.g. from ["foo","bar","foobar"] to ["/foo", "/foo/bar", "/foo/bar/foobar"]
+      $urls = [];
+      foreach ($url_parts as $i => $part) {
+        $urls[] = end($urls) . '/' . $part;
+        // var_dump($i, $part, $urls);
+        echo '<a href="${{`process.env.BASE_PATH ?? ''`}}$' . $urls[$i - 1] . '">' . $part . '/</a>';
+      }
+      ?>
+      </span>
+      <!-- <span class="navbar-brand me-0"><?= '/' . implode(separator: '/', array: $url_parts) ?></span>
+      <span class="navbar-brand me-0"><?= '/' . implode(separator: '/', array: $url_parts) ?></span> -->
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
