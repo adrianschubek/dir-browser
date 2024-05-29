@@ -47,7 +47,7 @@ services:
 ```
 
 :::info
-If you are using a [reverse proxy](/getting-started/reverse-proxy) you may want the dir-browser to be accessible *only* from the reverse proxy. 
+If you are using a [reverse proxy](/getting-started/reverse-proxy.md) you may want the dir-browser to be accessible *only* from the reverse proxy. 
 In this case you should modify the `ports` section and add `127.0.0.1` before the port number.
 ```yaml
     ports: 

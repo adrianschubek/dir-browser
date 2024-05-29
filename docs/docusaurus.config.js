@@ -66,7 +66,8 @@ const config = {
             'https://github.com/adrianschubek/dir-browser/tree/main/docs/',
 
           sidebarCollapsible: false,
-
+          showLastUpdateAuthor: false,
+          showLastUpdateTime: true,
           lastVersion: '2.x',
           versions: {
             "0.1.x": {
@@ -119,14 +120,14 @@ const config = {
         }
       },
 
-      // announcementBar: {
-      //   id: 'abar',
-      //   content:
-      //     'dir-browser v3.0 release soon <a target="_blank" rel="noopener noreferrer" href="#">this survey</a>',
-      //   backgroundColor: '#fafbfc',
-      //   textColor: '#091E42',
-      //   isCloseable: false,
-      // },
+      announcementBar: {
+        id: 'abar',
+        content:
+          '🔥 dir-browser <a href="/v3/intro">v3.0</a> release soon with tons of new features and fresh UI 🔥',
+        backgroundColor: '#fafbfc',
+        textColor: '#091E42',
+        isCloseable: true,
+      },
 
       algolia: {
         // The application ID provided by Algolia
