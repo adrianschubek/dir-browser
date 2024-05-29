@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '2.5.0');
+define('VERSION', '3.0.0');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -197,6 +197,14 @@ end:
   <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/cosmo/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
   $[end]$
   <style data-turbo-eval="false">
+    $[ifeq env:THEME default]$
+    [data-bs-theme=dark] {
+      --bs-body-bg: #000000;
+      --bs-secondary-bg: #000000;
+      --bs-tertiary-bg: #000000;
+      --bs-tertiary-bg-rgb: 0, 0, 0;
+    }
+    $[end]$
     .item {
       grid-auto-flow: column dense;
       grid-template-columns: 20px auto 100px 75px max-content;
@@ -222,6 +230,19 @@ end:
     .footer {
       color: var(--bs-tertiary-color)
     }
+    .db-row {
+      text-decoration: unset;
+      /* background-color: var(--bs-tertiary-bg); */
+    }
+    a {
+      color: inherit;
+    }
+    #filetree > a {
+      border-bottom: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
+    }
+    #filetree > a:last-child {
+      border-bottom: none !important;
+    }
   </style>
   $[if `process.env.ICONS !== "false"`]$
   <link data-turbo-eval="false" href="https://cdn.jsdelivr.net/npm/file-icons-js@1/css/style.min.css" rel="stylesheet"></link>
@@ -232,7 +253,8 @@ end:
 <body class="d-flex flex-column min-vh-100">
   <nav class="navbar navbar-expand-lg bg-body-tertiary mb-3 shadow-sm">
     <div class="container-fluid">
-      <span class="navbar-brand"><?= '/' . implode(separator: '/', array: $url_parts) ?></span>
+      <span class="navbar-brand me-0"><?= '/' . implode(separator: '/', array: $url_parts) ?></span>
+      <span class="navbar-brand me-0"><?= '/' . implode(separator: '/', array: $url_parts) ?></span>
       <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -279,15 +301,17 @@ end:
       </div>
 
     <?php } else { ?>
-      <div class="list-group">
+      <div class="rounded card px-3" id="filetree">
         <?php
         $now = new DateTime();
         foreach ($sorted as $file) {
           $fileDate = new DateTime($file->modified_date);
           $diff = $now->diff($fileDate)->days;
         ?>
-          <a href="${{`process.env.BASE_PATH ?? ''`}}$<?= $file->url ?>" class="list-group-item list-group-item-action d-grid gap-2 item" ${{`process.env.HIGHLIGHT_UPDATED !== "false" && 'style="border-right-width: thick; border-right-color: <?= ($diff <= 2 ? "var(--bs-blue) !important;": "var(--bs-gray-300) !important;") ?>"'`}}$>
-            <?php if ($file->name === "..") { ?>
+        <!-- <div class="row"> -->
+          <a href="${{`process.env.BASE_PATH ?? ''`}}$<?= $file->url ?>" class="row db-row py-2">
+          <div class="col col-auto pe-0">
+          <?php if ($file->name === "..") { ?>
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-corner-left-up" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                 <path d="M18 18h-6a3 3 0 0 1 -3 -3v-10l-4 4m8 0l-4 -4"></path>
@@ -308,7 +332,8 @@ end:
                 </svg>
               </div>
             <?php } ?>
-            <span>
+            </div> 
+            <div class="col">
             <?= $file->name ?>
             <?php 
               if ($file->meta !== null) {
@@ -325,15 +350,16 @@ end:
                 }
                 if ($file->meta->password !== null) {
             ?>
-              <span class="key-icon"></span>
+              <span title="Password protected" class="key-icon"></span>
             <?php
                 }
               }
             ?>
-            </span>
+            </div>
+            <div class="col col-auto">            
             <?php if (!$file->is_dir) { ?>
               $[if `!process.env.NO_DL_COUNT`]$
-              <span class="ms-auto d-none d-md-block border rounded-1 text-end px-1 <?= $file->dl_count === 0 ? "text-body-tertiary" : "" ?>">
+              <span class="ms-auto d-none d-md-inline border rounded-1 text-end px-1 <?= $file->dl_count === 0 ? "text-body-tertiary" : "" ?>">
                 <?= numsize($file->dl_count) ?>
                 <svg style="margin-top: -5px;" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -345,23 +371,27 @@ end:
               $[else]$
               <span></span>
               $[end]$
-              <span class="ms-auto d-none d-md-block border rounded-1 text-end px-1">
+              <span class="ms-auto d-none d-md-inline border rounded-1 text-end px-1">
                 <?= $file->size ?>
               </span>
             <?php } else { /* dummy cols for folders */ ?>
               <span></span>
               <span></span>
             <?php } ?>
-            <span class="d-none d-md-block text-end filedatetime">
-              <?= $file->modified_date ?>
-            </span>
+            </div>
+            <div class="col col-auto">
+              <span title="<?= $file->modified_date ?>" class="d-none d-md-block text-end filedatetime" ${{`process.env.HIGHLIGHT_UPDATED !== "false" && 'style="font-weight:<?= ($diff > 2 ? "normal !important;": "bold !important;") ?>"'`}}$>
+                <?= $file->modified_date ?>
+              </span>
+            </div>
           </a>
+
         <?php
         }
         ?>
 
         <?php if (count($sorted_files) === 0 && (count($sorted_folders) === 0 || count($sorted_folders) === 1 && $sorted_folders[0]->name === "..")) { ?>
-          <div class="list-group-item bg-body-tertiary text-center" role="alert">
+          <div class="list-group-item text-center py-3" role="alert">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folder-off" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
               <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
               <path d="M3 3l18 18"></path>
@@ -413,7 +443,7 @@ end:
       $readme_render = $converter->convert(file_get_contents(PUBLIC_FOLDER . $readme->url));
   ?>
   <div class="container pb-3">
-    <div class="card p-3">
+    <div class="card rounded p-3">
       <?= $readme_render ?>
     </div>
   </div>
@@ -424,7 +454,7 @@ end:
 
   <div class="bg-body-tertiary mt-auto">
     <div class="container py-2 text-center" id="footer">
-      <?= $total_items ?> Items | <?= human_filesize($total_size) ?> $[if `process.env.TIMING`]$| <?= (hrtime(true) - $time_start)/1000000 ?>s $[end]$ $[if `!process.env.HIDE_ATTRIBUTION`]$<br>
+      <?= $total_items ?> Items | <?= human_filesize($total_size) ?> $[if `process.env.TIMING`]$| <?= (hrtime(true) - $time_start)/1000000 ?> ms $[end]$ $[if `!process.env.HIDE_ATTRIBUTION`]$<br>
     <span style="opacity:0.8">Powered by <a href="https://github.com/adrianschubek/dir-browser" class="text-decoration-none" target="_blank">adrianschubek/dir-browser</a> <span style="opacity: 0.8;"><?= VERSION ?>$[end]$</span></span>  
     </div>
   </div>

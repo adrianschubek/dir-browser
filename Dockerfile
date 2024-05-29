@@ -28,6 +28,8 @@ WORKDIR /var/www/html
 
 RUN composer require "league/commonmark:^2.4"
 
+RUN mkdir -p /data/nginx/cache
+
 COPY server/nginx/nginx.conf /etc/nginx/nginx.conf
 
 COPY server/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
