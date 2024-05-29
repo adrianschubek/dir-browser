@@ -193,7 +193,7 @@ if ($path_is_dir) {
       "size" => filesize($local_path),
       "modified" => filemtime($local_path),
       "downloads" => $[if `!process.env.NO_DL_COUNT`]$ intval($redis->get($relative_path))$[else]$0$[end]$,
-      "hash" => $[if `process.env.HASH`]$hash_file('sha256', $local_path)$[else]$null$[end]$
+      "hash_sha256" => $[if `process.env.HASH`]$hash_file('sha256', $local_path)$[else]$null$[end]$
     ];
     header("Content-Type: application/json");
     die(json_encode($info));
@@ -320,7 +320,7 @@ end:
 <body class="d-flex flex-column min-vh-100">
   <div class="container py-3">
     <?php if (defined("AUTH_REQUIRED")) { ?>
-      <div class="card rounded m-auto" style="max-width: 500px;">
+      <div class="card rounded border-2 m-auto" style="max-width: 500px;">
         <div class="card-body">
           <h4 class="alert-heading key-icon">Protected file</h4>
           <p class="mb-2">Please enter the password to access this file.</p>
@@ -344,7 +344,7 @@ end:
       </div>
 
     <?php } else { ?>
-      <div class="rounded container card px-3" id="filetree">
+      <div class="rounded container card border-2  px-3" id="filetree">
         <div class="row db-row py-2 text-muted">
           <div class="col" id="path">
             <a href="${{`process.env.BASE_PATH ?? ''`}}$/">/</a><?php
@@ -514,7 +514,7 @@ end:
       $readme_render = $converter->convert(file_get_contents(PUBLIC_FOLDER . $readme->url));
   ?>
   <div class="container pb-3">
-    <div class="card rounded p-3" id="readme">
+    <div class="card rounded border-2 p-3" id="readme">
       <?= $readme_render ?>
     </div>
   </div>
@@ -530,7 +530,26 @@ end:
     </div>
   </div>
 
-  <script data-turbo-eval="false" async defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  $[ifeq env:LAYOUT popup]$
+  <div class="modal rounded fade show" style="background-color:rgba(0, 0, 0, 0.2);" id="file-popup" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable">
+      <div class="modal-content rounded border-2">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="staticBackdropLabel">Modal title</h1>
+          <button type="button" class="btn-close" id="file-popup-x" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          ...
+        </div>
+        <div class="modal-footer">
+          <a id="file-info-url-api" href="" type="button" class="btn rounded btn-secondary" data-bs-dismiss="modal">API <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-code"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 8l-4 4l4 4" /><path d="M17 8l4 4l-4 4" /><path d="M14 4l-4 16" /></svg></a>
+          <a id="file-info-url" type="button" class="btn rounded btn-primary">Download <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-download"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  $[end]$
+
   <!-- Powered by https://github.com/adrianschubek/dir-browser -->
   <script>
     $[if `process.env.DATE_FORMAT === "relative"`]$
@@ -668,8 +687,46 @@ end:
       items.forEach((item) => item.remove());
       sorted.forEach((item) => document.querySelector('#filetree').appendChild(item));
     };
+    $[ifeq env:LAYOUT popup]$
+      const setFileinfo = (data) => {
+        document.querySelector('#file-popup .modal-title').innerText = data.name;
+        document.querySelector("#file-info-url-api").href = data.url + "?info";
+        document.querySelector("#file-info-url").href = data.url;
+        document.querySelector('#file-popup').classList.add("d-block");
+      }
+    $[end]$
   </script>
   <script>
+    $[ifeq env:LAYOUT popup]$
+    document.querySelectorAll('.db-file').forEach((item) => {
+      // skip folders
+      if (item.getAttribute('data-file-isdir') === '1') {
+        return;
+      }
+      item.addEventListener('click', async (e) => {
+        e.preventDefault();
+
+        // only do this on reload click button refreshFileinfo()
+        // const data = await fetch(item.href + "?info").then((res) => res.json());
+        // alert(JSON.stringify(data, null, 2));
+
+        setFileinfo({
+          name: item.getAttribute('data-file-name'),
+          url: item.href
+        });
+        document.querySelector('#file-popup').classList.add("d-block");
+      })
+    });
+    document.querySelector('#file-popup').addEventListener('click', (e) => {
+      if (e.target === document.querySelector('#file-popup')) {
+        document.querySelector('#file-popup').classList.remove("d-block");
+      }
+    });
+    document.querySelector('#file-popup-x').addEventListener('click', (e) => {
+      document.querySelector('#file-popup').classList.remove("d-block");
+    });
+    $[end]$
+
     document.querySelector('#search').addEventListener('input', search);
 
     document.querySelector('#name').addEventListener('click', (e) => {

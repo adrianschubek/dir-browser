@@ -50,6 +50,8 @@ ENV DATE_FORMAT=relative
 
 ENV HASH=true
 
+ENV LAYOUT=basic
+
 RUN chmod +x /init.sh
 
 EXPOSE 8080

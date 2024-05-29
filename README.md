@@ -88,6 +88,7 @@ TODO: maybe persisten sidebar 2:1 layout -> on click(nicht hover) file show live
       - on mobile show modal instead
 
 TODO: add search php glob() . add nginx ratelimit
+    TODO --- pass IP from host to container for ratelimit!!
 
 TODO Features:
 
