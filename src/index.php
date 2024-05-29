@@ -358,12 +358,17 @@ end:
             ?>
           </div>
           <div class="col-auto pe-0">
-            <a class="btn rounded btn-sm text-muted">
+            <a class="btn rounded btn-sm text-muted" onclick="toggleSearch()">
             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
             </a>
             <a class="btn rounded btn-sm text-muted" data-color-toggler onclick="toggletheme()">
             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-moon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" /></svg>
             </a>
+          </div>
+        </div>
+        <div class="row db-row py-2 text-muted d-none" id="search-container">
+          <div class="col">
+            <input type="text" class="form-control rounded" placeholder="Search" id="search">
           </div>
         </div>
         <div class="row db-row py-2 text-muted" id="sort">
@@ -611,6 +616,26 @@ end:
     // TODO: sorting
   </script>
   <script data-turbo-eval="false">
+    const search = () => {
+      const search = document.querySelector('#search').value.toLowerCase();
+      const items = Array.from(document.querySelectorAll('.db-file'));
+      items.forEach((item) => {
+        const name = item.getAttribute('data-file-name').toLowerCase();
+        if (name.includes(search)) {
+          item.classList.remove('d-none');
+        } else {
+          item.classList.add('d-none');
+        }
+      });
+    };
+    const toggleSearch = () => {
+      const search = document.querySelector('#search-container');
+      search.classList.toggle('d-none');
+      if (!search.classList.contains('d-none')) {
+        document.querySelector('#search').focus();
+      }
+    };
+
     const sortElements = (key, elems) => elems.sort((a, b) => {
       const aVal = a.getAttribute(`data-file-${key}`);
       const bVal = b.getAttribute(`data-file-${key}`);
@@ -645,6 +670,8 @@ end:
     };
   </script>
   <script>
+    document.querySelector('#search').addEventListener('input', search);
+
     document.querySelector('#name').addEventListener('click', (e) => {
       e.preventDefault();
       sessionStorage.setItem("sort:order:name", sessionStorage.getItem("sort:order:name") === "asc" ? "desc" : "asc");
