@@ -151,12 +151,37 @@ if ($path_is_dir) {
     }
   }
 
+  $[if `process.env.HASH`]$
+  // only allow download if requested hash matches actual hash
+  if (isset($_REQUEST["hash"]) || isset($meta) && $meta->hash_required === true) {
+    if ($_REQUEST["hash"] !== hash_file('sha256', $local_path)) {
+      http_response_code(403);
+      die("<b>Access denied.</b> Supplied hash does not match actual file hash.");
+    }
+  }
+  $[end]$
+
   // increment redis view counter
   $[if `!process.env.NO_DL_COUNT`]$
   $redis = new Redis();
   $redis->connect('127.0.0.1', 6379);
   $redis->incr($relative_path);
   $[end]$
+
+  if(isset($_REQUEST["info"])) {
+    $info = [
+      "path" => $relative_path,
+      "name" => basename($local_path),
+      "mime" => mime_content_type($local_path) ?? "application/octet-stream",
+      "size" => filesize($local_path),
+      "modified" => filemtime($local_path),
+      "downloads" => $[if `!process.env.NO_DL_COUNT`]$$redis->get($relative_path)$[else]$0$[end]$,
+      "hash" => $[if `process.env.HASH`]$hash_file('sha256', $local_path)$[else]$null$[end]$
+    ];
+    header("Content-Type: application/json");
+    die(json_encode($info));
+  }
+   
   // let nginx guess content type
   header("Content-Type: ");
   // let nginx handle file serving
