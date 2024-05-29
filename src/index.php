@@ -123,6 +123,23 @@ if ($path_is_dir) {
   $sorted_files = array_reverse($sorted_files);
   $[end]$
   $sorted = array_merge($sorted_folders, $sorted_files);
+
+  // if list request return json
+  if(isset($_REQUEST["ls"])) {
+    $info = [];
+    foreach ($sorted as $file) {
+      $info[] = [
+        "url" => $file->url,
+        "name" => $file->name,
+        "type" => $file->is_dir ? "dir" : "file",
+        "size" => $file->size,
+        "modified" => $file->modified_date,
+        "downloads" => $[if `!process.env.NO_DL_COUNT`]$ intval($redis->get($file->url))$[else]$0$[end]$
+      ];
+    }
+    header("Content-Type: application/json");
+    die(json_encode($info));
+  }
 } elseif (file_exists($local_path)) {
   // local path is file. serve it directly using nginx
 
@@ -175,7 +192,7 @@ if ($path_is_dir) {
       "mime" => mime_content_type($local_path) ?? "application/octet-stream",
       "size" => filesize($local_path),
       "modified" => filemtime($local_path),
-      "downloads" => $[if `!process.env.NO_DL_COUNT`]$$redis->get($relative_path)$[else]$0$[end]$,
+      "downloads" => $[if `!process.env.NO_DL_COUNT`]$ intval($redis->get($relative_path))$[else]$0$[end]$,
       "hash" => $[if `process.env.HASH`]$hash_file('sha256', $local_path)$[else]$null$[end]$
     ];
     header("Content-Type: application/json");
@@ -293,49 +310,15 @@ end:
 </head>
 
 <body class="d-flex flex-column min-vh-100">
-  <!-- TODO: MOVE darkmode to bottom footer -->
-  <nav class="navbar navbar-expand-lg bg-body-tertiary mb-3 shadow-sm d-none">
-    <div class="container-fluid">
-      <!-- <span class="navbar-brand me-0">
-      <a href="${{`process.env.BASE_PATH ?? ''`}}$/">/</a><?php
-      // create links e.g. from ["foo","bar","foobar"] to ["/foo", "/foo/bar", "/foo/bar/foobar"]
-      $urls = [];
-      foreach ($url_parts as $i => $part) {
-        $urls[] = end($urls) . '/' . $part;
-        // var_dump($i, $part, $urls);
-        echo '<a href="${{`process.env.BASE_PATH ?? ''`}}$' . $urls[$i - 1] . '">' . $part . '/</a>';
-      }
-      ?>
-      </span> -->
-      <button class="navbar-toggler rounded" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        </ul>
-        <div class="nav-item" data-color-toggler onclick="toggletheme()">
-          <a class="btn">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brightness-half" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-              <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-              <path d="M12 9a3 3 0 0 0 0 6v-6z"></path>
-              <path d="M6 6h3.5l2.5 -2.5l2.5 2.5h3.5v3.5l2.5 2.5l-2.5 2.5v3.5h-3.5l-2.5 2.5l-2.5 -2.5h-3.5v-3.5l-2.5 -2.5l2.5 -2.5z">
-              </path>
-            </svg>
-          </a>
-        </div>
-      </div>
-    </div>
-  </nav>
-
   <div class="container py-3">
     <?php if (defined("AUTH_REQUIRED")) { ?>
-      <div class="card m-auto" style="max-width: 500px;">
+      <div class="card rounded m-auto" style="max-width: 500px;">
         <div class="card-body">
           <h4 class="alert-heading key-icon">Protected file</h4>
           <p class="mb-2">Please enter the password to access this file.</p>
           <form method="post">
-            <input autofocus type="password" class="form-control mb-2" id="key" name="key" required>
-            <button type="submit" class="btn btn-primary key-icon form-control">Continue</button>
+            <input autofocus type="password" class="form-control mb-2 rounded" id="key" name="key" required>
+            <button type="submit" class="btn rounded btn-primary key-icon form-control">Continue</button>
           </form>
         </div>
       </div>
@@ -367,20 +350,19 @@ end:
             ?>
           </div>
           <div class="col-auto pe-0">
-            <a class="btn btn-sm text-muted">
+            <a class="btn rounded btn-sm text-muted">
             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
             </a>
-            <a class="btn btn-sm text-muted" data-color-toggler onclick="toggletheme()">
+            <a class="btn rounded btn-sm text-muted" data-color-toggler onclick="toggletheme()">
             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-moon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" /></svg>
             </a>
           </div>
         </div>
-        <div class="row db-row py-2 text-muted">
-          <div class="col">Name</div>
-          $[if `!process.env.NO_DL_COUNT`]$<div class="col col-auto text-end d-none d-md-inline-block">Downloads</div>$[end]$
-          <div class="col col-2 text-end d-none d-md-inline-block">Size</div>
-          <div class="col col-2 text-end d-none d-md-inline-block">Last Modified</div>
-          <!-- <div title="Last modified" class="col col-2 text-end d-sm-none">Mod.</div> -->
+        <div class="row db-row py-2 text-muted" id="sort">
+          <a href="" class="col" id="sort-name">Name</a>
+          $[if `!process.env.NO_DL_COUNT`]$<a href="" class="col col-auto text-end d-none d-md-inline-block" id="sort-dl">Downloads</a>$[end]$
+          <a href="" class="col col-2 text-end d-none d-md-inline-block" id="sort-size">Size</a>
+          <a href="" class="col col-2 text-end d-none d-md-inline-block" id="sort-mod">Modified</a>
         </div>
         <?php
         $now = new DateTime();
@@ -438,7 +420,7 @@ end:
             <?php if (!$file->is_dir) { ?>
             <div class="col col-auto text-end">
               $[if `!process.env.NO_DL_COUNT`]$
-              <span title="Total downloads" class="ms-auto d-none d-md-inline rounded-1 text-end px-1 <?= $file->dl_count === 0 ? "text-body-tertiary" : "" ?>">
+              <span title="Total downloads" class="text-muted ms-auto d-none d-md-inline rounded-1 text-end px-1 <?= $file->dl_count === 0 ? "text-body-tertiary" : "" ?>">
                 <?= numsize($file->dl_count) ?>
                 <svg style="margin-top: -5px;" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -619,6 +601,44 @@ end:
     }
 
     // TODO: sorting
+  </script>
+  <script data-turbo-eval="false">
+    const sort = (key, reverse) => {
+      const items = Array.from(document.querySelectorAll('.db-row'));
+      const sorted = items.sort((a, b) => {
+        const aVal = a.querySelector(`#${key}`).innerText;
+        const bVal = b.querySelector(`#${key}`).innerText;
+        return aVal.localeCompare(bVal);
+      });
+      if (reverse) {
+        sorted.reverse();
+      }
+      items.forEach((item) => item.remove());
+      sorted.forEach((item) => document.querySelector('#filetree').appendChild(item));
+    };
+  </script>
+  <script>
+    document.querySelector('#sort-name').addEventListener('click', (e) => {
+      e.preventDefault();
+      sort('sort-name', false);
+    });
+
+    $[if `!process.env.NO_DL_COUNT`]$
+    document.querySelector('#sort-dl').addEventListener('click', (e) => {
+      e.preventDefault();
+      sort('sort-dl', true);
+    });
+    $[end]$
+
+    document.querySelector('#sort-size').addEventListener('click', (e) => {
+      e.preventDefault();
+      sort('sort-size', true);
+    });
+
+    document.querySelector('#sort-mod').addEventListener('click', (e) => {
+      e.preventDefault();
+      sort('sort-mod', true);
+    });
   </script>
 </body>
 
