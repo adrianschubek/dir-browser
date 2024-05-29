@@ -68,30 +68,26 @@ const config = {
           sidebarCollapsible: false,
           showLastUpdateAuthor: false,
           showLastUpdateTime: true,
-          lastVersion: '2.x',
+          lastVersion: 'current',
           versions: {
             "0.1.x": {
               label: 'v0',
-              badge: false,
               banner: "unmaintained",
               path: '/v0',
             },
             "1.x": {
               label: 'v1',
-              badge: false,
               banner: "unmaintained",
               path: '/v1',
             },
             "2.x": {
-              label: 'v2 (latest✅)',
-              badge: false,
-              banner: "none",
+              label: 'v2',
+              banner: "unmaintained",
               path: '/v2',
             },
             "current": {
-              label: 'v3 (upcoming🔥)',
-              badge: false,
-              banner: "unreleased",
+              label: 'v3 (latest✅)',
+              banner: "none",
               path: '/v3',
             },
           },
@@ -123,7 +119,7 @@ const config = {
       announcementBar: {
         id: 'abar',
         content:
-          '🔥 dir-browser <a href="/v3/intro">v3.0</a> release soon with tons of new features and fresh UI 🔥',
+          '🔥 dir-browser <a href="/v3/intro">v3.0</a> released with tons of new features and fresh UI 🔥',
         backgroundColor: '#fafbfc',
         textColor: '#091E42',
         isCloseable: true,
