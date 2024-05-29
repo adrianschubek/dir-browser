@@ -18,14 +18,6 @@ Access the directory browser at `http://localhost:8080`.
 You may want to run the container with the `--restart always` flag to ensure that the container is always running even after a system reboot.
 :::
 
-To set configuration options you can use `docker run`
-- with the `-e THEME=cosmo -e DATE_FORMAT=local` arguments
-- or load it from an environment file using [`--env-file .env`](https://docs.docker.com/reference/cli/docker/container/run/#env).
-```ini title=".env"
-THEME=cosmo
-DATE_FORMAT=local
-```
-
 ## Docker Compose
 
 You can also use [Docker Compose](https://docs.docker.com/compose/) to run the container.
@@ -43,7 +35,6 @@ services:
       - redissave:/var/lib/redis/
     environment: # here you can set configuration options (see configuration section for more details)
       - THEME=cosmo
-      - DATE_FORMAT=local
 ```
 
 :::info

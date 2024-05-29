@@ -67,11 +67,31 @@ const config = {
 
           sidebarCollapsible: false,
 
-          lastVersion: 'current',
+          lastVersion: '2.x',
           versions: {
-            current: {
-              label: '2.x',
-              path: '/',
+            "0.1.x": {
+              label: 'v0',
+              badge: false,
+              banner: "unmaintained",
+              path: '/v0',
+            },
+            "1.x": {
+              label: 'v1',
+              badge: false,
+              banner: "unmaintained",
+              path: '/v1',
+            },
+            "2.x": {
+              label: 'v2 (latest✅)',
+              badge: false,
+              banner: "none",
+              path: '/v2',
+            },
+            "current": {
+              label: 'v3 (upcoming🔥)',
+              badge: false,
+              banner: "unreleased",
+              path: '/v3',
             },
           },
         },
@@ -98,6 +118,16 @@ const config = {
           }
         }
       },
+
+      // announcementBar: {
+      //   id: 'abar',
+      //   content:
+      //     'dir-browser v3.0 release soon <a target="_blank" rel="noopener noreferrer" href="#">this survey</a>',
+      //   backgroundColor: '#fafbfc',
+      //   textColor: '#091E42',
+      //   isCloseable: false,
+      // },
+
       algolia: {
         // The application ID provided by Algolia
         appId: '18XYMP4MYT',

@@ -1,0 +1,30 @@
+---
+sidebar_position: 6
+---
+
+# Ignore files & folders
+
+You can ignore some files and folders by setting the environment variable `IGNORE` to an ignore pattern. By default everything is shown.
+
+| Pattern | Description |
+|---|---|
+| `*` | Matches everything (including nothing) |
+| `?` | Matches any single character | 
+| `[seq]` | Matches any character in seq | 
+| `[!seq]` | Matches any character not in seq | 
+
+#### Examples
+
+- `*[ab].txt` hides all files or folder ending with either `a.txt` or `b.txt`.
+
+- `.*` hides all files or folder starting with a dot <kbd>.</kbd>
+
+- `[a-zA-Z0-9]*` hides all files or folder starting with a letter or number.
+
+- `[!a-zA-Z0-9]*` hides all files or folder not starting with a letter or number.
+
+- `report-???.pdf` hides `report-001.pdf`, `report-123.pdf` but not `report-1.pdf`.
+
+:::info
+These are *not* regular expressions but shell patterns used in `fnmatch`.
+:::

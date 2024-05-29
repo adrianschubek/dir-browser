@@ -1,0 +1,38 @@
+# Performance tuning
+
+The performance is already pretty good, but there are a few configuration options that can be tweaked to further improve performance.
+
+<figure align="center">
+
+![](/img/perfdef.png)
+
+<figcaption>
+
+[Default](/getting-started/installation) performance running version 1.1.0 on a Ryzen 5 5600X processor
+
+</figcaption>
+
+</figure>
+
+## Disable Download count
+
+By default, the download count is enabled. This means that every time a file is downloaded, the download count is incremented by one. This is done by incrementing a Redis key.
+However this has a performance impact.
+
+If you don't need the download count, you can disable it by setting the `NO_DL_COUNT` environment variable to `true`.
+
+<figure align="center">
+
+![](/img/perf2.png)
+
+<figcaption>
+
+Throughput after starting the container with env variable `NO_DL_COUNT=true`
+
+</figcaption>
+
+</figure>
+
+## Disable Readme Renderer
+
+Set `NO_README_RENDER` to `true` to disable the rendering of README files for improved performance.

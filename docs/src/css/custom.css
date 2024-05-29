@@ -4,7 +4,7 @@
  * work well for content-centric websites.
  */
 
-@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap");
+/* @import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"); */
 /* @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap'); */
 
 body,
@@ -14,13 +14,13 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: "Space Grotesk", sans-serif !important;
+  /* font-family: "Space Grotesk", sans-serif !important; */
 }
 
 code,
 token-line {
   /* font-family: "Consolas", monospace !important; */
-  font-family: unset;
+  /* font-family: unset; */
   /* font-family: 'JetBrains Mono', monospace !important; */
 }
 
@@ -59,7 +59,11 @@ token-line {
 }
 
 .menu {
-  background: var(--sidebar-style);
+  /* background: var(--sidebar-style); */
+}
+
+.theme-doc-sidebar-container {
+  border-right: none !important;
 }
 
 /* You can override the default Infima variables here. */

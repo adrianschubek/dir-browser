@@ -83,6 +83,7 @@ diretly embed pohpo in nginx maximum performance
 TODO: file versions support -> dbmeta.json
 TODO: sidebar/modal when clicking on file (optional ENV)
 TODO:  - ?preview file preview
+        - nur modal mit overflow runter scrolling besser!!
 TODO: maybe persisten sidebar 2:1 layout -> on click(nicht hover) file show live preview + info + download button
       - on mobile show modal instead
 
