@@ -203,6 +203,9 @@ end:
       --bs-secondary-bg: #000000;
       --bs-tertiary-bg: #000000;
       --bs-tertiary-bg-rgb: 0, 0, 0;
+      #filetree > a:hover {
+        background-color: #ffffff0d;
+      }
     }
     $[end]$
     .item {
@@ -238,9 +241,15 @@ end:
       color: inherit;
       text-decoration: none;
     }
-    a:hover {
+    .navbar-brand > a:hover {
       text-decoration:underline;
       text-decoration-style: dotted;
+    }
+    #readme a, #readme a:hover {
+      all: revert;
+    }
+    #filetree > a:hover {
+      background-color: var(--bs-tertiary-bg);
     }
     #filetree > a {
       border-bottom: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
@@ -271,7 +280,7 @@ end:
       </span>
       <!-- <span class="navbar-brand me-0"><?= '/' . implode(separator: '/', array: $url_parts) ?></span>
       <span class="navbar-brand me-0"><?= '/' . implode(separator: '/', array: $url_parts) ?></span> -->
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <button class="navbar-toggler rounded" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -317,15 +326,19 @@ end:
       </div>
 
     <?php } else { ?>
-      <div class="rounded card px-3" id="filetree">
+      <div class="rounded container card px-3" id="filetree">
+        <div class="row db-row py-2">
+          <div class="col">Name</div>
+          <div class="col col-auto text-end">Size</div>
+          <div class="col col-2 text-end">Last Modified</div>
+        </div>
         <?php
         $now = new DateTime();
         foreach ($sorted as $file) {
           $fileDate = new DateTime($file->modified_date);
           $diff = $now->diff($fileDate)->days;
         ?>
-        <!-- <div class="row"> -->
-          <a href="${{`process.env.BASE_PATH ?? ''`}}$<?= $file->url ?>" class="row db-row py-2">
+        <a href="${{`process.env.BASE_PATH ?? ''`}}$<?= $file->url ?>" class="row db-row py-2">
           <div class="col col-auto pe-0">
           <?php if ($file->name === "..") { ?>
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-corner-left-up" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -372,10 +385,10 @@ end:
               }
             ?>
             </div>
-            <div class="col col-auto">            
+            <div class="col col-auto text-end">            
             <?php if (!$file->is_dir) { ?>
               $[if `!process.env.NO_DL_COUNT`]$
-              <span class="ms-auto d-none d-md-inline border rounded-1 text-end px-1 <?= $file->dl_count === 0 ? "text-body-tertiary" : "" ?>">
+              <span title="Total downloads" class="ms-auto d-none d-md-inline border rounded-1 text-end px-1 <?= $file->dl_count === 0 ? "text-body-tertiary" : "" ?>">
                 <?= numsize($file->dl_count) ?>
                 <svg style="margin-top: -5px;" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -387,7 +400,7 @@ end:
               $[else]$
               <span></span>
               $[end]$
-              <span class="ms-auto d-none d-md-inline border rounded-1 text-end px-1">
+              <span title="File size" class="ms-auto d-none d-md-inline border rounded-1 text-end px-1">
                 <?= $file->size ?>
               </span>
             <?php } else { /* dummy cols for folders */ ?>
@@ -395,8 +408,8 @@ end:
               <span></span>
             <?php } ?>
             </div>
-            <div class="col col-auto">
-              <span title="<?= $file->modified_date ?>" class="d-none d-md-block text-end filedatetime" ${{`process.env.HIGHLIGHT_UPDATED !== "false" && 'style="font-weight:<?= ($diff > 2 ? "normal !important;": "bold !important;") ?>"'`}}$>
+            <div class="col col-2">
+              <span title="Last modified on <?= $file->modified_date ?>" class="d-none d-md-block text-end filedatetime" ${{`process.env.HIGHLIGHT_UPDATED !== "false" && 'style="font-weight:<?= ($diff > 2 ? "normal !important;": "bold !important;") ?>"'`}}$>
                 <?= $file->modified_date ?>
               </span>
             </div>
@@ -459,7 +472,7 @@ end:
       $readme_render = $converter->convert(file_get_contents(PUBLIC_FOLDER . $readme->url));
   ?>
   <div class="container pb-3">
-    <div class="card rounded p-3">
+    <div class="card rounded p-3" id="readme">
       <?= $readme_render ?>
     </div>
   </div>
@@ -557,6 +570,8 @@ end:
       localStorage.setItem('theme', theme)
       setTheme(theme)
     }
+
+    // TODO: sorting
   </script>
 </body>
 

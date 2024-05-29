@@ -4,7 +4,13 @@
 _Easiest way to browse your files and folders on the web._
 ![](dir-browser.png) -->
 
-[![](https://user-images.githubusercontent.com/19362349/235141708-34db874f-729c-4e50-b458-a3c0cb5d6c07.png)](https://dir.adriansoftware.de)
+<!-- [![](https://user-images.githubusercontent.com/19362349/235141708-34db874f-729c-4e50-b458-a3c0cb5d6c07.png)](https://dir.adriansoftware.de) -->
+
+<img src="https://user-images.githubusercontent.com/19362349/235141708-34db874f-729c-4e50-b458-a3c0cb5d6c07.png" alt="" style="
+    /* overflow: hidden; */
+    object-fit: scale-down;
+    width: 100%;
+">
 
 <!--
 ![](p1.png)
@@ -20,9 +26,13 @@ _Easiest way to browse your files and folders on the web._
 
 </h2>
 
-![image](https://github.com/adrianschubek/dir-browser/assets/19362349/102e058f-7d9e-457f-bde5-d61a8b0733f7)
+<!-- ![image](https://github.com/adrianschubek/dir-browser/assets/19362349/102e058f-7d9e-457f-bde5-d61a8b0733f7) -->
 
-
+<img src="https://github.com/adrianschubek/dir-browser/assets/19362349/102e058f-7d9e-457f-bde5-d61a8b0733f7" alt="" style="
+    /* overflow: hidden; */
+    object-fit: scale-down;
+    width: 100%;
+">
 
 
 ## Demo
