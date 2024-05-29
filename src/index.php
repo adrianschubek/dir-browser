@@ -100,7 +100,7 @@ if ($path_is_dir) {
     $item = new File();
     $item->name = $file;
     $item->url = $url;
-    $item->size = human_filesize($file_size);
+    $item->size = $file_size;
     $item->is_dir = $is_dir;
     $item->modified_date = $file_modified_date;
     $item->dl_count =  $[if `!process.env.NO_DL_COUNT`]$!$is_dir ? $redis->get($url) :$[end]$ 0;
@@ -302,6 +302,14 @@ end:
     #filetree > a:last-child {
       border-bottom: none !important;
     }
+    #sort > a > svg {
+      width: 16px !important;
+      height: 16px !important;
+      display: none;
+    }
+    #sort > a:hover > svg {
+      display: inline;
+    }
   </style>
   $[if `process.env.ICONS !== "false"`]$
   <link data-turbo-eval="false" href="https://cdn.jsdelivr.net/npm/file-icons-js@1/css/style.min.css" rel="stylesheet"></link>
@@ -359,10 +367,10 @@ end:
           </div>
         </div>
         <div class="row db-row py-2 text-muted" id="sort">
-          <a href="" class="col" id="sort-name">Name</a>
-          $[if `!process.env.NO_DL_COUNT`]$<a href="" class="col col-auto text-end d-none d-md-inline-block" id="sort-dl">Downloads</a>$[end]$
-          <a href="" class="col col-2 text-end d-none d-md-inline-block" id="sort-size">Size</a>
-          <a href="" class="col col-2 text-end d-none d-md-inline-block" id="sort-mod">Modified</a>
+          <a href="" class="col" id="name">Name<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-arrows-sort"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 9l4 -4l4 4m-4 -4v14" /><path d="M21 15l-4 4l-4 -4m4 4v-14" /></svg></a>
+          $[if `!process.env.NO_DL_COUNT`]$<a href="" class="col col-auto text-end d-none d-md-inline-block" id="dl">Downloads<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-arrows-sort"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 9l4 -4l4 4m-4 -4v14" /><path d="M21 15l-4 4l-4 -4m4 4v-14" /></svg></a>$[end]$
+          <a href="" class="col col-2 text-end d-none d-md-inline-block" id="size">Size<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-arrows-sort"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 9l4 -4l4 4m-4 -4v14" /><path d="M21 15l-4 4l-4 -4m4 4v-14" /></svg></a>
+          <a href="" class="col col-2 text-end d-none d-md-inline-block" id="mod">Modified<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-arrows-sort"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 9l4 -4l4 4m-4 -4v14" /><path d="M21 15l-4 4l-4 -4m4 4v-14" /></svg></a>
         </div>
         <?php
         $now = new DateTime();
@@ -370,7 +378,7 @@ end:
           $fileDate = new DateTime($file->modified_date);
           $diff = $now->diff($fileDate)->days;
         ?>
-        <a href="${{`process.env.BASE_PATH ?? ''`}}$<?= $file->url ?>" class="row db-row py-2">
+        <a data-file-isdir="<?= $file->is_dir ? "1" : "0" ?>" data-file-name="<?= $file->name ?>" data-file-dl="$[if `!process.env.NO_DL_COUNT`]$<?= $file->dl_count ?>$[end]$" data-file-size="<?= $file->size ?>" data-file-mod="<?= $file->modified_date ?>"  href="${{`process.env.BASE_PATH ?? ''`}}$<?= $file->url ?>" class="row db-row py-2 db-file">
           <div class="col col-auto pe-0">
           <?php if ($file->name === "..") { ?>
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-corner-left-up" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -433,7 +441,7 @@ end:
             </div>
             <div class="col col-2 text-end">    
               <span title="File size" class="ms-auto d-none d-md-inline rounded-1 text-end px-1">
-                <?= $file->size ?>
+                <?= human_filesize($file->size) ?>
               </span>
             </div>
             <?php } ?>
@@ -603,41 +611,64 @@ end:
     // TODO: sorting
   </script>
   <script data-turbo-eval="false">
-    const sort = (key, reverse) => {
-      const items = Array.from(document.querySelectorAll('.db-row'));
-      const sorted = items.sort((a, b) => {
-        const aVal = a.querySelector(`#${key}`).innerText;
-        const bVal = b.querySelector(`#${key}`).innerText;
+    const sortElements = (key, elems) => elems.sort((a, b) => {
+      const aVal = a.getAttribute(`data-file-${key}`);
+      const bVal = b.getAttribute(`data-file-${key}`);
+      if (key === 'name') {
         return aVal.localeCompare(bVal);
-      });
-      if (reverse) {
-        sorted.reverse();
+      } else if (key === 'dl') {
+        return parseInt(aVal) - parseInt(bVal);
+      } else if (key === 'size') {
+        return parseInt(aVal) - parseInt(bVal);
+      } else if (key === 'mod') {
+        return aVal.localeCompare(bVal);
       }
+    });
+    const sort = (key, reverse) => {
+      const items = Array.from(document.querySelectorAll('.db-file'));
+      // seperate sort for folders (is_dir) and files
+      const folders = sortElements(key, items.filter((item) => item.getAttribute('data-file-isdir') === '1'));
+      const files = sortElements(key, items.filter((item) => item.getAttribute('data-file-isdir') === '0'));
+      if (reverse) {
+        folders.reverse();
+        files.reverse();
+      }
+      // move .. folder top first position
+      const parentFolder = folders.find((item) => item.getAttribute('data-file-name') === '..');
+      if (parentFolder) {
+        folders.splice(folders.indexOf(parentFolder), 1);
+        folders.unshift(parentFolder);
+      }
+      const sorted = [...folders, ...files];
       items.forEach((item) => item.remove());
       sorted.forEach((item) => document.querySelector('#filetree').appendChild(item));
     };
   </script>
   <script>
-    document.querySelector('#sort-name').addEventListener('click', (e) => {
+    document.querySelector('#name').addEventListener('click', (e) => {
       e.preventDefault();
-      sort('sort-name', false);
+      sessionStorage.setItem("sort:order:name", sessionStorage.getItem("sort:order:name") === "asc" ? "desc" : "asc");
+      sort('name', sessionStorage.getItem("sort:order:name") === "desc");
     });
 
     $[if `!process.env.NO_DL_COUNT`]$
-    document.querySelector('#sort-dl').addEventListener('click', (e) => {
+    document.querySelector('#dl').addEventListener('click', (e) => {
       e.preventDefault();
-      sort('sort-dl', true);
+      sessionStorage.setItem("sort:order:dl", sessionStorage.getItem("sort:order:dl") === "asc" ? "desc" : "asc");
+      sort('dl', sessionStorage.getItem("sort:order:dl") === "desc");
     });
     $[end]$
 
-    document.querySelector('#sort-size').addEventListener('click', (e) => {
+    document.querySelector('#size').addEventListener('click', (e) => {
       e.preventDefault();
-      sort('sort-size', true);
+      sessionStorage.setItem("sort:order:size", sessionStorage.getItem("sort:order:size") === "asc" ? "desc" : "asc");
+      sort('size', sessionStorage.getItem("sort:order:size") === "desc");
     });
 
-    document.querySelector('#sort-mod').addEventListener('click', (e) => {
+    document.querySelector('#mod').addEventListener('click', (e) => {
       e.preventDefault();
-      sort('sort-mod', true);
+      sessionStorage.setItem("sort:order:mod", sessionStorage.getItem("sort:order:mod") === "asc" ? "desc" : "asc");
+      sort('mod', sessionStorage.getItem("sort:order:mod") === "desc");
     });
   </script>
 </body>
