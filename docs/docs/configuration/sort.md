@@ -2,10 +2,18 @@
 sidebar_position: 3
 ---
 
-# Sort
+# Search & Sorting
 
-By default files and folders are sorted by name using natural sort. You can reverse it by setting the `REVERSE_SORT` environment variable.
+![image](https://github.com/adrianschubek/dir-browser/assets/19362349/da17df62-c1ac-4877-bd19-7018ba6af1df)
 
-```
-docker run -d -p 8080:80 -v /my/local/folder:/var/www/html/public:ro -e REVERSE_SORT=1 -v redissave:/var/lib/redis/ -it adrianschubek/dir-browser
-```
+Click on the column header to sort by that column. Click again to reverse the sort order.
+
+Click on the search icon to show a search input field. The search is case-insensitive and searches the current folder for the search term in the file name.
+
+### Serverside sorting
+
+By default files and folders are sorted by name using natural sort. 
+
+import EnvConfig from '@site/src/components/EnvConfig';
+
+<EnvConfig name="REVERSE_SORT" init="false" values="true,false"/>

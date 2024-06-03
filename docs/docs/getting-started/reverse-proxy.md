@@ -61,6 +61,10 @@ Set the `BASE_PATH` environment variable to the subfolder you want to deploy the
 docker run -d -p 8080:80 -e BASE_PATH="/foobar" -v /my/local/folder:/var/www/html/public:ro -v redissave:/var/lib/redis/ -it adrianschubek/dir-browser
 ```
 
+<!-- import EnvConfig from '@site/src/components/EnvConfig';
+
+<EnvConfig name="BASE_PATH" init="<empty>" values="<path>"/> -->
+
 And you may need to modify your reverse proxy configuration. In NGINX adapt the `location` block to the following:
 
 ```nginx

@@ -1,0 +1,19 @@
+# API
+
+### Folder listing
+
+Add `?ls` to a folder URL to get a JSON response of the folder content.
+
+![image](https://github.com/adrianschubek/dir-browser/assets/19362349/72464d3e-6cf2-475e-86ca-45534ad9fdce)
+https://dir-demo.adriansoftware.de/?ls
+
+### File info
+
+Add `?info` to a file URL to get a JSON response of the file info. A password is required if the file is password protected.
+
+![image](https://github.com/adrianschubek/dir-browser/assets/19362349/4e7e9928-50c6-41ee-864f-144866d6fe5f)
+https://dir-demo.adriansoftware.de/Dockerfile?info
+
+import EnvConfig from '@site/src/components/EnvConfig';
+
+<EnvConfig name="API" init="true" values="true,false"/>

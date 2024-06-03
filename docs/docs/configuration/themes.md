@@ -10,16 +10,10 @@ import Image from "@theme/IdealImage";
 
 Choose from a variety of themes to customize the look and feel of your directory browser. All themes support light and dark mode.
 
-:::info
-You can change the theme by setting the `THEME` environment variable to one of the following values:
-
-```
-docker run -d -p 8080:80 -v /my/local/folder:/var/www/html/public:ro -e THEME=sketchy -v redissave:/var/lib/redis/ -it adrianschubek/dir-browser
-```
-:::
-
 :::tip
-Right-click on the images and select "Open image in new tab" to see the full size.
+Right-click on the images and select "Open image in new tab" to see the full size. 
+
+Note: These screenshots are out of date but the general style is still valid.
 :::
 
 ## `cosmo` (Default)
@@ -120,3 +114,7 @@ Right-click on the images and select "Open image in new tab" to see the full siz
     <Image img={require("@site/static/img/yeti_dark.png")} />
   </TabItem>
 </Tabs>
+
+import EnvConfig from '@site/src/components/EnvConfig';
+
+<EnvConfig name="THEME" init="default" values="default,cosmo,litera,cerulean,materia,quartz,sandstone,sketchy,united,yeti"/>

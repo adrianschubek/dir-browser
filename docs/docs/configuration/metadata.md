@@ -19,7 +19,8 @@ The `*.dbmeta.json` files are hidden from the user and cannot be viewed.
   "description": "A short project description ⭐",
   "labels": ["danger:Laravel", "primary:PHP 8", "dark:Hot 🔥"],
   "hidden": false,
-  "password": "mysecurepassword"
+  "password": "mysecurepassword",
+  "hash_required": false
 }
 ```
 <!-- TODO: "password": "mysecurepassword" -->
@@ -57,3 +58,9 @@ If set to `true`, the file or folder is hidden from the file tree. However, it c
 See [Password Protection](password.mdx).
 
 > Default is empty.
+
+#### Hash Required
+
+See [Integrity & Hashes](hashes.mdx).
+
+> Default is `false`.
