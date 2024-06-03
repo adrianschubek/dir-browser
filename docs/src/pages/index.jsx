@@ -28,7 +28,7 @@ function HomepageHeader() {
       <div className="container" style={{color:"white"}}>
         <div className="row">
           <div className="col col--6">
-            <img style={{ boxShadow: "0px 0px 10px 0px #8585857d" }} src="/img/z1.png" />
+            <img style={{ boxShadow: "0px 0px 10px 0px #8585857d" }} src="/img/p1.png" />
           </div>
           <div className="col col--6" style={{ margin: "auto" }}>
             <h1 className="hero__title">{siteConfig.title}</h1>
@@ -60,9 +60,9 @@ function HomepageHeader() {
 }
 
 function Section2() {
-  return <div className=" xxx" style={{ background: "var(--ifm-color-gray-900)", padding: "3em", paddingTop: "3em", paddingBottom: "3em" }}>
+  return <div className=" xxx" style={{ background: "#000000", padding: "3em", paddingTop: "3em", paddingBottom: "3em" }}>
     <h1 className="hero__title" style={{ color: "var(--ifm-color-gray-700)", marginLeft: "auto" }}>🌙 Darkmode</h1>
-    <img /* style={{ boxShadow: "0px 0px 10px 0px #8585857d" }} */ src="/img/z2.png" />
+    <img /* style={{ boxShadow: "0px 0px 10px 0px #8585857d" }} */ src="/img/p2.png" />
   </div>
 }
 
