@@ -61,6 +61,6 @@ See [Password Protection](password.mdx).
 
 #### Hash Required
 
-See [Integrity & Hashes](hashes.mdx).
+See [Integrity & Hashes](hashes.md).
 
 > Default is `false`.
