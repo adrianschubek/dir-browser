@@ -436,7 +436,7 @@ end:
                   <span class="badge bg-<?= $l[0] ?>"><?= $l[1] ?></span>
             <?php
                 }
-                if ($file->meta->password !== null) {
+                if ($file->meta->password !== null || $file->meta->password_hash !== null) {
             ?>
               <span title="Password protected" class="key-icon"></span>
             <?php
