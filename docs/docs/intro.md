@@ -12,21 +12,26 @@ sidebar_position: 1
 https://dir-demo.adriansoftware.de
 
 ## Features
-- **Download count** for all files
+- **Download counter** for all files
 - Secure by default. **Read-only** access
 - Extremly **fast** file serving through **nginx**
 - **README** markdown rendering support
-- add **custom description and labels** to files and folders
-- **Low memory** footprint (~10MB)
+- **JSON API** for programmatic access
+- **file integrity** check with **hashes**
+- **custom description** and **labels** for files and folders
+- **Search** and **sorting** built-in
+- **Password** protection
+- **Hide** files and folders
 - Light and **Darkmode**
 - File **icons**
 - Many **Themes** available
-- **Password** protect files
 - **Clean URLs** equivalent to file system paths
+- **Low memory** footprint (~10MB)
 - Easy setup using single **Docker** image
 - **Responsive** design for mobile devices and desktop
 - Easily configurable using **environment variables**
 - File stats like modification dates and sizes
 - Highlight recently updated files
+- Track request timing
 - **arm64** support
 - Works **without JavaScript** enabled
