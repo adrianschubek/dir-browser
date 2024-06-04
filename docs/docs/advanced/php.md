@@ -8,7 +8,6 @@ sidebar_position: 2
 
 By default `display_errors` is set to `Off` in the `php.ini` file.
 
-
 ## memory_limit
 
 By default `memory_limit` is set to `128M` in the `php.ini` file.

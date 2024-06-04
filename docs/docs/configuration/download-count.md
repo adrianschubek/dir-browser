@@ -12,4 +12,4 @@ Files are tracked based on their (full) file path. Therefore renaming a file wil
 
 import EnvConfig from '@site/src/components/EnvConfig';
 
-<EnvConfig name="NO_DL_COUNT" init="false" values="true,false"/>
+<EnvConfig name="DOWNLOAD_COUNTER" init="true" values="true,false"/>

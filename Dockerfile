@@ -50,7 +50,15 @@ ENV DATE_FORMAT=relative
 
 ENV HASH=true
 
+ENV HASH_ALGO=sha256
+
+ENV API=true
+
 ENV LAYOUT=basic
+
+ENV DOWNLOAD_COUNTER=true
+
+ENV README_RENDER=true
 
 RUN chmod +x /init.sh
 

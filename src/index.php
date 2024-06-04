@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '3.0.0');
+define('VERSION', '3.1.0');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -57,7 +57,7 @@ $total_size = 0;
 
 // local path exists
 if ($path_is_dir) {
-  $[if `!process.env.NO_DL_COUNT`]$
+  $[if `process.env.DOWNLOAD_COUNTER === "true"`]$
   $redis = new Redis();
   $redis->connect('127.0.0.1', 6379);
   $[end]$
@@ -103,7 +103,7 @@ if ($path_is_dir) {
     $item->size = $file_size;
     $item->is_dir = $is_dir;
     $item->modified_date = $file_modified_date;
-    $item->dl_count =  $[if `!process.env.NO_DL_COUNT`]$!$is_dir ? $redis->get($url) :$[end]$ 0;
+    $item->dl_count =  $[if `process.env.DOWNLOAD_COUNTER === "true"`]$!$is_dir ? $redis->get($url) :$[end]$ 0;
     $item->meta = $meta ?? null;
     if ($is_dir) {
       array_push($sorted_folders, $item);
@@ -125,6 +125,7 @@ if ($path_is_dir) {
   $sorted = array_merge($sorted_folders, $sorted_files);
 
   // if list request return json
+  $[if `process.env.API === "true"`]$
   if(isset($_REQUEST["ls"])) {
     $info = [];
     foreach ($sorted as $file) {
@@ -132,14 +133,15 @@ if ($path_is_dir) {
         "url" => $file->url,
         "name" => $file->name,
         "type" => $file->is_dir ? "dir" : "file",
-        "size" => $file->size,
+        "size" => intval($file->size),
         "modified" => $file->modified_date,
-        "downloads" => $[if `!process.env.NO_DL_COUNT`]$ intval($redis->get($file->url))$[else]$0$[end]$
+        "downloads" => ${{`process.env.DOWNLOAD_COUNTER === "true" ? "intval($redis->get($file->url))" : "0"`}}$
       ];
     }
     header("Content-Type: application/json");
     die(json_encode($info));
   }
+  $[end]$
 } elseif (file_exists($local_path)) {
   // local path is file. serve it directly using nginx
 
@@ -171,7 +173,7 @@ if ($path_is_dir) {
   $[if `process.env.HASH`]$
   // only allow download if requested hash matches actual hash
   if (isset($_REQUEST["hash"]) || isset($meta) && $meta->hash_required === true) {
-    if ($_REQUEST["hash"] !== hash_file('sha256', $local_path)) {
+    if ($_REQUEST["hash"] !== hash_file('${{`process.env.HASH_ALGO`}}$', $local_path)) {
       http_response_code(403);
       die("<b>Access denied.</b> Supplied hash does not match actual file hash.");
     }
@@ -179,25 +181,30 @@ if ($path_is_dir) {
   $[end]$
 
   // increment redis view counter
-  $[if `!process.env.NO_DL_COUNT`]$
+  $[if `process.env.DOWNLOAD_COUNTER === "true"`]$
   $redis = new Redis();
   $redis->connect('127.0.0.1', 6379);
-  $redis->incr($relative_path);
   $[end]$
 
+  $[if `process.env.API === "true"`]$
   if(isset($_REQUEST["info"])) {
     $info = [
-      "path" => $relative_path,
+      "url" => $relative_path,
       "name" => basename($local_path),
       "mime" => mime_content_type($local_path) ?? "application/octet-stream",
       "size" => filesize($local_path),
       "modified" => filemtime($local_path),
-      "downloads" => $[if `!process.env.NO_DL_COUNT`]$ intval($redis->get($relative_path))$[else]$0$[end]$,
-      "hash_sha256" => $[if `process.env.HASH`]$hash_file('sha256', $local_path)$[else]$null$[end]$
+      "downloads" => ${{`process.env.DOWNLOAD_COUNTER === "true" ? "intval($redis->get($file->url))" : "0"`}}$,
+      "hash_${{`process.env.HASH_ALGO`}}$" => ${{`process.env.HASH === "true" ? "hash_file('"+process.env.HASH_ALGO+"', $local_path)" : "null"`}}$
     ];
     header("Content-Type: application/json");
     die(json_encode($info));
   }
+  $[end]$
+
+  $[if `process.env.DOWNLOAD_COUNTER === "true"`]$
+  $redis->incr($relative_path);
+  $[end]$
    
   // let nginx guess content type
   header("Content-Type: ");
@@ -373,7 +380,7 @@ end:
         </div>
         <div class="row db-row py-2 text-muted" id="sort">
           <a href="" class="col" id="name">Name<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-arrows-sort"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 9l4 -4l4 4m-4 -4v14" /><path d="M21 15l-4 4l-4 -4m4 4v-14" /></svg></a>
-          $[if `!process.env.NO_DL_COUNT`]$<a href="" class="col col-auto text-end d-none d-md-inline-block" id="dl">Downloads<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-arrows-sort"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 9l4 -4l4 4m-4 -4v14" /><path d="M21 15l-4 4l-4 -4m4 4v-14" /></svg></a>$[end]$
+          $[if `process.env.DOWNLOAD_COUNTER === "true"`]$<a href="" class="col col-auto text-end d-none d-md-inline-block" id="dl">Downloads<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-arrows-sort"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 9l4 -4l4 4m-4 -4v14" /><path d="M21 15l-4 4l-4 -4m4 4v-14" /></svg></a>$[end]$
           <a href="" class="col col-2 text-end d-none d-md-inline-block" id="size">Size<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-arrows-sort"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 9l4 -4l4 4m-4 -4v14" /><path d="M21 15l-4 4l-4 -4m4 4v-14" /></svg></a>
           <a href="" class="col col-2 text-end d-none d-md-inline-block" id="mod">Modified<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-arrows-sort"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 9l4 -4l4 4m-4 -4v14" /><path d="M21 15l-4 4l-4 -4m4 4v-14" /></svg></a>
         </div>
@@ -383,7 +390,7 @@ end:
           $fileDate = new DateTime($file->modified_date);
           $diff = $now->diff($fileDate)->days;
         ?>
-        <a data-file-isdir="<?= $file->is_dir ? "1" : "0" ?>" data-file-name="<?= $file->name ?>" data-file-dl="$[if `!process.env.NO_DL_COUNT`]$<?= $file->dl_count ?>$[end]$" data-file-size="<?= $file->size ?>" data-file-mod="<?= $file->modified_date ?>"  href="${{`process.env.BASE_PATH ?? ''`}}$<?= $file->url ?>" class="row db-row py-2 db-file">
+        <a data-file-isdir="<?= $file->is_dir ? "1" : "0" ?>" data-file-name="<?= $file->name ?>" data-file-dl="$[if `process.env.DOWNLOAD_COUNTER === "true"`]$<?= $file->dl_count ?>$[end]$" data-file-size="<?= $file->size ?>" data-file-mod="<?= $file->modified_date ?>"  href="${{`process.env.BASE_PATH ?? ''`}}$<?= $file->url ?>" class="row db-row py-2 db-file">
           <div class="col col-auto pe-0">
           <?php if ($file->name === "..") { ?>
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-corner-left-up" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -432,7 +439,7 @@ end:
             </div>
             <?php if (!$file->is_dir) { ?>
             <div class="col col-auto text-end">
-              $[if `!process.env.NO_DL_COUNT`]$
+              $[if `process.env.DOWNLOAD_COUNTER === "true"`]$
               <span title="Total downloads" class="text-muted ms-auto d-none d-md-inline rounded-1 text-end px-1 <?= $file->dl_count === 0 ? "text-body-tertiary" : "" ?>">
                 <?= numsize($file->dl_count) ?>
                 <svg style="margin-top: -5px;" xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-download" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -475,7 +482,7 @@ end:
     <?php } ?>
   </div>
 
-  $[if `!process.env.NO_README_RENDER`]$
+  $[if `process.env.README_RENDER === "true"`]$
   <?php
     // check if readme exists
     foreach ($sorted_files as $file) {
@@ -542,7 +549,7 @@ end:
           ...
         </div>
         <div class="modal-footer">
-          <a id="file-info-url-api" href="" type="button" class="btn rounded btn-secondary" data-bs-dismiss="modal">API <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-code"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 8l-4 4l4 4" /><path d="M17 8l4 4l-4 4" /><path d="M14 4l-4 16" /></svg></a>
+        ${{`process.env.API === "true" ? '<a id="file-info-url-api" href="" type="button" class="btn rounded btn-secondary" data-bs-dismiss="modal">API <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-code"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 8l-4 4l4 4" /><path d="M17 8l4 4l-4 4" /><path d="M14 4l-4 16" /></svg></a>' : ''`}}$
           <a id="file-info-url" type="button" class="btn rounded btn-primary">Download <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-download"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg></a>
         </div>
       </div>
@@ -735,7 +742,7 @@ end:
       sort('name', sessionStorage.getItem("sort:order:name") === "desc");
     });
 
-    $[if `!process.env.NO_DL_COUNT`]$
+    $[if `process.env.DOWNLOAD_COUNTER === "true"`]$
     document.querySelector('#dl').addEventListener('click', (e) => {
       e.preventDefault();
       sessionStorage.setItem("sort:order:dl", sessionStorage.getItem("sort:order:dl") === "asc" ? "desc" : "asc");

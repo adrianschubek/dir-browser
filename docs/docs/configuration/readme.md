@@ -13,4 +13,4 @@ By default unsafe HTML inside markdown (such as `<script>`) will be escaped. You
 
 import EnvConfig from '@site/src/components/EnvConfig';
 
-<EnvConfig name="NO_README_RENDER|ALLOW_RAW_HTML" init="false|false" values="true,false|true,false"/>
+<EnvConfig name="README_RENDER|ALLOW_RAW_HTML" init="true|false" values="true,false|true,false"/>

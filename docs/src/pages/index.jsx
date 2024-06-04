@@ -29,6 +29,7 @@ function HomepageHeader() {
         <div className="row">
           <div className="col col--6">
             <img style={{ boxShadow: "0px 0px 10px 0px #8585857d" }} src="/img/p1.png" />
+            {/* TODO: iframe of demo */}
           </div>
           <div className="col col--6" style={{ margin: "auto" }}>
             <h1 className="hero__title">{siteConfig.title}</h1>
@@ -49,7 +50,7 @@ function HomepageHeader() {
             </div>
 
             <CodeBlock className="xxx">
-            docker run --rm -p 8080:80 -v /my/local/folder:/var/www/html/public:ro -v redissave:/var/lib/redis/ adrianschubek/dir-browser
+            docker run --rm -p 8080:80 -v /my/local/folder:/var/www/html/public:ro -v redissave:/var/lib/redis/ -it adrianschubek/dir-browser
             </CodeBlock>
 
           </div>
