@@ -161,6 +161,13 @@ if ($path_is_dir) {
   // check if password proteced
   if (file_exists($local_path . '.dbmeta.json')) {
     $meta = json_decode(file_get_contents($local_path . '.dbmeta.json'));
+    if (isset($meta->password_hash)) {
+      if (!isset($_REQUEST["key"]) || !password_verify($_REQUEST["key"], $meta->password_hash)) {
+        http_response_code(401);
+        define('AUTH_REQUIRED', true);
+        goto end;
+      }
+    }
     if (isset($meta->password)) {
       if (!isset($_REQUEST["key"]) || $_REQUEST["key"] !== $meta->password) { // allows get and post reqeusts
         http_response_code(401);

@@ -4,7 +4,7 @@ It is possible to verify the integrity of a file by setting the `?hash` query pa
 
 The [file info API](http.mdx) will also include the hash of the file.
 
-`sha256` is used as the default hashing algorithm but can be changed to any of the [supported](https://www.php.net/manual/de/function.hash-algos.php) algorithms.
+`sha256` is used as the default hashing algorithm but can be changed to any of the [supported](https://www.php.net/manual/en/function.hash-algos.php) algorithms.
 
 #### Example
 
