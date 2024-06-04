@@ -12,7 +12,8 @@ import CodeBlock from '@theme/CodeBlock';
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
   return (
-    <header /* style={{background: "#2e4385"}} */ className={clsx('hero hero--white bg-1', styles.heroBanner)}>
+    <header /* style={{background: "#2e4385"}} */ style={{ background: "var(--ifm-color-gray-100) !important;" }} className={clsx('hero bg ', styles.heroBanner)}>
+      {/* hero hero--white bg-1 */}
       {/* <div className="container">
         <h1 className="hero__title">{siteConfig.title}</h1>
         <p className="hero__subtitle">{siteConfig.tagline}</p>
@@ -25,22 +26,24 @@ function HomepageHeader() {
         </div>
       </div> */}
 
-      <div className="container" style={{color:"white"}}>
+      <div className="container" style={{ color: "white" }} >
         <div className="row">
           <div className="col col--6">
-            <img style={{ boxShadow: "0px 0px 10px 0px #8585857d" }} src="/img/p1.png" />
+            <a href="https://dir-demo.adriansoftware.de" target="_blank">
+              <img style={{ boxShadow: "0px 0px 10px 0px #8585857d" }} src="/img/p1.png" />
+            </a>
             {/* TODO: iframe of demo */}
           </div>
-          <div className="col col--6" style={{ margin: "auto" }}>
+          <div className="col col--6" style={{ margin: "auto", borderRadius: "5px", backdropFilter: "blur(5px)" }}>
             <h1 className="hero__title">{siteConfig.title}</h1>
             <p className="hero__subtitle">Browse your files and folders on the web</p>
             <p>Directory Listing in a single Docker Image</p>
-            <div className={styles.buttons} style={{marginBottom: "1em"}}>
+            <div className={styles.buttons} style={{ marginBottom: "1em" }}>
               <Link
-                className="button button--info button--outline button--lg"
-                style={{ marginRight: "1em", color: "white" }}
+                className="button button--primary  button--lg"  /* button--outline */
+                style={{ marginRight: "1em", border: "white 2px solid", background: "#293c78", color: "white" }}
                 to="https://dir-demo.adriansoftware.de">
-                Demo
+                Demo<svg width="13.5" height="13.5" aria-hidden="true" viewBox="0 0 24 24" class="iconExternalLink_node_modules-@docusaurus-theme-classic-lib-theme-Icon-ExternalLink-styles-module"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"></path></svg>
               </Link>
               <Link
                 className="button button--secondary button--lg"
@@ -49,9 +52,7 @@ function HomepageHeader() {
               </Link>
             </div>
 
-            <CodeBlock className="xxx">
-            docker run --rm -p 8080:80 -v /my/local/folder:/var/www/html/public:ro -v redissave:/var/lib/redis/ -it adrianschubek/dir-browser
-            </CodeBlock>
+
 
           </div>
         </div>
@@ -60,8 +61,17 @@ function HomepageHeader() {
   );
 }
 
+function SectionDocker() {
+  return <div className="" style={{ textAlign: "center", background: "#000000" }}>
+    {/* <h1 className="hero__title" style={{ color: "var(--ifm-color-gray-700)", marginLeft: "auto" }}>🌙 DDD</h1> */}
+    <CodeBlock className="headercode">
+      docker run --rm -p 8080:80 -v /my/local/folder:/var/www/html/public:ro -v rdb:/var/lib/redis/ -it adrianschubek/dir-browser
+    </CodeBlock>
+  </div>
+}
+
 function Section2() {
-  return <div className=" xxx" style={{ background: "#000000", padding: "3em", paddingTop: "3em", paddingBottom: "3em" }}>
+  return <div className=" xxx" style={{ textAlign: "center", background: "#000000", padding: "3em", paddingTop: "3em", paddingBottom: "3em" }}>
     <h1 className="hero__title" style={{ color: "var(--ifm-color-gray-700)", marginLeft: "auto" }}>🌙 Darkmode</h1>
     <img /* style={{ boxShadow: "0px 0px 10px 0px #8585857d" }} */ src="/img/p2.png" />
   </div>
@@ -101,6 +111,7 @@ export default function Home() {
         </svg>
       </div> */}
       <main>
+        <SectionDocker />
         <HomepageFeatures />
         <Section2 />
         <Section3 />
