@@ -12,7 +12,7 @@ import CodeBlock from '@theme/CodeBlock';
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
   return (
-    <header /* style={{background: "#2e4385"}} */ style={{ background: "var(--ifm-color-gray-100) !important;" }} className={clsx('hero bg ', styles.heroBanner)}>
+    <header /* style={{background: "#2e4385"}} */ style={{ /* marginTop: "-60px"  */}} className={clsx('hero bg ', styles.heroBanner)}>
       {/* hero hero--white bg-1 */}
       {/* <div className="container">
         <h1 className="hero__title">{siteConfig.title}</h1>
@@ -34,7 +34,7 @@ function HomepageHeader() {
             </a>
             {/* TODO: iframe of demo */}
           </div>
-          <div className="col col--6" style={{ margin: "auto", borderRadius: "5px", backdropFilter: "blur(5px)" }}>
+          <div className="col col--6" style={{ margin: "auto", }}>
             <h1 className="hero__title">{siteConfig.title}</h1>
             <p className="hero__subtitle">Browse your files and folders on the web</p>
             <p>Directory Listing in a single Docker Image</p>

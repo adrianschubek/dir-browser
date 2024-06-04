@@ -56,8 +56,20 @@ token-line {
   margin: 0 !important;
 }
 
+/* [data-theme="dark"] {
+  .navbar {
+    * {
+    }
+  }
+} */
+
 .navbar {
-  /* background-color: rgb(26, 26, 26); */
+  * {
+    /* color: white !important; */
+  };
+
+  /* background: rgba(var(--ifm-color-gray-100), 0.5) !important; */
+  /* background-color: rgba(0, 18, 32, 0.5); */
   /* background-color: rgba(var(--ifm-navbar-background-color),0.5); */
   /* -webkit-backdrop-filter: blur(10px); */
   /* backdrop-filter: blur(10px); */
