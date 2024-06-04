@@ -5,13 +5,22 @@ sidebar_position: 6
 # Ignore files & folders
 
 You can ignore some files and folders by setting the environment variable `IGNORE` to an ignore pattern. By default everything is shown.
+It uses [fnmatch](https://www.php.net/manual/en/function.fnmatch.php) to match the pattern.
 
-| Pattern | Description |
-|---|---|
-| `*` | Matches everything (including nothing) |
-| `?` | Matches any single character | 
-| `[seq]` | Matches any character in seq | 
-| `[!seq]` | Matches any character not in seq | 
+| Pattern  | Description                            |
+| -------- | -------------------------------------- |
+| `*`      | Matches everything (including nothing) |
+| `?`      | Matches any single character           |
+| `[seq]`  | Matches any character in seq           |
+| `[!seq]` | Matches any character not in seq       |
+
+Patterns are matched against the file name and every parent folder name **individually** not as a path.
+
+For example if you have a file `foo/bar/secret.txt`. This path will be split into an array `['foo', 'bar', 'secret.txt']` and each part will be matched against the pattern. If at any point the pattern matches the name, it will be hidden.
+
+- pattern `foo` will hide the file `foo/bar/secret.txt` because `foo` matches the first array element `foo`.
+- pattern `*bar*` will hide the file `foo/bar/secret.txt` because `*bar*` matches the second array element `bar`.
+- pattern `*.txt` will hide the file `foo/bar/secret.txt` because `*.txt` matches the third array element `secret.txt`.
 
 #### Examples
 
@@ -25,10 +34,6 @@ You can ignore some files and folders by setting the environment variable `IGNOR
 
 - `report-???.pdf` hides `report-001.pdf`, `report-123.pdf` but not `report-1.pdf`.
 
-:::info
-These are *not* regular expressions but shell patterns used in `fnmatch`.
-:::
+import EnvConfig from "@site/src/components/EnvConfig";
 
-import EnvConfig from '@site/src/components/EnvConfig';
-
-<EnvConfig name="IGNORE" init="<empty>" values="<pattern>"/>
+<EnvConfig name="IGNORE" init="<empty>" values="<pattern>" />
