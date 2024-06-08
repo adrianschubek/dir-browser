@@ -16,4 +16,4 @@ By default files and folders are sorted by name using natural sort.
 
 import EnvConfig from '@site/src/components/EnvConfig';
 
-<EnvConfig name="REVERSE_SORT" init="false" values="true,false"/>
+<EnvConfig name="REVERSE_SORT" init="false" values="true,false" versions="1.0"/>

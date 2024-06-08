@@ -48,7 +48,8 @@ export default function HomepageFeatures(): JSX.Element {
                 <Checkmark />
               </h3>
               <p>
-                Display additional information about your files & folders with custom metadata.
+                Display additional information about your files & folders with
+                custom metadata.
               </p>
             </div>
           </div>
@@ -116,8 +117,8 @@ export default function HomepageFeatures(): JSX.Element {
                 <Checkmark />
               </h3>
               <p>
-                Strict <b>Read-only</b> access to files and folders.
-                Additionaly protect your files with a <b>password</b>.
+                Strict <b>Read-only</b> access to files and folders. Additionaly
+                protect your files with a <b>password</b>.
               </p>
             </div>
           </div>
@@ -130,9 +131,7 @@ export default function HomepageFeatures(): JSX.Element {
                 Hide files & folders
                 <Checkmark />
               </h3>
-              <p>
-                Want to hide your dot files? Hide old documents? You can do it.
-              </p>
+              <p>Want to hide your secret files? No problem.</p>
             </div>
           </div>
           <div className={clsx("col col--4")}>

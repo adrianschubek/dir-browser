@@ -28,11 +28,11 @@ _Easiest way to browse your files and folders on the web._
 
 <!-- ![image](https://github.com/adrianschubek/dir-browser/assets/19362349/102e058f-7d9e-457f-bde5-d61a8b0733f7) -->
 
-<img src="https://github.com/adrianschubek/dir-browser/assets/19362349/102e058f-7d9e-457f-bde5-d61a8b0733f7" alt="" style="
+<!-- <img src="https://github.com/adrianschubek/dir-browser/assets/19362349/102e058f-7d9e-457f-bde5-d61a8b0733f7" alt="" style="
     /* overflow: hidden; */
     object-fit: scale-down;
     width: 100%;
-">
+"> -->
 
 
 ## Demo

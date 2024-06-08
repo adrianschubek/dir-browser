@@ -115,6 +115,8 @@ Note: These screenshots are out of date but the general style is still valid.
   </TabItem>
 </Tabs>
 
+## Config
+
 import EnvConfig from '@site/src/components/EnvConfig';
 
-<EnvConfig name="THEME" init="default" values="default,cosmo,litera,cerulean,materia,quartz,sandstone,sketchy,united,yeti"/>
+<EnvConfig name="THEME" init="default" values="default,cosmo,litera,cerulean,materia,quartz,sandstone,sketchy,united,yeti" versions="1.3"/>
