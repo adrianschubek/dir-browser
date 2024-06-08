@@ -31,7 +31,7 @@ const EnvConfig = ({ name, init, values, flags, versions, desc }) => { /* a|b  1
           </tr>
         </thead>
         <tbody>
-          {configs.map(({ name, init, values, flags, versions }) => <tr>
+          {configs.map(({ name, init, values, flags, versions, desc }) => <tr>
             <td>{name}</td>
             <td>{init}</td>
             <td>{values.split(",").map((value, index) => (
@@ -45,11 +45,11 @@ const EnvConfig = ({ name, init, values, flags, versions, desc }) => { /* a|b  1
                 height: "100%",
                 gap: "5px",
               }}>
-                {desc !== undefined && <span>{desc}</span>}
+                {desc !== undefined && desc !== "" && <span>{desc}</span>}
                 {flags === "u" && <span style={{ borderColor: "var(--ifm-color-primary)", borderWidth: "1px", borderStyle: "solid", borderRadius: "5px", paddingLeft: "5px", paddingRight: "5px", paddingTop: "4px", paddingBottom: "4px", color: "var(--ifm-color-primary)" }}>🔒 <b>Not yet available</b>. This feature will be added in the future.</span>}
                 {flags === "d" && <span style={{ borderRadius: "5px", padding: "5px", background: "var(--ifm-color-danger)", color: "white" }}>⚠️ Deprecated</span>}
                 {flags === "e" && <span style={{ borderRadius: "5px", padding: "5px", background: "var(--ifm-color-info)", color: "white" }}>🚧 Experimental</span>}
-                {versions !== undefined && <span style={{ borderColor: "var(--ifm-color-emphasis-400)", borderWidth: "1px", borderStyle: "solid", borderRadius: "5px", paddingLeft: "5px", paddingRight: "5px", paddingTop: "4px", paddingBottom: "4px", color: "var(--ifm-color-emphasis-600)" }}>added in v{versions}</span>}
+                {versions !== undefined && versions !== "" && <span style={{ borderColor: "var(--ifm-color-emphasis-400)", borderWidth: "1px", borderStyle: "solid", borderRadius: "5px", paddingLeft: "5px", paddingRight: "5px", paddingTop: "4px", paddingBottom: "4px", color: "var(--ifm-color-emphasis-600)" }}>added in v{versions}</span>}
               </div>
             </td>
           </tr>)}

@@ -119,4 +119,4 @@ Note: These screenshots are out of date but the general style is still valid.
 
 import EnvConfig from '@site/src/components/EnvConfig';
 
-<EnvConfig name="THEME" init="default" values="default,cosmo,litera,cerulean,materia,quartz,sandstone,sketchy,united,yeti" versions="1.3"/>
+<EnvConfig name="THEME|THEME_URL" init="default|" values="default,cosmo,litera,cerulean,materia,quartz,sandstone,sketchy,united,yeti|" versions="1.3|" flags="|u" desc="|URL for custom CSS theme"/>
