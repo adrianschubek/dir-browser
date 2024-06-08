@@ -64,3 +64,7 @@ See [Password Protection](password.mdx).
 See [Integrity & Hashes](hashes.md).
 
 > Default is `false`.
+
+import EnvConfig from "@site/src/components/EnvConfig";
+
+<EnvConfig name="METADATA" init="true" values="true,false" flags="u" desc="Enables/disables support for metadata parsing" />

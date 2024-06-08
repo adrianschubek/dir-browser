@@ -6,15 +6,16 @@ import React, { version } from 'react'
  * @param {string} init - The initial value of the environment variable
  * @param {string} values - The possible values of the environment variable
  */
-const EnvConfig = ({ name, init, values, flags, versions, /* details */ }) => { /* a|b  1|2   1,2|3,4 => a|1|1,2  und .. */
+const EnvConfig = ({ name, init, values, flags, versions, desc }) => { /* a|b  1|2   1,2|3,4 => a|1|1,2  und .. */
   const configs = [];
   const names = name.split("|");
   const inits = init.split("|");
   const valuess = values.split("|");
   const flagss = flags?.split("|") ?? []; // d = deprecated, u = unreleased, e = experimental
   const versionss = versions?.split("|") ?? []; // 3.1.0,...
+  const descs = desc?.split("|") ?? []; // description
   for (let i = 0; i < names.length; i++) {
-    configs.push({ name: names[i], init: inits[i], values: valuess[i], flags: flagss[i], versions: versionss[i] });
+    configs.push({ name: names[i], init: inits[i], values: valuess[i], flags: flagss[i], versions: versionss[i], desc: descs[i] });
   }
 
   return (
@@ -44,7 +45,8 @@ const EnvConfig = ({ name, init, values, flags, versions, /* details */ }) => { 
                 height: "100%",
                 gap: "5px",
               }}>
-                {/* description */}
+                {desc !== undefined && <span>{desc}</span>}
+                {flags === "u" && <span style={{ borderColor: "var(--ifm-color-primary)", borderWidth: "1px", borderStyle: "solid", borderRadius: "5px", paddingLeft: "5px", paddingRight: "5px", paddingTop: "4px", paddingBottom: "4px", color: "var(--ifm-color-primary)" }}>🔒 <b>Not yet available</b>. This feature will be added in the future.</span>}
                 {flags === "d" && <span style={{ borderRadius: "5px", padding: "5px", background: "var(--ifm-color-danger)", color: "white" }}>⚠️ Deprecated</span>}
                 {flags === "e" && <span style={{ borderRadius: "5px", padding: "5px", background: "var(--ifm-color-info)", color: "white" }}>🚧 Experimental</span>}
                 {versions !== undefined && <span style={{ borderColor: "var(--ifm-color-emphasis-400)", borderWidth: "1px", borderStyle: "solid", borderRadius: "5px", paddingLeft: "5px", paddingRight: "5px", paddingTop: "4px", paddingBottom: "4px", color: "var(--ifm-color-emphasis-600)" }}>added in v{versions}</span>}
