@@ -401,16 +401,18 @@ end:
         </div>
       </div>
     <?php } else if (!$path_is_dir) { ?>
-      <div class="alert alert-secondary text-center" role="alert">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-unknown" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-          <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-          <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
-          <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
-          <path d="M12 17v.01"></path>
-          <path d="M12 14a1.5 1.5 0 1 0 -1.14 -2.474"></path>
-        </svg>
-        Not Found<br>
-        <a class="btn btn-outline-secondary mt-2" href="${{`process.env.BASE_PATH ?? ''`}}$/">Back to Home</a>
+      <div class="card rounded border-2 m-auto" style="max-width: 500px;">
+        <div class="card-body text-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-unknown" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+            <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
+            <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
+            <path d="M12 17v.01"></path>
+            <path d="M12 14a1.5 1.5 0 1 0 -1.14 -2.474"></path>
+          </svg>
+          Not Found<br>
+          <a class="btn rounded btn-secondary mt-2" href="${{`process.env.BASE_PATH ?? ''`}}$/">Back to Home</a>
+        </div>
       </div>
 
     <?php } else { ?>
