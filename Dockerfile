@@ -54,7 +54,15 @@ ENV HASH_ALGO=sha256
 
 ENV API=true
 
+# TODO: full = popup fullscreen
+# basic,popup,full
 ENV LAYOUT=basic
+# TODO: show files in tree on hover
+ENV PREVIEW=false
+
+ENV README_NAME=readme.md
+
+ENV README_FIRST=false
 
 ENV DOWNLOAD_COUNTER=true
 

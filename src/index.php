@@ -1,11 +1,23 @@
 <?php
 
-define('VERSION', '3.1.0');
+define('VERSION', '3.2.0');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
 $[if `process.env.TIMING`]$
 $time_start = hrtime(true); 
+$[end]$
+
+$[if `process.env.README_RENDER === "true"`]$
+require __DIR__ . "/vendor/autoload.php";
+use League\CommonMark\Environment\Environment;
+use League\CommonMark\Extension\Autolink\AutolinkExtension;
+use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
+use League\CommonMark\Extension\DisallowedRawHtml\DisallowedRawHtmlExtension;
+use League\CommonMark\Extension\Strikethrough\StrikethroughExtension;
+use League\CommonMark\Extension\Table\TableExtension;
+use League\CommonMark\Extension\TaskList\TaskListExtension;
+use League\CommonMark\MarkdownConverter;
 $[end]$
 
 function human_filesize($bytes, $decimals = 2): string
@@ -142,6 +154,37 @@ if ($path_is_dir) {
     die(json_encode($info));
   }
   $[end]$
+
+  // readme
+  $[if `process.env.README_RENDER === "true"`]$
+  // check if readme exists
+  foreach ($sorted_files as $file) {
+    if (strtolower($file->name) === "${{`process.env.README_NAME`}}$") {
+      $readme = $file;
+      break;
+    }
+  }
+
+  if ($readme) {
+    // Define your configuration, if needed
+    $config = [];
+
+    // Configure the Environment with all the CommonMark parsers/renderers
+    $environment = new Environment($config);
+    $environment->addExtension(new CommonMarkCoreExtension());
+
+    // Remove any of the lines below if you don't want a particular feature
+    $environment->addExtension(new AutolinkExtension());
+    ${{`!process.env.ALLOW_RAW_HTML ? "$environment->addExtension(new DisallowedRawHtmlExtension());" : ""`}}$ 
+    $environment->addExtension(new StrikethroughExtension());
+    $environment->addExtension(new TableExtension());
+    $environment->addExtension(new TaskListExtension());
+    $converter = new MarkdownConverter($environment);
+
+    $readme_render = $converter->convert(file_get_contents(PUBLIC_FOLDER . $readme->url));
+  }
+  $[end]$
+
 } elseif (file_exists($local_path)) {
   // local path is file. serve it directly using nginx
 
@@ -196,7 +239,7 @@ if ($path_is_dir) {
   $[if `process.env.API === "true"`]$
   if(isset($_REQUEST["info"])) {
     $info = [
-      "url" => $relative_path,
+      "url" => $relative_path, // FIXME: use host domain! abc.de/foobar
       "name" => basename($local_path),
       "mime" => mime_content_type($local_path) ?? "application/octet-stream",
       "size" => filesize($local_path),
@@ -332,7 +375,20 @@ end:
 </head>
 
 <body class="d-flex flex-column min-vh-100">
-  <div class="container py-3">
+  $[if `process.env.README_RENDER === "true" && process.env.README_FIRST === "true"`]$
+    <?php
+      if (isset($readme_render)) {
+    ?>
+    <div class="container pt-3">
+      <div class="card rounded border-2 p-3" id="readme">
+        <?= $readme_render ?>
+      </div>
+    </div>
+    <?php 
+    }
+    ?>
+  $[end]$
+  <div class="container py-3">    
     <?php if (defined("AUTH_REQUIRED")) { ?>
       <div class="card rounded border-2 m-auto" style="max-width: 500px;">
         <div class="card-body">
@@ -489,43 +545,9 @@ end:
     <?php } ?>
   </div>
 
-  $[if `process.env.README_RENDER === "true"`]$
+  $[if `process.env.README_RENDER === "true" && process.env.README_FIRST === "false"`]$
   <?php
-    // check if readme exists
-    foreach ($sorted_files as $file) {
-      if (strtolower($file->name) === "readme.md") {
-        $readme = $file;
-        break;
-      }
-    }
-
-    require __DIR__ . "/vendor/autoload.php";
-    use League\CommonMark\Environment\Environment;
-    use League\CommonMark\Extension\Autolink\AutolinkExtension;
-    use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
-    use League\CommonMark\Extension\DisallowedRawHtml\DisallowedRawHtmlExtension;
-    use League\CommonMark\Extension\Strikethrough\StrikethroughExtension;
-    use League\CommonMark\Extension\Table\TableExtension;
-    use League\CommonMark\Extension\TaskList\TaskListExtension;
-    use League\CommonMark\MarkdownConverter;
-
-    if ($readme) {
-      // Define your configuration, if needed
-      $config = [];
-
-      // Configure the Environment with all the CommonMark parsers/renderers
-      $environment = new Environment($config);
-      $environment->addExtension(new CommonMarkCoreExtension());
-
-      // Remove any of the lines below if you don't want a particular feature
-      $environment->addExtension(new AutolinkExtension());
-      ${{`!process.env.ALLOW_RAW_HTML ? "$environment->addExtension(new DisallowedRawHtmlExtension());" : ""`}}$ 
-      $environment->addExtension(new StrikethroughExtension());
-      $environment->addExtension(new TableExtension());
-      $environment->addExtension(new TaskListExtension());
-      $converter = new MarkdownConverter($environment);
-
-      $readme_render = $converter->convert(file_get_contents(PUBLIC_FOLDER . $readme->url));
+    if (isset($readme_render)) {
   ?>
   <div class="container pb-3">
     <div class="card rounded border-2 p-3" id="readme">
@@ -540,11 +562,11 @@ end:
   <div class="bg-body-tertiary mt-auto">
     <div class="container py-2 text-center" id="footer">
       <?= $total_items ?> Items | <?= human_filesize($total_size) ?> $[if `process.env.TIMING`]$| <?= (hrtime(true) - $time_start)/1000000 ?> ms $[end]$ $[if `!process.env.HIDE_ATTRIBUTION`]$<br>
-    <span style="opacity:0.8"><span style="opacity: 0.8;">Powered by</span>  <a href="https://github.com/adrianschubek/dir-browser" class="text-decoration-none text-primary" target="_blank">dir-browser</a> <?= VERSION ?>$[end]$</span>  
+    <span style="opacity:0.8"><span style="opacity: 0.8;">Powered by</span>  <a href="https://dir.adriansoftware.de" class="text-decoration-none text-primary" target="_blank">dir-browser</a> <?= VERSION ?>$[end]$</span>  
     </div>
   </div>
 
-  $[ifeq env:LAYOUT popup]$
+  $[if `process.env.LAYOUT === "popup" || process.env.LAYOUT === "full"`]$
   <div class="modal rounded fade show" style="background-color:rgba(0, 0, 0, 0.2);" id="file-popup" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable">
       <div class="modal-content rounded border-2">
@@ -701,7 +723,7 @@ end:
       items.forEach((item) => item.remove());
       sorted.forEach((item) => document.querySelector('#filetree').appendChild(item));
     };
-    $[ifeq env:LAYOUT popup]$
+    $[if `process.env.LAYOUT === "popup" || process.env.LAYOUT === "full"`]$
       const setFileinfo = (data) => {
         document.querySelector('#file-popup .modal-title').innerText = data.name;
         document.querySelector("#file-info-url-api").href = data.url + "?info";
@@ -711,7 +733,7 @@ end:
     $[end]$
   </script>
   <script>
-    $[ifeq env:LAYOUT popup]$
+    $[if `process.env.LAYOUT === "popup" || process.env.LAYOUT === "full"`]$
     document.querySelectorAll('.db-file').forEach((item) => {
       // skip folders
       if (item.getAttribute('data-file-isdir') === '1') {
