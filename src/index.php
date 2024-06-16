@@ -67,7 +67,7 @@ $sorted = [];
 $total_items = 0;
 $total_size = 0;
 
-$[if `process.env.IGNORE`]$
+$[if `process.env.IGNORE !== undefined`]$
 // multi fnmatch *.txt|*.js -> hide all txt and js files
 function mfnmatch(string $patterns, string $string): bool
 {
@@ -93,9 +93,9 @@ if ($path_is_dir) {
   $sorted_folders = [];
   foreach (($files = scandir($local_path)) as $file) {
     // always skip current folder '.' or parent folder '..' if current path is root or file should be ignored or .dbmeta.json
-    if ($file === '.' || $file === '..' && count($url_parts) === 0 $[if `process.env.IGNORE`]$|| $file !== '..' && mfnmatch("${{`process.env.IGNORE ?? ""`}}$", $file)$[end]$ || str_contains($file, ".dbmeta.json")) continue;
+    if ($file === '.' || $file === '..' && count($url_parts) === 0 $[if `process.env.IGNORE !== undefined`]$|| $file !== '..' && mfnmatch("${{`process.env.IGNORE ?? ""`}}$", $file)$[end]$ || str_contains($file, ".dbmeta.json")) continue;
 
-    $[if `process.env.IGNORE`]$
+    $[if `process.env.IGNORE !== undefined`]$
     foreach ($url_parts as $int_path) { /* check if parent folders are hidden */
       if (mfnmatch("${{`process.env.IGNORE ?? ""`}}$", $int_path)) {
         $path_is_dir = false;
@@ -204,7 +204,7 @@ if ($path_is_dir) {
 
   $relative_path = substr($local_path, strlen(PUBLIC_FOLDER));
 
-  $[if `process.env.IGNORE`]$
+  $[if `process.env.IGNORE !== undefined`]$
   foreach ($url_parts as $int_path) { /* check if parent folders are hidden */
     if (mfnmatch("${{`process.env.IGNORE ?? ""`}}$", $int_path)) {      
       goto skip; /* File should be ignored so skip to 404 */
