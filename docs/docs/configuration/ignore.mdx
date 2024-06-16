@@ -2,9 +2,40 @@
 sidebar_position: 6
 ---
 
-# Ignore files & folders
+# Hide files & folders
 
-You can ignore some files and folders by setting the environment variable `IGNORE` to an ignore pattern. By default everything is shown.
+:::tip
+If you just want to hide a specific file, consider using [metadata](./metadata.md#hidden).
+:::
+
+### Exclude patterns
+
+import Upcoming from "@site/src/components/Upcoming";
+
+<Upcoming version="3.3"/>
+
+:::info
+Works on path as a whole using regular expressions. This allows for more fine-grained control.
+
+For example if you have a file `foo/bar/secret.txt`. This path will be matched against the pattern. If the pattern matches the path, it will be hidden.
+
+Usecase: Hide some files and fodlers in specific locations only. For example pattern `^foo/secret.txt` hides `foo/secret.txt` but not `/abc/foo/secret.txt`.
+:::
+
+It uses [preg_match](https://www.php.net/manual/en/function.preg-match.php) to match the pattern.
+The clean path is extracted from the URL (removes `?=..`,`#foo`,...) and [urldecoded](https://www.php.net/manual/en/function.urldecode) before matching.
+
+### Ignore patterns
+
+:::info
+Patterns are matched against the file name and every parent folder name **individually** not as a path.
+
+For example if you have a file `foo/bar/secret.txt`. This path will be split into an array `['foo', 'bar', 'secret.txt']` and each part will be matched against the pattern. If at any point the pattern matches the name, it will be hidden.
+
+Usecase: Hide everything starting with a dot <kbd>.</kbd> using a `.*` pattern globally at any nesting level. This will hide `/foo/bar/.foobar`, `/.baz`, `/foo/.secret/bar` etc.
+:::
+
+You can hide some files and folders by setting the environment variable `IGNORE` to a pattern. By default everything is shown.
 It uses [fnmatch](https://www.php.net/manual/en/function.fnmatch.php) to match the pattern.
 
 | Pattern  | Description                            |
@@ -13,10 +44,6 @@ It uses [fnmatch](https://www.php.net/manual/en/function.fnmatch.php) to match t
 | `?`      | Matches any single character           |
 | `[seq]`  | Matches any character in seq           |
 | `[!seq]` | Matches any character not in seq       |
-
-Patterns are matched against the file name and every parent folder name **individually** not as a path.
-
-For example if you have a file `foo/bar/secret.txt`. This path will be split into an array `['foo', 'bar', 'secret.txt']` and each part will be matched against the pattern. If at any point the pattern matches the name, it will be hidden.
 
 - pattern `foo` will hide the file `foo/bar/secret.txt` because `foo` matches the first array element `foo`.
 - pattern `*bar*` will hide the file `foo/bar/secret.txt` because `*bar*` matches the second array element `bar`.
@@ -34,6 +61,12 @@ For example if you have a file `foo/bar/secret.txt`. This path will be split int
 
 - `report-???.pdf` hides `report-001.pdf`, `report-123.pdf` but not `report-1.pdf`.
 
+### Multiple patterns
+
+<Upcoming version="3.3"/>
+
+You can set multiple patterns and seperate them using a `|`. For example `*.txt|*.md` will hide all files ending with `.txt` or `.md`. If any match is found, the file or folder will be hidden.
+
 import EnvConfig from "@site/src/components/EnvConfig";
 
-<EnvConfig name="IGNORE" init="<empty>" values="<pattern>" versions="1.2" />
+<EnvConfig name="IGNORE|EXCLUDE" init="<empty>|<empty>" values="<pattern>|<pattern>" versions="1.2|3.3" desc="Check each path segment individually|Consider the path as a whole allowing for more fine-grained control." />

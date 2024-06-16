@@ -49,6 +49,10 @@ Labels always start with a style and a colon `:`, followed by the label text. Th
 
 #### Hidden
 
+:::tip
+If you just want to hide many files e.g. all files starting with a <kbd>.</kbd>, consider using an [IGNORE](./ignore.mdx) pattern.
+:::
+
 If set to `true`, the file or folder is hidden from the file tree. However, it can still be accessed by URL directly. Can be combined with password protection.
 
 > Default is `false`.

@@ -113,5 +113,7 @@ TODO Features:
 - replace github utpp download with npm i -g utpp
 
 TODO: add info (on hover) and multi select buttons
+- multiselect with dropdown button group
+
 
 -->

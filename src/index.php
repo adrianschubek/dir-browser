@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '3.2.0');
+define('VERSION', '3.3.0');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -67,6 +67,20 @@ $sorted = [];
 $total_items = 0;
 $total_size = 0;
 
+$[if `process.env.IGNORE`]$
+// multi fnmatch *.txt|*.js -> hide all txt and js files
+function mfnmatch(string $patterns, string $string): bool
+{
+  $arr = explode('|', $patterns);
+  foreach ($arr as $pattern) {
+    if (fnmatch($pattern, $string)) {
+      return true;
+    }
+  }
+  return false;
+}
+$[end]$
+
 // local path exists
 if ($path_is_dir) {
   $[if `process.env.DOWNLOAD_COUNTER === "true"`]$
@@ -79,11 +93,11 @@ if ($path_is_dir) {
   $sorted_folders = [];
   foreach (($files = scandir($local_path)) as $file) {
     // always skip current folder '.' or parent folder '..' if current path is root or file should be ignored or .dbmeta.json
-    if ($file === '.' || $file === '..' && count($url_parts) === 0 $[if `process.env.IGNORE`]$|| $file !== '..' && fnmatch("${{`process.env.IGNORE ?? ""`}}$", $file)$[end]$ || str_contains($file, ".dbmeta.json")) continue;
+    if ($file === '.' || $file === '..' && count($url_parts) === 0 $[if `process.env.IGNORE`]$|| $file !== '..' && mfnmatch("${{`process.env.IGNORE ?? ""`}}$", $file)$[end]$ || str_contains($file, ".dbmeta.json")) continue;
 
     $[if `process.env.IGNORE`]$
     foreach ($url_parts as $int_path) { /* check if parent folders are hidden */
-      if (fnmatch("${{`process.env.IGNORE ?? ""`}}$", $int_path)) {
+      if (mfnmatch("${{`process.env.IGNORE ?? ""`}}$", $int_path)) {
         $path_is_dir = false;
         goto skip; /* Folder should be ignored so skip to 404 */
       }
@@ -192,7 +206,7 @@ if ($path_is_dir) {
 
   $[if `process.env.IGNORE`]$
   foreach ($url_parts as $int_path) { /* check if parent folders are hidden */
-    if (fnmatch("${{`process.env.IGNORE ?? ""`}}$", $int_path)) {      
+    if (mfnmatch("${{`process.env.IGNORE ?? ""`}}$", $int_path)) {      
       goto skip; /* File should be ignored so skip to 404 */
     }
   }
