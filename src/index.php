@@ -67,19 +67,21 @@ $sorted = [];
 $total_items = 0;
 $total_size = 0;
 
-$[if `process.env.IGNORE !== undefined`]$
-// multi fnmatch *.txt|*.js -> hide all txt and js files
-function mfnmatch(string $patterns, string $string): bool
-{
-  $arr = explode('|', $patterns);
-  foreach ($arr as $pattern) {
-    if (fnmatch($pattern, $string)) {
+/**
+ * Check if file/folder should be hidden (ignored)
+ * @param string $path full path to file or folder
+ */
+function hidden(string $path): bool {
+  $[if `process.env.IGNORE !== undefined`]$
+  $ignorePatterns = explode(';', "${{`process.env.IGNORE ?? ""`}}$");
+  foreach ($ignorePatterns as $pattern) {
+    if (preg_match("#" . $pattern . "#im", $path) === 1) {
       return true;
     }
   }
+  $[end]$
   return false;
 }
-$[end]$
 
 // local path exists
 if ($path_is_dir) {
@@ -89,23 +91,20 @@ if ($path_is_dir) {
   $[end]$
   // TODO: refactor use MGET instead of loop GET
 
+  // parent folder is hidden so skip
+  if (hidden(substr($local_path, strlen(PUBLIC_FOLDER)))) {
+    $path_is_dir = false;
+    goto skip; /* Folder should be ignored so skip to 404 */
+  }  
+
   $sorted_files = [];
   $sorted_folders = [];
   foreach (($files = scandir($local_path)) as $file) {
-    // always skip current folder '.' or parent folder '..' if current path is root or file should be ignored or .dbmeta.json
-    if ($file === '.' || $file === '..' && count($url_parts) === 0 $[if `process.env.IGNORE !== undefined`]$|| $file !== '..' && mfnmatch("${{`process.env.IGNORE ?? ""`}}$", $file)$[end]$ || str_contains($file, ".dbmeta.json")) continue;
-
-    $[if `process.env.IGNORE !== undefined`]$
-    foreach ($url_parts as $int_path) { /* check if parent folders are hidden */
-      if (mfnmatch("${{`process.env.IGNORE ?? ""`}}$", $int_path)) {
-        $path_is_dir = false;
-        goto skip; /* Folder should be ignored so skip to 404 */
-      }
-    }
-    $[end]$
-
-    // remove '/var/www/public' from path
+    // $relative_path. remove '/var/www/public' from path
     $url = substr($local_path, strlen(PUBLIC_FOLDER)) . '/' . $file;
+
+    // always skip current folder '.' or parent folder '..' if current path is root or file should be ignored or .dbmeta.json
+    if ($file === '.' || $file === '..' && count($url_parts) === 0 || $file !== '..' && hidden($url) || str_contains($file, ".dbmeta.json")) continue;
 
     $file_size = filesize($local_path . '/' . $file);
 
@@ -204,13 +203,9 @@ if ($path_is_dir) {
 
   $relative_path = substr($local_path, strlen(PUBLIC_FOLDER));
 
-  $[if `process.env.IGNORE !== undefined`]$
-  foreach ($url_parts as $int_path) { /* check if parent folders are hidden */
-    if (mfnmatch("${{`process.env.IGNORE ?? ""`}}$", $int_path)) {      
-      goto skip; /* File should be ignored so skip to 404 */
-    }
+  if (hidden($relative_path)) {      
+    goto skip; /* File should be ignored so skip to 404 */
   }
-  $[end]$
 
   // skip if file is .dbmeta.json
   if (str_contains($local_path, ".dbmeta.json")) goto skip;
@@ -470,6 +465,18 @@ end:
           $diff = $now->diff($fileDate)->days;
         ?>
         <a data-file-isdir="<?= $file->is_dir ? "1" : "0" ?>" data-file-name="<?= $file->name ?>" data-file-dl="$[if `process.env.DOWNLOAD_COUNTER === "true"`]$<?= $file->dl_count ?>$[end]$" data-file-size="<?= $file->size ?>" data-file-mod="<?= $file->modified_date ?>"  href="${{`process.env.BASE_PATH ?? ''`}}$<?= $file->url ?>" class="row db-row py-2 db-file" target="${{`process.env.OPEN_NEW_TAB === "true" ? "<?= $file->is_dir ? '_self' : '_blank' ?>" : "_self"`}}$">
+          <!-- <div class="col col-auto">
+            <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
+              <input class="form-check-input" type="checkbox" id="checkboxNoLabel" value="" aria-label="...">
+              <div class="btn-group" role="group">
+                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="#">Dropdown link</a></li>
+                  <li><a class="dropdown-item" href="#">Dropdown link</a></li>
+                </ul>
+              </div>
+            </div>
+          </div> -->
           <div class="col col-auto pe-0">
           <?php if ($file->name === "..") { ?>
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-corner-left-up" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
