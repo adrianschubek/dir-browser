@@ -390,6 +390,38 @@ end:
   <link data-turbo-eval="false" href="https://cdn.jsdelivr.net/npm/file-icons-js@1/css/style.min.css" rel="stylesheet"></link>
   $[end]$
   <script src="https://cdn.jsdelivr.net/npm/@hotwired/turbo@8.0/dist/turbo.es2017-umd.min.js"></script>
+  <script data-turbo-eval="false">    /* fixes white flash */
+    const getPreferredTheme = () => {
+      if (localStorage.getItem('theme')) {
+        return localStorage.getItem('theme')
+      }
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+    }
+
+    const setTheme = (theme) => {
+      if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.documentElement.setAttribute('data-bs-theme', 'dark')
+      } else {
+        document.documentElement.setAttribute('data-bs-theme', theme);
+      }
+    }
+
+    setTheme(getPreferredTheme())
+
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (storedTheme !== 'light' || storedTheme !== 'dark') {
+        setTheme(getPreferredTheme())
+      }
+    })
+
+    function toggletheme() {
+      const theme = getPreferredTheme() === 'dark' ? 'light' : 'dark'
+      console.log("click set to " + theme);
+      document.querySelector("[data-bs-theme]").setAttribute('data-bs-theme', theme)
+      localStorage.setItem('theme', theme)
+      setTheme(theme)
+    }
+  </script>
 </head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -671,40 +703,7 @@ end:
     })
   </script>
   $[end]$
-  <script data-turbo-eval="false">    
-    const getPreferredTheme = () => {
-      if (localStorage.getItem('theme')) {
-        return localStorage.getItem('theme')
-      }
-      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-    }
-
-    const setTheme = (theme) => {
-      if (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-        document.documentElement.setAttribute('data-bs-theme', 'dark')
-      } else {
-        document.documentElement.setAttribute('data-bs-theme', theme);
-      }
-    }
-
-    setTheme(getPreferredTheme())
-
-    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
-      if (storedTheme !== 'light' || storedTheme !== 'dark') {
-        setTheme(getPreferredTheme())
-      }
-    })
-
-    function toggletheme() {
-      const theme = getPreferredTheme() === 'dark' ? 'light' : 'dark'
-      console.log("click set to " + theme);
-      document.querySelector("[data-bs-theme]").setAttribute('data-bs-theme', theme)
-      localStorage.setItem('theme', theme)
-      setTheme(theme)
-    }
-
-    // TODO: sorting
-  </script>
+  
   <script data-turbo-eval="false">
     const search = () => {
       const search = document.querySelector('#search').value.toLowerCase();
