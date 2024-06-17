@@ -434,7 +434,7 @@ end:
       </div>
 
     <?php } else { ?>
-      <div class="rounded container card border-2  px-3" id="filetree">
+      <div class="rounded container position-sticky card border-2 px-3" style="top:0; z-index: 5;border-bottom-left-radius: 0 !important;border-bottom-right-radius: 0 !important;">
         <div class="row db-row py-2 text-muted">
           <div class="col" id="path">
             <a href="${{`process.env.BASE_PATH ?? ''`}}$/">/</a><?php
@@ -467,6 +467,9 @@ end:
           <a href="" class="col col-2 text-end d-none d-md-inline-block" id="size">Size<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-arrows-sort"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 9l4 -4l4 4m-4 -4v14" /><path d="M21 15l-4 4l-4 -4m4 4v-14" /></svg></a>
           <a href="" class="col col-2 text-end d-none d-md-inline-block" id="mod">Modified<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-arrows-sort"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 9l4 -4l4 4m-4 -4v14" /><path d="M21 15l-4 4l-4 -4m4 4v-14" /></svg></a>
         </div>
+      </div>
+      <div class="rounded container card border-2 px-3" style="border-top: none !important;border-top-right-radius: 0 !important;border-top-left-radius: 0 !important;" id="filetree">
+        
         <?php
         $now = new DateTime();
         foreach ($sorted as $file) {
@@ -484,7 +487,7 @@ end:
                   <li><a class="dropdown-item" href="#">Dropdown link</a></li>
                 </ul>
               </div>
-            </div>
+          </div>
           </div> -->
           <div class="col col-auto pe-0">
           <?php if ($file->name === "..") { ?>
@@ -765,6 +768,11 @@ end:
     $[end]$
   </script>
   <script>
+    function ignore(e) {
+      console.warn("Ignored click event", e);
+      e.stopPropagation();
+    }
+
     $[if `process.env.LAYOUT === "popup" || process.env.LAYOUT === "full"`]$
     document.querySelectorAll('.db-file').forEach((item) => {
       // skip folders
