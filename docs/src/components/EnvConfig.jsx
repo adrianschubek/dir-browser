@@ -1,4 +1,5 @@
 import React, { version } from 'react'
+import Details from "@docusaurus/theme-classic/lib/theme/Details";
 
 /**
  * Component to display the environment configuration
@@ -19,7 +20,7 @@ const EnvConfig = ({ name, init, values, flags, versions, desc }) => { /* a|b  1
   }
 
   return (
-    <div style={{ padding: "5px", background: "", border: "var(--ifm-color-primary) 2px", borderStyle: "dashed", borderRadius: "5px" }}>
+    <div style={{ padding: "8px", background: "", border: "var(--ifm-color-primary) 2px", borderStyle: "dashed", borderRadius: "5px" }}>
       <h3 style={{ color: "var(--ifm-color-primary)" }}>⚙️ Configuration</h3>
       <table style={{ width: "100%", display: "table", }}>
         <thead>
@@ -55,14 +56,15 @@ const EnvConfig = ({ name, init, values, flags, versions, desc }) => { /* a|b  1
           </tr>)}
         </tbody>
       </table>
-      {configs.length > 0 && <details><summary>How to set configuration options</summary>
-        Set the environment variables when starting the container.<br></br>Use <code>docker run</code>...
-        <ul>
-          <li>...with <code>-e {configs[0].name}={configs[0].init}</code></li>
-          <li>...with <code>--env-file .env</code> and place <code>{configs[0].name}={configs[0].init}</code> in the file</li>
-        </ul>
-        See installation page for more details.
-      </details>}
+      {configs.length > 0 &&
+        <Details summary={"How to set configuration options"}  style={{ marginBottom: 0 }}>
+          Set the environment variables when starting the container.<br></br>Use <code>docker run</code>...
+          <ul>
+            <li>...with <code>-e {configs[0].name}={configs[0].init}</code></li>
+            <li>...with <code>--env-file .env</code> and place <code>{configs[0].name}={configs[0].init}</code> in the file</li>
+          </ul>
+          See installation page for more details.
+        </Details>}
     </div>
   )
 }

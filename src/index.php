@@ -4,6 +4,15 @@ define('VERSION', '3.3.0');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
+$[if `process.env.PASSWORD_RAW !== undefined || process.env.PASSWORD_HASH !== undefined`]$
+if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']) || $_SERVER['PHP_AUTH_USER'] !== '${{`process.env.PASSWORD_USER`}}$' || $_SERVER['PHP_AUTH_PW'] !== '${{`process.env.PASSWORD_RAW ?? "password_hash("+process.env.PASSWORD_HASH+", PASSWORD_DEFAULT)"`}}$') {
+  header('WWW-Authenticate: Basic realm="dir-browser"');
+  header('HTTP/1.0 401 Unauthorized');
+  echo "Authentication required.";
+  die;
+}
+$[end]$
+
 $[if `process.env.TIMING`]$
 $time_start = hrtime(true); 
 $[end]$
