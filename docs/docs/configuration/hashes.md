@@ -32,6 +32,8 @@ Set in the [metadata](metadata.md) config of the file to require the hash to be 
 }
 ```
 
+Or set it globally using the `HASH_REQUIRED` variable.
+
 :::warning
 This feature should not be used to restrict access as the hash is publicly available through the [API](http.mdx) if enabled. It is only meant to make an integrity verification of the file mandatory for every request.
 
@@ -41,4 +43,4 @@ To protect the file use the [password protection](password.mdx) feature.
 import EnvConfig from '@site/src/components/EnvConfig';
 
 <!-- <EnvConfig name="HASH" init="true" values="true,false"/> -->
-<EnvConfig name="HASH|HASH_ALGO" init="true|sha256" values="true,false|md2,md4,md5,sha1,sha224,sha256,sha384,sha512/224,sha512/256,sha512,sha3-224,sha3-256,sha3-384,sha3-512,ripemd128,ripemd160,ripemd256,ripemd320,whirlpool,snefru,snefru256,gost,gost-crypto,adler32,crc32,crc32b,crc32c,fnv132,fnv1a32,fnv164,fnv1a64,joaat,murmur3a,murmur3c,murmur3f,xxh32,xxh64,xxh3,xxh128" versions="3.0|3.1" />
+<EnvConfig name="HASH|HASH_REQUIRED|HASH_ALGO" init="true|false|sha256" values="true,false|true,false|md2,md4,md5,sha1,sha224,sha256,sha384,sha512/224,sha512/256,sha512,sha3-224,sha3-256,sha3-384,sha3-512,ripemd128,ripemd160,ripemd256,ripemd320,whirlpool,snefru,snefru256,gost,gost-crypto,adler32,crc32,crc32b,crc32c,fnv132,fnv1a32,fnv164,fnv1a64,joaat,murmur3a,murmur3c,murmur3f,xxh32,xxh64,xxh3,xxh128" desc="|Hash is always required|" versions="3.0|3.3|3.1" />

@@ -50,6 +50,8 @@ ENV DATE_FORMAT=relative
 
 ENV HASH=true
 
+ENV HASH_REQUIRED=false
+
 ENV HASH_ALGO=sha256
 
 ENV API=true

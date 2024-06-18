@@ -240,7 +240,7 @@ if ($path_is_dir) {
 
   $[if `process.env.HASH`]$
   // only allow download if requested hash matches actual hash
-  if (isset($_REQUEST["hash"]) || isset($meta) && $meta->hash_required === true) {
+  if (${{`process.env.HASH_REQUIRED === "true" ? "true ||" : ""`}}$ isset($_REQUEST["hash"]) || isset($meta) && $meta->hash_required === true) {
     if ($_REQUEST["hash"] !== hash_file('${{`process.env.HASH_ALGO`}}$', $local_path)) {
       http_response_code(403);
       die("<b>Access denied.</b> Supplied hash does not match actual file hash.");
