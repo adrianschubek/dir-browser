@@ -515,7 +515,7 @@ end:
           $fileDate = new DateTime($file->modified_date);
           $diff = $now->diff($fileDate)->days;
         ?>
-        <a data-file-isdir="<?= $file->is_dir ? "1" : "0" ?>" data-file-name="<?= $file->name ?>" data-file-dl="$[if `process.env.DOWNLOAD_COUNTER === "true"`]$<?= $file->dl_count ?>$[end]$" data-file-size="<?= $file->size ?>" data-file-mod="<?= $file->modified_date ?>"  href="${{`process.env.BASE_PATH ?? ''`}}$<?= $file->url ?>" class="row db-row py-2 db-file" target="${{`process.env.OPEN_NEW_TAB === "true" ? "<?= $file->is_dir ? '_self' : '_blank' ?>" : "_self"`}}$">
+        <a data-file-isdir="<?= $file->is_dir ? "1" : "0" ?>" data-file-name="<?= $file->name ?>" data-file-dl="$[if `process.env.DOWNLOAD_COUNTER === "true"`]$<?= $file->dl_count ?>$[end]$" data-file-size="<?= $file->size ?>" data-file-mod="<?= $file->modified_date ?>"  href="${{`process.env.BASE_PATH ?? ''`}}$<?= $file->url ?><?= /* extra slash for dirs */ $file->is_dir ? "/" : "" ?>" class="row db-row py-2 db-file" target="${{`process.env.OPEN_NEW_TAB === "true" ? "<?= $file->is_dir ? '_self' : '_blank' ?>" : "_self"`}}$">
           <div class="col col-auto multiselect" style="display:none" onclick="ignore">
             <input class="form-check-input" style="padding:5px" type="checkbox" id="checkboxNoLabel" value="" aria-label="..." />
             <!-- TODO: disable <a> links when multi-select mode is active!! -->
