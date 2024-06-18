@@ -35,7 +35,13 @@ Use <kbd>^</kbd> to match the start and <kbd>$</kbd> to match the end of the fil
 You can hide some files and folders by setting the environment variable `IGNORE` to a pattern. By default everything is shown.
 
 <details>
-<summary>Legacy (v1.2 - v3.2) ignore pattern matching using fnmatch</summary>
+<summary>Legacy (v1.2 - v3.2) ignore pattern matching</summary>
+
+Patterns are matched against the file name and every parent folder name **individually** not as a path.
+
+For example if you have a file `foo/bar/secret.txt`. This path will be split into an array `['foo', 'bar', 'secret.txt']` and each part will be matched against the pattern. If at any point the pattern matches the name, it will be hidden.
+
+Usecase: Hide everything starting with a dot <kbd>.</kbd> using a `.*` pattern globally at any nesting level. This will hide `/foo/bar/.foobar`, `/.baz`, `/foo/.secret/bar` etc.
 
 It uses [fnmatch](https://www.php.net/manual/en/function.fnmatch.php) to match the pattern.
 
