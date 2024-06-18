@@ -420,7 +420,7 @@ end:
       document.querySelector("[data-bs-theme]").setAttribute('data-bs-theme', theme)
       localStorage.setItem('theme', theme)
       setTheme(theme)
-    }
+    }    
   </script>
 </head>
 
@@ -483,6 +483,9 @@ end:
             <a class="btn rounded btn-sm text-muted" onclick="toggleSearch()">
             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
             </a>
+            <a class="btn rounded btn-sm text-muted" onclick="toggleMultiselect()">
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-copy-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path stroke="none" d="M0 0h24v24H0z" /><path d="M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z" /><path d="M4.012 16.737a2 2 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1" /><path d="M11 14l2 2l4 -4" /></svg>
+            </a>
             <a class="btn rounded btn-sm text-muted" data-color-toggler onclick="toggletheme()">
             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-moon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" /></svg>
             </a>
@@ -509,18 +512,10 @@ end:
           $diff = $now->diff($fileDate)->days;
         ?>
         <a data-file-isdir="<?= $file->is_dir ? "1" : "0" ?>" data-file-name="<?= $file->name ?>" data-file-dl="$[if `process.env.DOWNLOAD_COUNTER === "true"`]$<?= $file->dl_count ?>$[end]$" data-file-size="<?= $file->size ?>" data-file-mod="<?= $file->modified_date ?>"  href="${{`process.env.BASE_PATH ?? ''`}}$<?= $file->url ?>" class="row db-row py-2 db-file" target="${{`process.env.OPEN_NEW_TAB === "true" ? "<?= $file->is_dir ? '_self' : '_blank' ?>" : "_self"`}}$">
-          <!-- <div class="col col-auto">
-            <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
-              <input class="form-check-input" type="checkbox" id="checkboxNoLabel" value="" aria-label="...">
-              <div class="btn-group" role="group">
-                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"></button>
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="#">Dropdown link</a></li>
-                  <li><a class="dropdown-item" href="#">Dropdown link</a></li>
-                </ul>
-              </div>
+          <div class="col col-auto multiselect" style="display:none" onclick="ignore">
+            <input class="form-check-input" style="padding:5px" type="checkbox" id="checkboxNoLabel" value="" aria-label="..." />
+            <!-- TODO: disable <a> links when multi-select mode is active!! -->
           </div>
-          </div> -->
           <div class="col col-auto pe-0">
           <?php if ($file->name === "..") { ?>
               <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-corner-left-up" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -705,6 +700,33 @@ end:
   $[end]$
   
   <script data-turbo-eval="false">
+    const toggleMultiselect = () => {
+      const local = localStorage.getItem("multiSelectMode");
+      let multiSelectMode = local === null ? false : local === "true";
+      multiSelectMode = !multiSelectMode;
+      updateMultiselect(multiSelectMode);
+      localStorage.setItem("multiSelectMode", multiSelectMode);
+    };
+    const updateMultiselect = (multi) => {
+      const selects = document.querySelectorAll('.multiselect');
+      const files = document.querySelectorAll('.db-file');
+      selects.forEach((select) => {
+        if (multi) {
+          select.style.display = 'block';
+        } else {
+          select.style.display = 'none';
+        }
+      });
+      files.forEach((file) => {
+        // disable link
+        if (multi) {
+          file.setAttribute("disabled", "true");
+        } else {
+          file.removeAttribute("disabled");
+        }
+      })
+    }
+
     const search = () => {
       const search = document.querySelector('#search').value.toLowerCase();
       const items = Array.from(document.querySelectorAll('.db-file'));
@@ -771,6 +793,7 @@ end:
       console.warn("Ignored click event", e);
       e.stopPropagation();
     }
+    updateMultiselect((localStorage.getItem("multiSelectMode") ?? false) === "true");
 
     $[if `process.env.LAYOUT === "popup" || process.env.LAYOUT === "full"`]$
     document.querySelectorAll('.db-file').forEach((item) => {
