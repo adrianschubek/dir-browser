@@ -479,7 +479,7 @@ end:
             foreach ($url_parts as $i => $part) {
               $urls[] = end($urls) . '/' . $part;
               // var_dump($i, $part, $urls);
-              echo '<a href="${{`process.env.BASE_PATH ?? ''`}}$' . $urls[$i - 1] . '">' . $part . '/</a>';
+              echo '<a style="vertical-align: middle;" href="${{`process.env.BASE_PATH ?? ''`}}$' . $urls[$i - 1] . '/">' . $part . '/</a>';
             }
             ?>
           </div>
