@@ -793,10 +793,12 @@ end:
     $[end]$
   </script>
   <script>
-    function ignore(e) {
-      console.warn("Ignored click event", e);
-      e.stopPropagation();
-    }
+    // Readme open in new tab fix
+    $[if `process.env.OPEN_NEW_TAB === "true"`]$
+    document.querySelectorAll("#readme a").forEach((el) => {
+      el.setAttribute("target", "_blank");
+    });
+    $[end]$
     updateMultiselect((localStorage.getItem("multiSelectMode") ?? false) === "true");
 
     $[if `process.env.LAYOUT === "popup" || process.env.LAYOUT === "full"`]$
