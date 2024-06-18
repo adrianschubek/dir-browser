@@ -74,6 +74,8 @@ ENV OPEN_NEW_TAB=false
 
 ENV HIGHLIGHT_UPDATED=true
 
+ENV METADATA=true
+
 RUN chmod +x /init.sh
 
 EXPOSE 8080

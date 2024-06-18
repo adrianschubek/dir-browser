@@ -71,4 +71,4 @@ See [Integrity & Hashes](hashes.md).
 
 import EnvConfig from "@site/src/components/EnvConfig";
 
-<EnvConfig name="METADATA" init="true" values="true,false" flags="u" desc="Enables/disables support for metadata parsing" />
+<EnvConfig name="METADATA" init="true" values="true,false" versions="3.3" desc="Enables support for metadata parsing. Disabling this feature will therefore disable all metadata related features like file passwords." />

@@ -113,7 +113,7 @@ if ($path_is_dir) {
     $url = substr($local_path, strlen(PUBLIC_FOLDER)) . '/' . $file;
 
     // always skip current folder '.' or parent folder '..' if current path is root or file should be ignored or .dbmeta.json
-    if ($file === '.' || $file === '..' && count($url_parts) === 0 || $file !== '..' && hidden($url) || str_contains($file, ".dbmeta.json")) continue;
+    if ($file === '.' || $file === '..' && count($url_parts) === 0 || $file !== '..' && hidden($url) $[if `process.env.METADATA === "true"`]$|| str_contains($file, ".dbmeta.json")$[end]$) continue;
 
     $file_size = filesize($local_path . '/' . $file);
 
@@ -121,6 +121,7 @@ if ($path_is_dir) {
 
     $file_modified_date = gmdate('Y-m-d\TH:i:s\Z', filemtime($local_path . '/' . $file));
 
+    $[if `process.env.METADATA === "true"`]$
     // load metadata if file exists
     $meta_file = realpath($local_path . '/' . $file . '.dbmeta.json');
     if ($meta_file !== false) {
@@ -130,6 +131,7 @@ if ($path_is_dir) {
       // Variables stay alive in php so we need to reset it explicitly
       $meta = null;
     }
+    $[end]$
 
     $item = new File();
     $item->name = $file;
@@ -216,6 +218,7 @@ if ($path_is_dir) {
     goto skip; /* File should be ignored so skip to 404 */
   }
 
+  $[if `process.env.METADATA === "true"`]$
   // skip if file is .dbmeta.json
   if (str_contains($local_path, ".dbmeta.json")) goto skip;
 
@@ -237,6 +240,7 @@ if ($path_is_dir) {
       }
     }
   }
+  $[end]$
 
   $[if `process.env.HASH`]$
   // only allow download if requested hash matches actual hash
