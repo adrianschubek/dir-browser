@@ -4,8 +4,8 @@ sidebar_position: 6
 
 # Hide files & folders
 
-:::tip
-If you just want to hide a specific file, consider using [metadata](./metadata.md#hidden).
+:::info
+In contrast to using [metadata](./metadata.md) the file or folder is completely hidden/ignored from the filetree, all APIs and cannot be accessed via URL.
 :::
 
 ### Ignore patterns
@@ -15,10 +15,6 @@ Hide specific files or folders by defining an ignore pattern using regular expre
 It uses [preg_match](https://www.php.net/manual/en/function.preg-match.php) to match the file path. Pattern matching is case insensitive.
 If a match is found the file/folder will be hidden.
 The path always starts with a `/`, which is the mounted folder.
-
-:::tip
-Use <kbd>^</kbd> to match the start and <kbd>$</kbd> to match the end of the file path.
-:::
 
 #### Examples
 
