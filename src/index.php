@@ -349,6 +349,7 @@ end:
       text-align: center;
     }
     body {
+overflow-y: scroll; /* prevents content shifting when scrollbar gets (in)visible */
       background-color: var(--bs-secondary-bg);
     }
     .footer {
