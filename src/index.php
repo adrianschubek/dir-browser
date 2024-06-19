@@ -315,7 +315,7 @@ end:
   $[ifeq env:THEME litera]$
   <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/litera/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
   $[else]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/cosmo/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
+  <link href="${{`process.env.THEME_URL !== undefined ? process.env.THEME_URL : "https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/cosmo/bootstrap.min.css"`}}$" rel="stylesheet" data-turbo-eval="false">
   $[end]$
   <style data-turbo-eval="false">
     $[ifeq env:THEME default]$
@@ -859,6 +859,28 @@ end:
       sort('mod', sessionStorage.getItem("sort:order:mod") === "desc");
     });
   </script>
+$[if `process.env.ICONS !== "false"`]$
+  <script data-turbo-eval="false" src="https://cdn.jsdelivr.net/npm/file-icons-js@1/dist/file-icons.min.js"></script>
+  <script>
+    var icons = window.FileIcons;
+    document.querySelectorAll(".file-icon-placeholder").forEach(function(element) {
+      element.classList = ("icon " + icons.getClassWithColor(element.getAttribute("filename"))).replace("null","binary-icon")
+      element.innerHTML = ""
+    })
+  </script>
+  $[end]$  
+  <!-- TODO: remove bundle -->
+  <script data-turbo-eval="false" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  $[if `process.env.JS_URL_ONCE !== undefined`]$
+  <script data-turbo-eval="false" src="${{`process.env.JS_URL`}}$"></script>
+  $[end]$
+  $[if `process.env.JS_URL !== undefined`]$
+  <script src="${{`process.env.JS_URL`}}$"></script>
+  $[end]$
+  $[if `process.env.JS !== undefined`]$
+  <script>${{`process.env.JS`}}$</script>
+  $[end]$
 </body>
 
 </html>
