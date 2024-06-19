@@ -76,6 +76,13 @@ ENV HIGHLIGHT_UPDATED=true
 
 ENV METADATA=true
 
+# multi select batch file download
+ENV BATCH_DOWNLOAD=true
+
+ENV BATCH_TYPE=zip
+# MB
+ENV BATCH_MAX_TOTAL_SIZE=100
+
 RUN chmod +x /init.sh
 
 EXPOSE 8080

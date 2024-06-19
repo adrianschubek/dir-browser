@@ -328,7 +328,21 @@ end:
         background-color: #ffffff0d;
       }
     }
+    .dropdown-menu {
+      border-radius: 5px;
+      --bs-dropdown-border-width: 2px;
+    }
+    @media (min-width: 576px) {
+      .dropdown:hover > .dropdown-menu {
+        display: relative;
+        margin-top: 0;
+      }
+    } /* FIXME breakes dropstart */
     $[end]$
+    .dropdown-toggle {
+      padding: 0 8px 0 8px;
+      border-radius: 5px;
+    }
     .item {
       grid-auto-flow: column dense;
       grid-template-columns: 20px auto 100px 75px max-content;
@@ -349,7 +363,7 @@ end:
       text-align: center;
     }
     body {
-overflow-y: scroll; /* prevents content shifting when scrollbar gets (in)visible */
+      overflow-y: scroll; /* prevents content shifting when scrollbar gets (in)visible */
       background-color: var(--bs-secondary-bg);
     }
     .footer {
@@ -389,6 +403,9 @@ overflow-y: scroll; /* prevents content shifting when scrollbar gets (in)visible
     }
     #sort > a:hover > svg {
       display: inline;
+    }
+    a[data-file-selected="1"] {
+      background-color: var(--bs-primary-bg-subtle);
     }
   </style>
   $[if `process.env.ICONS !== "false"`]$
@@ -472,7 +489,7 @@ overflow-y: scroll; /* prevents content shifting when scrollbar gets (in)visible
 
     <?php } else { ?>
       <div class="rounded container position-sticky card border-2 px-3" style="top:0; z-index: 5;border-bottom-left-radius: 0 !important;border-bottom-right-radius: 0 !important;">
-        <div class="row db-row py-2 text-muted">
+        <div class="row db-row py-2 text-muted">          
           <div class="col" id="path">
             <a href="${{`process.env.BASE_PATH ?? ''`}}$/">/</a><?php
             // create links e.g. from ["foo","bar","foobar"] to ["/foo", "/foo/bar", "/foo/bar/foobar"]
@@ -485,13 +502,21 @@ overflow-y: scroll; /* prevents content shifting when scrollbar gets (in)visible
             ?>
           </div>
           <div class="col-auto pe-0">
-            <a class="btn rounded btn-sm text-muted" onclick="toggleSearch()">
-            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
+            <a class="btn rounded btn-sm text-muted multiselect" onclick="downloadMultiple(/* TODO */)" title="Download batch">
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-download"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg>
             </a>
-            <a class="btn rounded btn-sm text-muted" onclick="toggleMultiselect()">
+            $[if `process.env.BATCH_DOWNLOAD === "true"`]$
+            <a class="btn rounded btn-sm text-muted" onclick="toggleMultiselect()" title="Multiple select">
             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-copy-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path stroke="none" d="M0 0h24v24H0z" /><path d="M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z" /><path d="M4.012 16.737a2 2 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1" /><path d="M11 14l2 2l4 -4" /></svg>
             </a>
-            <a class="btn rounded btn-sm text-muted" data-color-toggler onclick="toggletheme()">
+            <a class="btn rounded btn-sm text-muted" onclick="downloadThisFolder()" title="Download this folder">
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-folder-down"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 19h-7a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2h4l3 3h7a2 2 0 0 1 2 2v3.5" /><path d="M19 16v6" /><path d="M22 19l-3 3l-3 -3" /></svg>
+            </a>
+            $[end]$
+            <a class="btn rounded btn-sm text-muted" onclick="toggleSearch()" title="Search">
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
+            </a>
+            <a class="btn rounded btn-sm text-muted" data-color-toggler onclick="toggletheme()" title="Darkmode / Lightmode">
             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-moon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" /></svg>
             </a>
           </div>
@@ -502,6 +527,12 @@ overflow-y: scroll; /* prevents content shifting when scrollbar gets (in)visible
           </div>
         </div>
         <div class="row db-row py-2 text-muted" id="sort">
+          $[if `process.env.BATCH_DOWNLOAD === "true"`]$
+          <div class="col col-auto multiselect" style="display:none">
+            <input id="selectall" class="form-check-input" style="padding:5px" type="checkbox" id="checkboxNoLabel" aria-label="..." />
+            <!-- (un)select all -->
+          </div>
+          $[end]$
           <a href="" class="col" id="name">Name<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-arrows-sort"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 9l4 -4l4 4m-4 -4v14" /><path d="M21 15l-4 4l-4 -4m4 4v-14" /></svg></a>
           $[if `process.env.DOWNLOAD_COUNTER === "true"`]$<a href="" class="col col-auto text-end d-none d-md-inline-block" id="dl">Downloads<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-arrows-sort"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 9l4 -4l4 4m-4 -4v14" /><path d="M21 15l-4 4l-4 -4m4 4v-14" /></svg></a>$[end]$
           <a href="" class="col col-2 text-end d-none d-md-inline-block" id="size">Size<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-arrows-sort"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M3 9l4 -4l4 4m-4 -4v14" /><path d="M21 15l-4 4l-4 -4m4 4v-14" /></svg></a>
@@ -516,10 +547,9 @@ overflow-y: scroll; /* prevents content shifting when scrollbar gets (in)visible
           $fileDate = new DateTime($file->modified_date);
           $diff = $now->diff($fileDate)->days;
         ?>
-        <a data-file-isdir="<?= $file->is_dir ? "1" : "0" ?>" data-file-name="<?= $file->name ?>" data-file-dl="$[if `process.env.DOWNLOAD_COUNTER === "true"`]$<?= $file->dl_count ?>$[end]$" data-file-size="<?= $file->size ?>" data-file-mod="<?= $file->modified_date ?>"  href="${{`process.env.BASE_PATH ?? ''`}}$<?= $file->url ?><?= /* extra slash for dirs */ $file->is_dir ? "/" : "" ?>" class="row db-row py-2 db-file" target="${{`process.env.OPEN_NEW_TAB === "true" ? "<?= $file->is_dir ? '_self' : '_blank' ?>" : "_self"`}}$">
-          <div class="col col-auto multiselect" style="display:none" onclick="ignore">
-            <input class="form-check-input" style="padding:5px" type="checkbox" id="checkboxNoLabel" value="" aria-label="..." />
-            <!-- TODO: disable <a> links when multi-select mode is active!! -->
+        <a data-file-selected="0" data-file-isdir="<?= $file->is_dir ? "1" : "0" ?>" data-file-name="<?= $file->name ?>" data-file-dl="$[if `process.env.DOWNLOAD_COUNTER === "true"`]$<?= $file->dl_count ?>$[end]$" data-file-size="<?= $file->size ?>" data-file-mod="<?= $file->modified_date ?>"  href="${{`process.env.BASE_PATH ?? ''`}}$<?= $file->url ?><?= /* extra slash for dirs */ $file->is_dir ? "/" : "" ?>" class="row db-row py-2 db-file" target="${{`process.env.OPEN_NEW_TAB === "true" ? "<?= $file->is_dir ? '_self' : '_blank' ?>" : "_self"`}}$">
+          <div class="col col-auto multiselect" style="display:none">
+            <input class="form-check-input" style="padding:5px;pointer-events:none" type="checkbox" aria-label="..." />
           </div>
           <div class="col col-auto pe-0">
           <?php if ($file->name === "..") { ?>
@@ -592,6 +622,22 @@ overflow-y: scroll; /* prevents content shifting when scrollbar gets (in)visible
                 <?= $file->modified_date ?>
               </span>
             </div>
+            <div class="col col-auto stopprop">
+              <div class="btn-group dropdown dropstart">
+                <button class="btn btn-secondary dropdown-toggle btn-small" type="button" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                <ul class="dropdown-menu">
+                  <!-- <li><a class="dropdown-item stopprop" onclick="actionDownload()">Download</a></li> -->
+                  <li><span class="dropdown-item stopprop">Download</span></li>
+                  <li><span class="dropdown-item stopprop">API</span></li>
+                  <hr/>
+                  <li><span class="dropdown-item stopprop" onclick="alert(1)">Copy Hash</span></li>
+                  <li><span class="dropdown-item stopprop">Copy Filename</span></li>
+                  <li><span class="dropdown-item stopprop">Copy Downloads</span></li>
+                  <li><span class="dropdown-item stopprop">Copy URL</span></li>
+                  <li><span class="dropdown-item stopprop">Copy Date</span></li>
+                </ul>
+              </div>
+            </div>
           </a>
 
         <?php
@@ -654,7 +700,7 @@ overflow-y: scroll; /* prevents content shifting when scrollbar gets (in)visible
   $[end]$
 
   <!-- Powered by https://github.com/adrianschubek/dir-browser -->
-  <script>
+  <script data-turbo-eval="false">
     $[if `process.env.DATE_FORMAT === "relative"`]$
     function getRelativeTimeString(date, lang = navigator.language) {
       const timeMs = typeof date === "number" ? date : date.getTime();
@@ -683,28 +729,8 @@ overflow-y: scroll; /* prevents content shifting when scrollbar gets (in)visible
     }
     $[end]$
 
-    document.querySelectorAll(".filedatetime").forEach(function(element) {
-      $[if `process.env.DATE_FORMAT === "utc"`]$
-      element.innerHTML = new Date(element.innerHTML.trim()).toISOString().slice(0, 19).replace("T", " ") + " UTC"
-      $[if `process.env.DATE_FORMAT === "relative"`]$
-      element.innerHTML = getRelativeTimeString(new Date(element.innerHTML.trim())${{`process.env.DATE_FORMAT_RELATIVE_LANG ? ",'"+process.env.DATE_FORMAT_RELATIVE_LANG+"'" : ""`}}$)
-      $[else]$
-      element.innerHTML = new Date(element.innerHTML.trim()).toLocaleString()
-      $[end]$
-    })
-  </script>
-  $[if `process.env.ICONS !== "false"`]$
-  <script data-turbo-eval="false" src="https://cdn.jsdelivr.net/npm/file-icons-js@1/dist/file-icons.min.js"></script>
-  <script>
-    var icons = window.FileIcons;
-    document.querySelectorAll(".file-icon-placeholder").forEach(function(element) {
-      element.classList = ("icon " + icons.getClassWithColor(element.getAttribute("filename"))).replace("null","binary-icon")
-      element.innerHTML = ""
-    })
-  </script>
-  $[end]$
-  
-  <script data-turbo-eval="false">
+    // Batch download
+    $[if `process.env.BATCH_DOWNLOAD === "true"`]$
     const toggleMultiselect = () => {
       const local = localStorage.getItem("multiSelectMode");
       let multiSelectMode = local === null ? false : local === "true";
@@ -712,25 +738,64 @@ overflow-y: scroll; /* prevents content shifting when scrollbar gets (in)visible
       updateMultiselect(multiSelectMode);
       localStorage.setItem("multiSelectMode", multiSelectMode);
     };
+    const toggleSelectAll = (e) => {
+      console.log("ht", e)
+      if (e.target.checked) {
+        document.querySelectorAll('.db-file').forEach((file) => {
+          if (file.getAttribute('data-file-name') !== "..") {
+            file.setAttribute("data-file-selected", "1");
+            file.querySelector('input').checked = true; /* checkbox */
+          }
+        });
+      } else {
+        document.querySelectorAll('.db-file').forEach((file) => {
+          if (file.getAttribute('data-file-name') !== "..") {
+            file.setAttribute("data-file-selected", "0");
+            file.querySelector('input').checked = false; /* checkbox */
+          }
+        });
+      }
+    }
+    const dbItemClickListener = async (e) => {
+      e.preventDefault();
+      const file = e.target.closest('a');
+      console.log(file.getAttribute("href"), file.getAttribute("data-file-name"))
+      if (file.getAttribute("data-file-selected") === "1") {
+        file.setAttribute("data-file-selected", "0");
+        file.querySelector('input').checked = false; /* checkbox */
+      } else {
+        file.setAttribute("data-file-selected", "1");
+        file.querySelector('input').checked = true;
+      }
+    }
     const updateMultiselect = (multi) => {
+      if (multi) document.querySelector("#selectall").addEventListener('change', toggleSelectAll);
+      else document.querySelector("#selectall").removeEventListener('change', toggleSelectAll);
       const selects = document.querySelectorAll('.multiselect');
       const files = document.querySelectorAll('.db-file');
       selects.forEach((select) => {
         if (multi) {
-          select.style.display = 'block';
+          select.style.display = 'inline-block';
         } else {
           select.style.display = 'none';
         }
       });
       files.forEach((file) => {
+        // skip ".." folder
+        if (file.getAttribute('data-file-name') === "..") {
+          return;
+        }
         // disable link
         if (multi) {
-          file.setAttribute("disabled", "true");
+          // file.setAttribute("data-file-selected", "1")
+          file.addEventListener('click', dbItemClickListener);
         } else {
-          file.removeAttribute("disabled");
+          // file.setAttribute("data-file-selected", "0")
+          file.removeEventListener('click', dbItemClickListener);
         }
       })
     }
+    $[end]$
 
     const search = () => {
       const search = document.querySelector('#search').value.toLowerCase();
@@ -794,13 +859,49 @@ overflow-y: scroll; /* prevents content shifting when scrollbar gets (in)visible
     $[end]$
   </script>
   <script>
+    document.querySelectorAll(".filedatetime").forEach(function(element) {
+      $[if `process.env.DATE_FORMAT === "utc"`]$
+      element.innerHTML = new Date(element.innerHTML.trim()).toISOString().slice(0, 19).replace("T", " ") + " UTC"
+      $[if `process.env.DATE_FORMAT === "relative"`]$
+      element.innerHTML = getRelativeTimeString(new Date(element.innerHTML.trim())${{`process.env.DATE_FORMAT_RELATIVE_LANG ? ",'"+process.env.DATE_FORMAT_RELATIVE_LANG+"'" : ""`}}$)
+      $[else]$
+      element.innerHTML = new Date(element.innerHTML.trim()).toLocaleString()
+      $[end]$
+    })
+
     // Readme open in new tab fix
     $[if `process.env.OPEN_NEW_TAB === "true"`]$
     document.querySelectorAll("#readme a").forEach((el) => {
       el.setAttribute("target", "_blank");
     });
     $[end]$
+
+    document.querySelectorAll(".stopprop").forEach((el) => {
+      el.addEventListener("click", (e) => {
+        e.preventDefault();
+        // e.stopImmediatePropagation(); //this breaks stuff
+      });
+    });
+
+    document.querySelectorAll(".dropdown-toggle").forEach((el) => {
+      el.addEventListener("hover", (e) => {
+        console.log("hover");
+        // close all other dropdowns
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        document.querySelectorAll(".dropdown-menu").forEach((el) => {
+          el.classList.remove("show");
+        });
+        e.target.nextElementSibling.classList.add("show");
+      });
+    });
+
+    $[if `process.env.BATCH_DOWNLOAD === "true"`]$
     updateMultiselect((localStorage.getItem("multiSelectMode") ?? false) === "true");
+    // add event listeners to checkboxes
+
+   
+    $[end]$
 
     $[if `process.env.LAYOUT === "popup" || process.env.LAYOUT === "full"`]$
     document.querySelectorAll('.db-file').forEach((item) => {
@@ -860,7 +961,7 @@ overflow-y: scroll; /* prevents content shifting when scrollbar gets (in)visible
       sort('mod', sessionStorage.getItem("sort:order:mod") === "desc");
     });
   </script>
-$[if `process.env.ICONS !== "false"`]$
+  $[if `process.env.ICONS !== "false"`]$
   <script data-turbo-eval="false" src="https://cdn.jsdelivr.net/npm/file-icons-js@1/dist/file-icons.min.js"></script>
   <script>
     var icons = window.FileIcons;

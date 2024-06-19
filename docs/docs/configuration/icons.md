@@ -1,4 +1,4 @@
-# File icons
+# File Icons
 
 Display file and folders icons in the file tree. Increases the css bundle.
 
