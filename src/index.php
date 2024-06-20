@@ -50,6 +50,9 @@ $url_parts = array_filter(explode(separator: '/', string: $request_uri), fn ($pa
 
 // get real path and check if accessible (open_basedir)
 $local_path = realpath(PUBLIC_FOLDER . $request_uri);
+if (!str_starts_with($local_path, PUBLIC_FOLDER)) {
+  goto skip; /* File should be ignored so skip to 404 */
+} 
 
 // check if path is dir
 $path_is_dir = is_dir($local_path);
@@ -91,6 +94,92 @@ function hidden(string $path): bool {
   $[end]$
   return false;
 }
+
+/**
+ * Check if file/folder should be available to (batch) download.
+ * Check exists, hidden, metadata...
+ * @param string $path full path to file or folder
+ * @return string|false path if available, false if not
+ */
+function available(string $user_path): string | false {
+  $path = realpath(PUBLIC_FOLDER . $user_path);
+  if ($path === false || !str_starts_with($path, PUBLIC_FOLDER) || hidden($path)) return false;
+  $[if `process.env.METADATA === "true"`]$
+  if (str_contains($path, ".dbmeta.json")) return false;
+  $meta_file = realpath($path . '.dbmeta.json');
+  if ($meta_file !== false) {
+    $meta = json_decode(file_get_contents($meta_file));
+    if (!isset($meta)) return true;
+    // hidden check
+    if (isset($meta->hidden) && $meta->hidden === true) return false;
+    // if password or password_hash set reject 
+    // TODO: maybe allow it?
+    if (isset($meta->password) || isset($meta->password_hash)) return false;
+  }
+  $[end]$
+  return $path;
+}
+
+$[if `process.env.BATCH_DOWNLOAD === "true"`]$
+function getDeepUrlsFromArray(array $input_urls): array {
+  $urls = [];
+  foreach ($input_urls as $url) {
+    if (($path = available($url)) !== false) {
+      if (is_dir($path)) {
+        // scan this folder. exclude special folders
+        $deep_files = array_diff(scandir($path), ['.', '..']);
+        // scandir returns all files with full filesystem path so strip PUBLIC_FOLDER
+        $deep_urls = array_map(fn ($file) => substr($path . '/' . $file, strlen(PUBLIC_FOLDER)), $deep_files);
+        // recursion
+        $urls = array_merge($urls, getDeepUrlsFromArray($deep_urls));
+      } else {
+        $urls[] = $url;
+      }
+    }
+  }
+  return $urls;
+}
+
+function downloadBatch(array $urls) {
+  $total_size = 0;
+  $zip = new ZipArchive();
+  $zipname = tempnam(__DIR__ . "/tmp", 'db_batch_');
+  unlink($zipname); // fixes https://stackoverflow.com/a/64698936
+  $all_urls = getDeepUrlsFromArray($urls);
+
+  // TODO: redis MSET dl counter
+
+  // get all nested file urls and add PUBLIC_FOLDER prefix
+  // $files = array_map(fn ($file) => PUBLIC_FOLDER . $file, );
+  try {
+    $zip->open($zipname, ZipArchive::CREATE);
+    foreach ($all_urls as $path) {
+      // echo "Add file: " . PUBLIC_FOLDER . $path . "\n";
+      // scandir if is_directory. create folders if necessary (done addFile)
+      if (($fs = filesize(PUBLIC_FOLDER . $path)) > 1024 * 1024 * ${{`process.env.BATCH_MAX_FILE_SIZE`}}$) throw new Exception("File $file exceeds ${{`process.env.BATCH_MAX_FILE_SIZE`}}$ MB limit");
+      $total_size += $fs;
+      if ($total_size > 1024 * 1024 * ${{`process.env.BATCH_MAX_TOTAL_SIZE`}}$) throw new Exception("Total size of files exceeds ${{`process.env.BATCH_MAX_TOTAL_SIZE`}}$ MB limit");
+      if (disk_free_space(dirname($zipname)) - $total_size < ${{`process.env.BATCH_MIN_SYSTEM_FREE_DISK`}}$) throw new Exception("Not enough space to create zip");
+      // remove leading "/" bc windows cannot open zip
+      if ($zip->addFile(PUBLIC_FOLDER . $path, substr($path, 1)) === false) throw new Exception("Something went wrong when adding $file to zip");
+      $zip->setCompressionName($path, ZipArchive::CM_${{`process.env.BATCH_ZIP_COMPRESS_ALGO`}}$);
+    }
+    // var_dump( $zip->filename);
+    // var_dump($zipname);
+    // die;
+    $zip->close();
+    header('Content-Type: application/zip');
+    header('Content-Length: ' . filesize($zipname));
+    header('Content-Disposition: attachment; filename="' . bin2hex(random_bytes(8)) . '.zip"');
+    readfile($zipname);
+  } catch (\Throwable $th) {
+    echo "Batch download error: " . $th->getMessage();
+  } finally {
+    unlink($zipname);
+    die();
+  }
+}
+$[end]$
 
 // local path exists
 if ($path_is_dir) {
@@ -176,6 +265,14 @@ if ($path_is_dir) {
     }
     header("Content-Type: application/json");
     die(json_encode($info));
+  }
+  $[end]$
+
+  // is batch download?
+  $[if `process.env.BATCH_DOWNLOAD === "true"`]$
+  if (isset($_POST["download_batch"])) { // does not work with nested download folders
+    downloadBatch($_POST["download_batch"]);
+    die();
   }
   $[end]$
 
@@ -502,14 +599,14 @@ end:
             ?>
           </div>
           <div class="col-auto pe-0">
-            <a class="btn rounded btn-sm text-muted multiselect" onclick="downloadMultiple(/* TODO */)" title="Download batch">
+            $[if `process.env.BATCH_DOWNLOAD === "true"`]$
+            <a class="btn rounded btn-sm text-muted multiselect" onclick="downloadMultiple()" title="Download batch">
             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-download"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg>
             </a>
-            $[if `process.env.BATCH_DOWNLOAD === "true"`]$
             <a class="btn rounded btn-sm text-muted" onclick="toggleMultiselect()" title="Multiple select">
             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-copy-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path stroke="none" d="M0 0h24v24H0z" /><path d="M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z" /><path d="M4.012 16.737a2 2 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1" /><path d="M11 14l2 2l4 -4" /></svg>
             </a>
-            <a class="btn rounded btn-sm text-muted" onclick="downloadThisFolder()" title="Download this folder">
+            <a class="btn rounded btn-sm text-muted" onclick="downloadThisFolder('<?= $request_uri ?>')" title="Download this folder">
             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-folder-down"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 19h-7a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2h4l3 3h7a2 2 0 0 1 2 2v3.5" /><path d="M19 16v6" /><path d="M22 19l-3 3l-3 -3" /></svg>
             </a>
             $[end]$
@@ -731,15 +828,41 @@ end:
 
     // Batch download
     $[if `process.env.BATCH_DOWNLOAD === "true"`]$
+    const download = async (all) => {
+      // create form and submit
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '${{`process.env.BASE_PATH ?? ''`}}$';
+      form.style.display = 'none';
+      document.querySelectorAll('.db-file').forEach((file) => {
+        if ((all || file.getAttribute('data-file-selected') === "1") && file.getAttribute('data-file-name') !== "..") {
+          const input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = 'download_batch[]';
+          input.value = file.getAttribute('href');
+          form.appendChild(input);          
+        }
+      });
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
+    }
+    const downloadThisFolder = async (path) => {
+      console.log("Download this folder " + path);
+      await download(true);
+    }
+    const downloadMultiple = async () => {
+      console.log("Download multiple");
+      await download(false);
+    }
     const toggleMultiselect = () => {
       const local = localStorage.getItem("multiSelectMode");
       let multiSelectMode = local === null ? false : local === "true";
       multiSelectMode = !multiSelectMode;
       updateMultiselect(multiSelectMode);
       localStorage.setItem("multiSelectMode", multiSelectMode);
-    };
+    }
     const toggleSelectAll = (e) => {
-      console.log("ht", e)
       if (e.target.checked) {
         document.querySelectorAll('.db-file').forEach((file) => {
           if (file.getAttribute('data-file-name') !== "..") {
@@ -898,9 +1021,6 @@ end:
 
     $[if `process.env.BATCH_DOWNLOAD === "true"`]$
     updateMultiselect((localStorage.getItem("multiSelectMode") ?? false) === "true");
-    // add event listeners to checkboxes
-
-   
     $[end]$
 
     $[if `process.env.LAYOUT === "popup" || process.env.LAYOUT === "full"`]$

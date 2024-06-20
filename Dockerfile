@@ -6,6 +6,10 @@ RUN apk update && apk upgrade
 
 RUN docker-php-ext-install opcache
 
+RUN apk add --no-cache libzip-dev \
+  && docker-php-ext-configure zip \
+  && docker-php-ext-install zip
+
 RUN apk add --no-cache autoconf build-base \
   && pecl install -o -f redis \
   && rm -rf /tmp/pear \
@@ -29,6 +33,8 @@ WORKDIR /var/www/html
 RUN composer require "league/commonmark:^2.4"
 
 RUN mkdir -p /data/nginx/cache
+# for batch downloads
+RUN mkdir -p /var/www/html/tmp
 
 COPY server/nginx/nginx.conf /etc/nginx/nginx.conf
 
@@ -61,7 +67,7 @@ ENV API=true
 ENV LAYOUT=basic
 # TODO: show files in tree on hover
 ENV PREVIEW=false
-
+# TODO: support for multiple files
 ENV README_NAME=readme.md
 
 ENV README_FIRST=false
@@ -78,10 +84,18 @@ ENV METADATA=true
 
 # multi select batch file download
 ENV BATCH_DOWNLOAD=true
-
+# TODO: add more: https://www.php.net/manual/en/book.zlib.php
 ENV BATCH_TYPE=zip
+# https://www.php.net/manual/en/zip.constants.php#ziparchive.constants.cm-default
+ENV BATCH_ZIP_COMPRESS_ALGO=ZSTD
 # MB
-ENV BATCH_MAX_TOTAL_SIZE=100
+ENV BATCH_MAX_TOTAL_SIZE=500
+# MB per file
+ENV BATCH_MAX_FILE_SIZE=100
+# MB, how much system disk space to keep free at all times
+ENV BATCH_MIN_SYSTEM_FREE_DISK=500
+
+# TODO Ratelimiting?
 
 RUN chmod +x /init.sh
 
