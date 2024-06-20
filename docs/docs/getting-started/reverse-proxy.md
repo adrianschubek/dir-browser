@@ -58,7 +58,7 @@ Since version 1.3.3 you can deploy the application to a different basepath/subfo
 Set the `BASE_PATH` environment variable to the subfolder you want to deploy the application to. For example:
 
 ```bash
-docker run -d -p 8080:80 -e BASE_PATH="/foobar" -v /my/local/folder:/var/www/html/public:ro -v redissave:/var/lib/redis/ -it adrianschubek/dir-browser
+docker run -d -p 8080:80 -e BASE_PATH="/foobar" -v /my/local/folder:/var/www/html/public:ro -v rdb:/var/lib/redis/ -it adrianschubek/dir-browser
 ```
 
 <!-- import EnvConfig from '@site/src/components/EnvConfig';

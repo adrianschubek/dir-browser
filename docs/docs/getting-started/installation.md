@@ -7,7 +7,7 @@ sidebar_position: 1
 Use the image from [Docker Hub](https://hub.docker.com/r/adrianschubek/dir-browser/tags).
 
 ```
-docker run -d -p 8080:80 -v /my/local/folder:/var/www/html/public:ro -v redissave:/var/lib/redis/ adrianschubek/dir-browser
+docker run -d -p 8080:80 -v /my/local/folder:/var/www/html/public:ro -v rdb:/var/lib/redis/ adrianschubek/dir-browser
 ```
 
 where `/my/local/folder` is the local folder you want to serve and `8080` is the port you want to use.
@@ -42,7 +42,7 @@ services:
       - 8080:80
     volumes:
       - /my/local/folder:/var/www/html/public:ro
-      - redissave:/var/lib/redis/
+      - rdb:/var/lib/redis/
     environment: # here you can set configuration options (see configuration section for more details)
       - THEME=cosmo
       - DATE_FORMAT=local
@@ -71,5 +71,5 @@ Find the container ID using `docker ps`.
 ```
 docker pull adrianschubek/dir-browser
 docker rm -f <containerID>
-docker run -d -p 8080:80 -v /my/local/folder:/var/www/html/public:ro -v redissave:/var/lib/redis/ adrianschubek/dir-browser
+docker run -d -p 8080:80 -v /my/local/folder:/var/www/html/public:ro -v rdb:/var/lib/redis/ adrianschubek/dir-browser
 ```
