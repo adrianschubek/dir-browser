@@ -1,7 +1,7 @@
 ---
 sidebar_position: 4
 ---
-# Readme rendering
+# Readme Rendering
 
 If there is a `readme.md` (case insensitive) (can be configured) file in the current directory, it will be rendered. GitHub flavored markdown is supported.
 
