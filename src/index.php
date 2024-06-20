@@ -44,7 +44,7 @@ function numsize($size, $round = 2)
 }
 
 // fix whitespace in path results in not found errors
-$request_uri = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
+$request_uri = rawurldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 
 $url_parts = array_filter(explode(separator: '/', string: $request_uri), fn ($part) => $part !== '');
 
