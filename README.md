@@ -45,6 +45,7 @@ https://dir-demo.adriansoftware.de
 - Extremly **fast** file serving through **nginx**
 - **README** markdown rendering support
 - **JSON API** for programmatic access
+- **Batch download** of files and folders in a zip archive
 - **file integrity** check with **hashes**
 - **custom description** and **labels** for files and folders
 - **Search** and **sorting** built-in
@@ -59,6 +60,7 @@ https://dir-demo.adriansoftware.de
 - **Responsive** design for mobile devices and desktop
 - Easily configurable using **environment variables**
 - File stats like modification dates and sizes
+- Custom JS and CSS support
 - Highlight recently updated files
 - Track request timing
 - **arm64** support
