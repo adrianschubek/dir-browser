@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '3.3.0');
+define('VERSION', '3.3.1');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -483,6 +483,9 @@ end:
     }
     #readme a, #readme a:hover {
       all: revert;
+    }
+    #readme img {
+      max-width: 100%;
     }
     #filetree > a:hover {
       background-color: var(--bs-tertiary-bg);
