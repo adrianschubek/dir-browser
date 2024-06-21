@@ -254,6 +254,7 @@ if ($path_is_dir) {
   if(isset($_REQUEST["ls"])) {
     $info = [];
     foreach ($sorted as $file) {
+if ($file->name === "..") continue; // skip parent folder
       $info[] = [
         "url" => $file->url,
         "name" => $file->name,
