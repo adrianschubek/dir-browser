@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '3.3.1');
+define('VERSION', '3.3.2');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -395,6 +395,10 @@ end:
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="turbo-cache-control" content="no-cache">
+  $[ifeq env:TRANSITION true]$
+  <meta name="turbo-refresh-method" content="morph">
+  <meta name="view-transition" content="same-origin" />
+  $[end]$
   <title>Dir Browser - <?= '/' . implode(separator: '/', array: $url_parts) ?></title>
   $[ifeq env:THEME cerulean]$
   <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/cerulean/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
@@ -416,6 +420,11 @@ end:
   <link href="${{`process.env.THEME_URL !== undefined ? process.env.THEME_URL : "https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/cosmo/bootstrap.min.css"`}}$" rel="stylesheet" data-turbo-eval="false">
   $[end]$
   <style data-turbo-eval="false">
+    $[ifeq env:TRANSITION true]$
+    html[data-turbo-visit-direction="forward"]::view-transition-old(sidebar):only-child {
+      animation: normal 0.1s cubic-bezier(1, 0, 0, 1);
+    }
+    $[end]$
     $[ifeq env:THEME default]$
     [data-bs-theme=dark] {
       --bs-body-bg: #000000;
