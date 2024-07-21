@@ -3,6 +3,17 @@ sidebar_position: 1.5
 ---
 # Changelog
 
+## [3.3.2] - 2024-07-20
+
+### 🚀 Features
+
+- Add page transitions ([a909fd3](https://github.com/adrianschubek/dir-browser/commit/a909fd3522b7fcead7f7165de9c3a8d683fa2991))
+   Enable with `TRANSITION=true` (default `false`) 
+
+### 🐛 Bug Fixes
+
+- Turbo navigation broken, leading to full page reload ([5058f04](https://github.com/adrianschubek/dir-browser/commit/5058f04f11cd8887b273d2fe0bd7cbb0e52dda1d))
+
 ## [3.3.1] - 2024-06-21
 
 ### 🐛 Bug Fixes
