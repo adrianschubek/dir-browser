@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '3.3.2');
+define('VERSION', '3.4.0');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -288,14 +288,11 @@ if ($file->name === "..") continue; // skip parent folder
   }
 
   if ($readme) {
-    // Define your configuration, if needed
     $config = [];
 
-    // Configure the Environment with all the CommonMark parsers/renderers
     $environment = new Environment($config);
     $environment->addExtension(new CommonMarkCoreExtension());
 
-    // Remove any of the lines below if you don't want a particular feature
     $environment->addExtension(new AutolinkExtension());
     ${{`!process.env.ALLOW_RAW_HTML ? "$environment->addExtension(new DisallowedRawHtmlExtension());" : ""`}}$ 
     $environment->addExtension(new StrikethroughExtension());
@@ -419,6 +416,9 @@ end:
   $[else]$
   <link href="${{`process.env.THEME_URL !== undefined ? process.env.THEME_URL : "https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/cosmo/bootstrap.min.css"`}}$" rel="stylesheet" data-turbo-eval="false">
   $[end]$
+  $[ifeq env:README_RENDER true]$
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/adrianschubek/dir-browser@main/assets/readme/gh.css" data-turbo-eval="false"/>
+  $[end]$
   <style data-turbo-eval="false">
     $[ifeq env:TRANSITION true]$
     html[data-turbo-visit-direction="forward"]::view-transition-old(sidebar):only-child {
@@ -491,12 +491,6 @@ end:
     #path > a:last-child {
       font-weight: bold;
     }
-    #readme a, #readme a:hover {
-      all: revert;
-    }
-    #readme img {
-      max-width: 100%;
-    }
     #filetree > a:hover {
       background-color: var(--bs-tertiary-bg);
     }
@@ -562,7 +556,7 @@ end:
       if (isset($readme_render)) {
     ?>
     <div class="container pt-3">
-      <div class="card rounded border-2 p-3" id="readme">
+      <div class="card rounded border-2 p-3 markdown-body-light markdown-body-dark" id="readme">
         <?= $readme_render ?>
       </div>
     </div>
@@ -776,7 +770,7 @@ end:
     if (isset($readme_render)) {
   ?>
   <div class="container pb-3">
-    <div class="card rounded border-2 p-3" id="readme">
+    <div class="card rounded border-2 p-3 markdown-body-light markdown-body-dark" id="readme">
       <?= $readme_render ?>
     </div>
   </div>
@@ -785,7 +779,7 @@ end:
   ?>
   $[end]$
 
-  <div class="bg-body-tertiary mt-auto">
+  <div class="mt-auto">
     <div class="container py-2 text-center" id="footer">
       <?= $total_items ?> Items | <?= human_filesize($total_size) ?> $[if `process.env.TIMING === "true"`]$| <?= (hrtime(true) - $time_start)/1000000 ?> ms $[end]$$[if `process.env.API === "true"`]$| <a href="<?= '/' . implode(separator: '/', array: $url_parts) . '?ls' ?>" target="_blank"><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-api"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 13h5" /><path d="M12 16v-8h3a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2h-3" /><path d="M20 8v8" /><path d="M9 16v-5.5a2.5 2.5 0 0 0 -5 0v5.5" /></svg></a>$[end]$<br>
     <span style="opacity:0.8"><span style="opacity: 0.8;">Powered by</span>  <a href="https://dir.adriansoftware.de" class="text-decoration-none text-primary" target="_blank">dir-browser</a> <?= VERSION ?></span>  
