@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '3.4.0');
+define('VERSION', '3.4.1');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -427,7 +427,7 @@ end:
     $[end]$
     $[ifeq env:THEME default]$
     [data-bs-theme=dark] {
-      --bs-body-bg: #000000;
+      --bs-body-bg: #0d1117;
       --bs-secondary-bg: #000000;
       --bs-tertiary-bg: #000000;
       --bs-tertiary-bg-rgb: 0, 0, 0;
