@@ -93,7 +93,7 @@ ENV BATCH_DOWNLOAD=true
 # TODO: add more: https://www.php.net/manual/en/book.zlib.php
 ENV BATCH_TYPE=zip
 # https://www.php.net/manual/en/zip.constants.php#ziparchive.constants.cm-default
-ENV BATCH_ZIP_COMPRESS_ALGO=ZSTD
+ENV BATCH_ZIP_COMPRESS_ALGO=DEFAULT
 # MB
 ENV BATCH_MAX_TOTAL_SIZE=500
 # MB per file
