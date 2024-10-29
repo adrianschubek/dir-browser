@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '3.5.0');
+define('VERSION', '3.6.0');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -147,10 +147,16 @@ function downloadBatch(array $urls) {
   unlink($zipname); // fixes https://stackoverflow.com/a/64698936
   $all_urls = getDeepUrlsFromArray($urls);
 
-  // TODO: redis MSET dl counter
-
-  // get all nested file urls and add PUBLIC_FOLDER prefix
-  // $files = array_map(fn ($file) => PUBLIC_FOLDER . $file, );
+  $[end]$
+  $[if `process.env.BATCH_DOWNLOAD === "true" && process.env.DOWNLOAD_COUNTER === "true"`]$
+  $redis = new Redis();
+  $redis->connect('127.0.0.1', 6379);
+  $dl_counters = $redis->mget($all_urls);
+  $new_dl_counters = [];
+  for ($i = 0; $i < count($all_urls); $i++) $new_dl_counters[$all_urls[$i]] = $dl_counters[$i] + 1;
+  $redis->mset($new_dl_counters);
+  $[end]$
+  $[if `process.env.BATCH_DOWNLOAD === "true"`]$
   try {
     $zip->open($zipname, ZipArchive::CREATE);
     foreach ($all_urls as $path) {
@@ -164,9 +170,6 @@ function downloadBatch(array $urls) {
       if ($zip->addFile(PUBLIC_FOLDER . $path, substr($path, 1)) === false) throw new Exception("Something went wrong when adding $file to zip");
       $zip->setCompressionName($path, ZipArchive::CM_${{`process.env.BATCH_ZIP_COMPRESS_ALGO`}}$);
     }
-    // var_dump( $zip->filename);
-    // var_dump($zipname);
-    // die;
     $zip->close();
     header('Content-Type: application/zip');
     header('Content-Length: ' . filesize($zipname));
