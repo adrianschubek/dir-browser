@@ -6,7 +6,7 @@ import Image from "@theme/IdealImage";
 
 # Metadata
 
-Files and folder can be enriched with metadata and displayed. Metadata is stored in a file called `<name>.dbmeta.json`, where `<name>` is the exact file (including extension) or folder name. Put it in the same folder as the target file or folder. Metadata is stored in a JSON format specified below. 
+Files and folder can be annotated with metadata and displayed. Metadata is stored in a file called `<name>.dbmeta.json`, where `<name>` is the exact file (including extension) or folder name. Put it in the same folder as the target file or folder. Metadata is stored in a JSON format specified below. 
 
 The `*.dbmeta.json` files are hidden from the user and cannot be viewed.
 
@@ -24,6 +24,10 @@ The `*.dbmeta.json` files are hidden from the user and cannot be viewed.
 }
 ```
 <!-- TODO: "password": "mysecurepassword" -->
+
+:::info
+If you are looking for the ".dbmeta.**md**" files, see [Readme Rendering](./readme.md).
+:::
 
 ## Properties
 
