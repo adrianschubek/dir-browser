@@ -8,7 +8,9 @@ Folders will not be tracked.
 
 Files are tracked based on their (full) file path. Therefore renaming a file will change/reset the download count.
 
-
+:::info
+[Batch downloaded](batch.mdx) files are not currently being tracked.
+:::
 
 import EnvConfig from '@site/src/components/EnvConfig';
 
