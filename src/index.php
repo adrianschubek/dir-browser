@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '3.6.0');
+define('VERSION', '3.6.1');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -283,11 +283,11 @@ if ($path_is_dir) {
   // readme
   $[if `process.env.README_RENDER === "true"`]$
   // check if readme exists
-  foreach ($sorted_files as $file) {
-    foreach (explode(';', "${{`process.env.README_NAME`}}$") as $readme_name) {
+  foreach (explode(';', "${{`process.env.README_NAME`}}$") as $readme_name) {
+    foreach ($sorted_files as $file) {
       if (mb_strtolower($file->name) === $readme_name) {
         $readme = $file;
-        break;
+        break 2;
       }
     }
   }
