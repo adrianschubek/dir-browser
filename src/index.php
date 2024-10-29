@@ -284,9 +284,11 @@ if ($path_is_dir) {
   $[if `process.env.README_RENDER === "true"`]$
   // check if readme exists
   foreach ($sorted_files as $file) {
-    if (mb_strtolower($file->name) === "${{`process.env.README_NAME`}}$") {
-      $readme = $file;
-      break;
+    foreach (explode(';', "${{`process.env.README_NAME`}}$") as $readme_name) {
+      if (mb_strtolower($file->name) === $readme_name) {
+        $readme = $file;
+        break;
+      }
     }
   }
   $[end]$

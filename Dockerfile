@@ -71,8 +71,8 @@ ENV API=true
 ENV LAYOUT=basic
 # TODO: show files in tree on hover
 ENV PREVIEW=false
-# TODO: support for multiple files
-ENV README_NAME=readme.md
+
+ENV README_NAME=readme.md;readme.txt;readme.html;readme;read.me;read\ me;liesmich.md;liesmich.txt;liesmich;lies\ mich;index.html;index.htm;index.txt;license
 
 ENV README_FIRST=false
 
