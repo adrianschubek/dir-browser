@@ -3,6 +3,49 @@ sidebar_position: 1.5
 ---
 # Changelog
 
+## [3.5.0] - 2024-10-29
+
+### 🚀 Features
+
+- Add .dbmeta.md rendering. closes #29 ([642a55f](https://github.com/adrianschubek/dir-browser/commit/642a55f2685b18bb9422175eceae45720af521f5))
+
+### 📚 Documentation
+
+- Add .dbmeta.md docs ([2c51345](https://github.com/adrianschubek/dir-browser/commit/2c5134570c82d79439223f023045da9bca208ba9))
+
+### ⚙️ Miscellaneous Tasks
+
+- Update docusaurus ([b9ec59c](https://github.com/adrianschubek/dir-browser/commit/b9ec59c3516f1a50a9613301b7d432c62aa88e51))
+
+## [3.4.1] - 2024-10-28
+
+### 🐛 Bug Fixes
+
+- Dark mode file list background ([5eec341](https://github.com/adrianschubek/dir-browser/commit/5eec341c6d509c7a79ccdd89da3ff2878d41a5a0))
+
+## [3.4.0] - 2024-10-28
+
+### 🚀 Features
+
+- Add github-style readme theme ([0690c84](https://github.com/adrianschubek/dir-browser/commit/0690c846de53132bab835b2b07799643c80e521c))
+- Use github markdown style. fixes #28 ([2de20ac](https://github.com/adrianschubek/dir-browser/commit/2de20acfa8407d8321b65d4754e1d8ae272248fc))
+
+### 🐛 Bug Fixes
+
+- Gh readme style ([a5eef7b](https://github.com/adrianschubek/dir-browser/commit/a5eef7b7e4be0363f8379dd1fc99182d7dedb8ea))
+- Gh readme style again ([49b90e6](https://github.com/adrianschubek/dir-browser/commit/49b90e636403465b39f0b03c332e2c93030008fa))
+- Gh style ([9a2d5e8](https://github.com/adrianschubek/dir-browser/commit/9a2d5e8f99bdfcfc6c628327d2dd406dd9904fec))
+- Gh readme finally ([6f72575](https://github.com/adrianschubek/dir-browser/commit/6f72575105c42570cf634991de8982f2bdbf3329))
+
+### 📚 Documentation
+
+- Update layout transition ([f496932](https://github.com/adrianschubek/dir-browser/commit/f49693231fcd0a7794ea02506fddc1d85e471caa))
+
+### ⚙️ Miscellaneous Tasks
+
+- Folders ([fc30701](https://github.com/adrianschubek/dir-browser/commit/fc307011c1ea5b46a54255e9facdf98af22613fd))
+
+
 ## [3.3.2] - 2024-07-20
 
 ### 🚀 Features
