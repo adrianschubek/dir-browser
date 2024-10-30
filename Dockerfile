@@ -88,6 +88,14 @@ ENV HIGHLIGHT_UPDATED=true
 
 ENV METADATA=true
 
+ENV SEARCH=true
+
+ENV SEARCH_ENGINE=glob
+# regex only:
+ENV SEARCH_MAX_DEPTH=25
+
+ENV SEARCH_MAX_RESULTS=100
+
 # multi select batch file download
 ENV BATCH_DOWNLOAD=true
 # TODO: add more: https://www.php.net/manual/en/book.zlib.php
