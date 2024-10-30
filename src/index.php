@@ -147,11 +147,18 @@ $[if `process.env.SEARCH === "true"`]$
  */
 function globalsearch(string $query, string $root_folder): array {
   $[end]$
-  $[if `process.env.SEARCH === "true" && process.env.SEARCH_ENGINE === "regex"`]$
+  $[if `process.env.SEARCH === "true" && (process.env.SEARCH_ENGINE === "regex" || process.env.SEARCH_ENGINE === "simple")`]$
   $rdit = new RecursiveDirectoryIterator($root_folder, RecursiveDirectoryIterator::SKIP_DOTS);
   $rit = new RecursiveIteratorIterator($rdit);
   $rit->setMaxDepth(${{`process.env.SEARCH_MAX_DEPTH`}}$);
+  $[end]$
+  $[if `process.env.SEARCH === "true" && process.env.SEARCH_ENGINE === "regex"`]$
   $found = new RegexIterator($rit, "/$query/", RecursiveRegexIterator::MATCH);
+  $[end]$
+  $[if `process.env.SEARCH === "true" && process.env.SEARCH_ENGINE === "simple"`]$
+  $found = new CallbackFilterIterator($rit, function ($current) use ($query) {
+    return str_contains($current->getFilename(), $query);
+  });
   $[end]$
   $[if `process.env.SEARCH === "true" && process.env.SEARCH_ENGINE === "glob"`]$
   $found = new GlobIterator($root_folder . "/" . $query, FilesystemIterator::SKIP_DOTS);
@@ -1058,6 +1065,7 @@ end:
     }
     const search = async () => {
       const search = document.querySelector('#search').value;
+      if (search.length === 0) return;
       const api = await fetch(`${{`process.env.BASE_PATH ?? ''`}}$?q=${search}`).then((res) => res.json());
       console.log(api.results)
 
