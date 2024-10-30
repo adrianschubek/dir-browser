@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '3.6.1');
+define('VERSION', '3.7.0');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -99,9 +99,10 @@ function hidden(string $path): bool {
  * Check if file/folder should be available to (batch) download.
  * Check exists, hidden, metadata...
  * @param string $path full path to file or folder
+ * @param bool $includeProtected include files with password protection (for search only)
  * @return string|false path if available, false if not
  */
-function available(string $user_path): string | false {
+function available(string $user_path, bool $includeProtected = false): string | false {
   $path = realpath(PUBLIC_FOLDER . $user_path);
   if ($path === false || !str_starts_with($path, PUBLIC_FOLDER) || hidden($path)) return false;
   $[if `process.env.METADATA === "true"`]$
@@ -113,14 +114,13 @@ function available(string $user_path): string | false {
     // hidden check
     if (isset($meta->hidden) && $meta->hidden === true) return false;
     // if password or password_hash set reject 
-    // TODO: maybe allow it?
-    if (isset($meta->password) || isset($meta->password_hash)) return false;
+    if (!$includeProtected && (isset($meta->password) || isset($meta->password_hash))) return false;
   }
   $[end]$
   return $path;
 }
 
-$[if `process.env.BATCH_DOWNLOAD === "true"`]$
+// for batch download
 function getDeepUrlsFromArray(array $input_urls): array {
   $urls = [];
   foreach ($input_urls as $url) {
@@ -140,6 +140,68 @@ function getDeepUrlsFromArray(array $input_urls): array {
   return $urls;
 }
 
+$[if `process.env.SEARCH === "true"`]$
+/**
+ * Regex Search for files and folders in root_folder
+ * @return array<File>
+ */
+function globalsearch(string $query, string $root_folder): array {
+  $[end]$
+  $[if `process.env.SEARCH === "true" && process.env.SEARCH_ENGINE === "regex"`]$
+  $rdit = new RecursiveDirectoryIterator($root_folder, RecursiveDirectoryIterator::SKIP_DOTS);
+  $rit = new RecursiveIteratorIterator($rdit);
+  $rit->setMaxDepth(${{`process.env.SEARCH_MAX_DEPTH`}}$);
+  $found = new RegexIterator($rit, "/$query/", RecursiveRegexIterator::MATCH);
+  $[end]$
+  $[if `process.env.SEARCH === "true" && process.env.SEARCH_ENGINE === "glob"`]$
+  $found = new GlobIterator($root_folder . "/" . $query, FilesystemIterator::SKIP_DOTS);
+  $[end]$
+  $[if `process.env.SEARCH === "true"`]$
+  $found = array_keys(iterator_to_array($found));
+  $search_results = [];
+  $found_counter = 0;
+  foreach ($found as $path) {
+    if ($found_counter >= ${{`process.env.SEARCH_MAX_RESULTS`}}$) break;
+    if (($path = available(substr($path, strlen(PUBLIC_FOLDER)), true)) !== false) {
+      // only paths are returned due to performance reasons
+      $search_results[] = [
+        "url" => substr($path, strlen(PUBLIC_FOLDER)),
+        // strip base path from url
+        "name" => substr($path, strlen($root_folder) + 1 /* slash */),
+        "is_dir" => is_dir($path),
+      ];
+      $found_counter++;
+      // $file_size = filesize($path);
+      // $file_modified_date = gmdate('Y-m-d\TH:i:s\Z', filemtime($path));
+      // $item = new File();
+      // $item->name = basename($path);
+      // $item->url = substr($path, strlen(PUBLIC_FOLDER));
+      // $item->size = $file_size;
+      // $item->is_dir = $is_dir;
+      // $item->modified_date = $file_modified_date;
+      // $item->dl_count = -1;
+      // $search_results[] = $item;
+    }
+  }
+  return [
+    "results" => $search_results,
+    "total" => count($search_results),
+    "truncated" => $found_counter >= ${{`process.env.SEARCH_MAX_RESULTS`}}$,
+    "base_folder" => substr($root_folder, strlen(PUBLIC_FOLDER))
+  ];
+}
+
+// global search api
+if (isset($_REQUEST["q"]) && $path_is_dir) {
+  $search = $_REQUEST["q"];
+  // start search from current folder
+  $search_results = globalsearch($search, $local_path);
+  header("Content-Type: application/json");
+  die(json_encode($search_results));
+}
+$[end]$
+
+$[if `process.env.BATCH_DOWNLOAD === "true"`]$
 function downloadBatch(array $urls) {
   $total_size = 0;
   $zip = new ZipArchive();
@@ -446,7 +508,7 @@ end:
       --bs-secondary-bg: #000000;
       --bs-tertiary-bg: #000000;
       --bs-tertiary-bg-rgb: 0, 0, 0;
-      #filetree > a:hover {
+      #filetree > a:hover, #resultstree > a:hover {
         background-color: #ffffff0d;
       }
     }
@@ -506,13 +568,13 @@ end:
     #path > a:last-child {
       font-weight: bold;
     }
-    #filetree > a:hover {
+    #filetree > a:hover, #resultstree > a:hover {
       background-color: var(--bs-tertiary-bg);
     }
-    #filetree > a {
+    #filetree > a, #resultstree > a {
       border-bottom: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
     }
-    #filetree > a:last-child {
+    #filetree > a:last-child, #resultstree > a:last-child {
       border-bottom: none !important;
     }
     #sort > a > svg {
@@ -632,9 +694,11 @@ end:
             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-folder-down"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 19h-7a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2h4l3 3h7a2 2 0 0 1 2 2v3.5" /><path d="M19 16v6" /><path d="M22 19l-3 3l-3 -3" /></svg>
             </a>
             $[end]$
-            <a class="btn rounded btn-sm text-muted" onclick="toggleSearch()" title="Search">
+            $[if `process.env.SEARCH === "true"`]$
+            <a class="btn rounded btn-sm text-muted" onclick="toggleSearch()" title="Search in <?= $request_uri ?>">
             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
             </a>
+            $[end]$
             <a class="btn rounded btn-sm text-muted" data-color-toggler onclick="toggletheme()" title="Darkmode / Lightmode">
             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-moon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" /></svg>
             </a>
@@ -642,7 +706,7 @@ end:
         </div>
         <div class="row db-row py-2 text-muted d-none" id="search-container">
           <div class="col">
-            <input type="text" class="form-control rounded" placeholder="Search" id="search">
+            <input type="text" class="form-control rounded" placeholder="Search in <?= $request_uri ?>*" id="search">
           </div>
         </div>
         <div class="row db-row py-2 text-muted" id="sort">
@@ -659,6 +723,7 @@ end:
           <div class="col col-auto text-end d-none d-md-inline-block" id="mod">Actions</div>
         </div>
       </div>
+      <div class="rounded container card border-2 px-3 d-none" style="border-top: none !important;border-top-right-radius: 0 !important;border-top-left-radius: 0 !important;" id="resultstree"></div>
       <div class="rounded container card border-2 px-3" style="border-top: none !important;border-top-right-radius: 0 !important;border-top-left-radius: 0 !important;" id="filetree">
         
         <?php
@@ -956,25 +1021,66 @@ end:
     }
     $[end]$
 
-    const search = () => {
-      const search = document.querySelector('#search').value.toLowerCase();
-      const items = Array.from(document.querySelectorAll('.db-file'));
-      items.forEach((item) => {
-        const name = item.getAttribute('data-file-name').toLowerCase();
-        if (name.includes(search)) {
-          item.classList.remove('d-none');
-        } else {
-          item.classList.add('d-none');
-        }
+    $[if `process.env.SEARCH === "true"`]$
+    const createSearchResult = (result) => {
+      const item = document.createElement('a');
+      item.classList.add('list-group-item', 'list-group-item-action', 'db-file');
+      item.href = "${{`process.env.BASE_PATH ?? ''`}}$" + result.url;
+      item.setAttribute('data-file-isdir', result.is_dir);
+      // TODO
+      // item.setAttribute('data-file-name', result.name);
+      // item.setAttribute('data-file-dl', result.dl);
+      // item.setAttribute('data-file-size', result.size);
+      // item.setAttribute('data-file-mod', result.modified_date);
+      item.innerHTML = `
+        <div class="row py-2 ">
+          <div class="col col-auto pe-0">
+            <div class="file-icon-placeholder" filename="${result.name}">
+            ${!result.is_dir ? `
+              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
+                <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
+              </svg>` : `<div class="dir-icon-placeholder" dirname="">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folder-filled" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                  <path d="M9 3a1 1 0 0 1 .608 .206l.1 .087l2.706 2.707h6.586a3 3 0 0 1 2.995 2.824l.005 .176v8a3 3 0 0 1 -2.824 2.995l-.176 .005h-14a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-11a3 3 0 0 1 2.824 -2.995l.176 -.005h4z" stroke-width="0" fill="currentColor"></path>
+                </svg>
+              </div>`}
+            </div>
+          </div>
+          <div class="col">
+            ${result.name}
+          </div>          
+        </div>
+      `;
+      return item;
+    }
+    const search = async () => {
+      const search = document.querySelector('#search').value;
+      const api = await fetch(`${{`process.env.BASE_PATH ?? ''`}}$?q=${search}`).then((res) => res.json());
+      console.log(api.results)
+
+      document.querySelector('#resultstree').innerHTML = '';
+      const infonode = document.createElement('div')
+      infonode.innerHTML = `<div class="row py-2"><div class="col col-auto mx-auto">${api.truncated ? "Found more than ${{`process.env.SEARCH_MAX_RESULTS`}}$ results. Narrow down your query." : "Found "+api.total+" results."}</div></div>`
+      document.querySelector('#resultstree').appendChild(infonode);
+      api.results.forEach((result) => {
+        document.querySelector('#resultstree').appendChild(createSearchResult(result));
       });
     };
     const toggleSearch = () => {
       const search = document.querySelector('#search-container');
       search.classList.toggle('d-none');
+      const filetree = document.querySelector('#filetree');
+      filetree.classList.toggle('d-none');
+      const resultstree = document.querySelector('#resultstree');
+      resultstree.classList.toggle('d-none');
       if (!search.classList.contains('d-none')) {
         document.querySelector('#search').focus();
       }
     };
+    $[end]$
 
     const sortElements = (key, elems) => elems.sort((a, b) => {
       const aVal = a.getAttribute(`data-file-${key}`);
@@ -1089,7 +1195,9 @@ end:
     });
     $[end]$
 
+    $[if `process.env.SEARCH === "true"`]$
     document.querySelector('#search').addEventListener('input', search);
+    $[end]$
 
     document.querySelector('#name').addEventListener('click', (e) => {
       e.preventDefault();
