@@ -49,6 +49,10 @@ Labels always start with a style and a colon `:`, followed by the label text. Th
 - `light`
 - `dark`
 
+:::warning
+Labels must not contain a semicolon `;`.
+:::
+
 > Default is empty.
 
 #### Hidden
