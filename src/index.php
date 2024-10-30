@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '3.7.0');
+define('VERSION', '3.7.1');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -157,7 +157,7 @@ function globalsearch(string $query, string $root_folder): array {
   $[end]$
   $[if `process.env.SEARCH === "true" && process.env.SEARCH_ENGINE === "simple"`]$
   $found = new CallbackFilterIterator($rit, function ($current) use ($query) {
-    return str_contains($current->getFilename(), $query);
+    return str_contains(mb_strtolower($current->getFilename()), mb_strtolower($query));
   });
   $[end]$
   $[if `process.env.SEARCH === "true" && process.env.SEARCH_ENGINE === "glob"`]$
