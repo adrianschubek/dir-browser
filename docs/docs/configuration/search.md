@@ -28,7 +28,7 @@ More powerful search engine for advanced users. It is simple to use and faster t
 :::info
 Expansion `{a,b,c}` is not available because it is not supported by the underlying base image (Alpine Linux).
 
-Globestar `**` is not supported by PHP natively and might be implemented in the future.
+Globstar `**` is not supported by PHP natively and may be implemented in the future.
 :::
 
 > [Learn more](https://en.wikipedia.org/wiki/Glob_(programming))
