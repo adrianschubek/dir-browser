@@ -4,19 +4,21 @@ sidebar_position: 3
 
 # Search & Sorting
 
-![image](search1.png)
+![image](search2.gif)
 
 Click on the column header to sort by that column. Click again to reverse the sort order.
 
-Click on the search icon to open the search input field. All engines search the current folder and all descendants of the current folder.
+Click on the search icon to open the search input field and choose an engine to search the current folder and all descendants of the current folder.
+
+## Engines
 
 ### Simple search
 
-Most intuitive string-matching search engine with basic functionality.
+Basic string-matching search engine. Enabled by default.
 
 ### Glob-based search
 
-More powerful search engine for advanced users. It is simple to use and faster than the regex engine.
+More powerful search engine for advanced users. It is simple to use and faster than the regex engine. Enabled by default.
 
 | Pattern        | Description                                                                                                                                |
 |----------------|--------------------------------------------------------------------------------------------------------------------------------------------|
@@ -27,18 +29,17 @@ More powerful search engine for advanced users. It is simple to use and faster t
 
 :::info
 Expansion `{a,b,c}` is not available because it is not supported by the underlying base image (Alpine Linux).
-
-Globstar `**` is not supported by PHP natively and may be implemented in the future.
+Globstar `**` is not supported by PHP natively.
 :::
 
 > [Learn more](https://en.wikipedia.org/wiki/Glob_(programming))
 
 ### Regex-based search
 
-This engine is the most powerful but slower than the glob engine. It is useful for complex searches.
+This engine is the most powerful but slower than the glob engine. It is useful for complex searches. Disabled by default.
 
 > [Learn more](https://en.wikipedia.org/wiki/Regular_expression)
 
 import EnvConfig from '@site/src/components/EnvConfig';
 
-<EnvConfig name="SEARCH|SEARCH_ENGINE|SEARCH_MAX_DEPTH|SEARCH_MAX_RESULTS|REVERSE_SORT" init="true|simple|25|100|false" values="true,false|simple,glob,regex|integer|integer|true,false" versions="3.7|3.7|3.7|3.7|1.0" desc="Enables or disables the search functionality|Search engine to evaluate query|Maximum recursive search depth (simple and regex engine only)|Maximum number of results in a single request|By default files and folders are sorted by name using natural sort."/>
+<EnvConfig name="SEARCH|SEARCH_ENGINE|SEARCH_MAX_DEPTH|SEARCH_MAX_RESULTS|REVERSE_SORT" init="true|s,g|25|100|false" values="true,false|s,g,r|integer|integer|true,false" versions="3.7|3.8|3.7|3.7|1.0" desc="Enables or disables the search functionality|s=simple, g=glob, r=regex. Multiple values seperated using commas.|Maximum recursive search depth (simple and regex engine only)|Maximum number of results in a single request|By default files and folders are sorted by name using natural sort."/>
