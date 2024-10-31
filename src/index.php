@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '3.7.1');
+define('VERSION', '3.8.0');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -140,30 +140,27 @@ function getDeepUrlsFromArray(array $input_urls): array {
   return $urls;
 }
 
-$[if `process.env.SEARCH === "true"`]$
 /**
  * Regex Search for files and folders in root_folder
  * @return array<File>
  */
-function globalsearch(string $query, string $root_folder): array {
-  $[end]$
-  $[if `process.env.SEARCH === "true" && (process.env.SEARCH_ENGINE === "regex" || process.env.SEARCH_ENGINE === "simple")`]$
-  $rdit = new RecursiveDirectoryIterator($root_folder, RecursiveDirectoryIterator::SKIP_DOTS);
-  $rit = new RecursiveIteratorIterator($rdit);
-  $rit->setMaxDepth(${{`process.env.SEARCH_MAX_DEPTH`}}$);
-  $[end]$
-  $[if `process.env.SEARCH === "true" && process.env.SEARCH_ENGINE === "regex"`]$
-  $found = new RegexIterator($rit, "/$query/", RecursiveRegexIterator::MATCH);
-  $[end]$
-  $[if `process.env.SEARCH === "true" && process.env.SEARCH_ENGINE === "simple"`]$
-  $found = new CallbackFilterIterator($rit, function ($current) use ($query) {
-    return str_contains(mb_strtolower($current->getFilename()), mb_strtolower($query));
-  });
-  $[end]$
-  $[if `process.env.SEARCH === "true" && process.env.SEARCH_ENGINE === "glob"`]$
-  $found = new GlobIterator($root_folder . "/" . $query, FilesystemIterator::SKIP_DOTS);
-  $[end]$
-  $[if `process.env.SEARCH === "true"`]$
+function globalsearch(string $query, string $root_folder, string $engine): array {
+  if ($engine === "s" || $engine === "r") {
+    $rdit = new RecursiveDirectoryIterator($root_folder, RecursiveDirectoryIterator::SKIP_DOTS);
+    $rit = new RecursiveIteratorIterator($rdit);
+    $rit->setMaxDepth(${{`process.env.SEARCH_MAX_DEPTH`}}$);
+  }
+  if ($engine === "r") {
+    $found = new RegexIterator($rit, "/$query/", RecursiveRegexIterator::MATCH);
+  }
+  if ($engine === "s") {
+    $found = new CallbackFilterIterator($rit, function ($current) use ($query) {
+      return str_contains(mb_strtolower($current->getFilename()), mb_strtolower($query));
+    });
+  }
+  if ($engine === "g") {
+    $found = new GlobIterator($root_folder . "/" . $query, FilesystemIterator::SKIP_DOTS);
+  }
   $found = array_keys(iterator_to_array($found));
   $search_results = [];
   $found_counter = 0;
@@ -198,11 +195,22 @@ function globalsearch(string $query, string $root_folder): array {
   ];
 }
 
+$[if `process.env.SEARCH === "true"`]$
 // global search api
-if (isset($_REQUEST["q"]) && $path_is_dir) {
+if (isset($_REQUEST["q"]) && isset($_REQUEST["e"]) && $path_is_dir) {
   $search = $_REQUEST["q"];
+  $engine = $_REQUEST["e"];
+  if ($search === "") {
+    http_response_code(400);
+    die("Empty search query");
+  }
+  if (array_search($engine, explode(',', "${{`process.env.SEARCH_ENGINE`}}$")) === false) {
+    http_response_code(400);
+    die("Invalid search engine");
+  }
+
   // start search from current folder
-  $search_results = globalsearch($search, $local_path);
+  $search_results = globalsearch($search, $local_path, $engine);
   header("Content-Type: application/json");
   die(json_encode($search_results));
 }
@@ -704,7 +712,7 @@ end:
             $[if `process.env.SEARCH === "true"`]$
             <a class="btn rounded btn-sm text-muted" onclick="toggleSearch()" title="Search in <?= $request_uri ?>">
             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
-            </a>
+            </a>            
             $[end]$
             <a class="btn rounded btn-sm text-muted" data-color-toggler onclick="toggletheme()" title="Darkmode / Lightmode">
             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-moon"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" /></svg>
@@ -713,7 +721,20 @@ end:
         </div>
         <div class="row db-row py-2 text-muted d-none" id="search-container">
           <div class="col">
-            <input type="text" class="form-control rounded" placeholder="Search in <?= $request_uri ?>*" id="search">
+            <div class="input-group">
+              <input type="text" class="form-control rounded-start-3" placeholder="Search in <?= $request_uri ?>*" id="search">
+              <select class="form-select rounded-end-3" aria-label="Engine" id="searchengine" style="max-width:7em">
+                $[if `process.env.SEARCH_ENGINE.includes("s")`]$
+                <option value="s">Simple</option>
+                $[end]$
+                $[if `process.env.SEARCH_ENGINE.includes("g")`]$
+                <option value="g">Glob</option>
+                $[end]$
+                $[if `process.env.SEARCH_ENGINE.includes("r")`]$
+                <option value="r">Regex</option>
+                $[end]$
+              </select>
+            </div>
           </div>
         </div>
         <div class="row db-row py-2 text-muted" id="sort">
@@ -1065,8 +1086,9 @@ end:
     }
     const search = async () => {
       const search = document.querySelector('#search').value;
+      const searchengine = document.querySelector('#searchengine').value;
       if (search.length === 0) return;
-      const api = await fetch(`${{`process.env.BASE_PATH ?? ''`}}$?q=${search}`).then((res) => res.json());
+      const api = await fetch(`${{`process.env.BASE_PATH ?? ''`}}$?q=${search}&e=${searchengine}`).then((res) => res.json());
       console.log(api.results)
 
       document.querySelector('#resultstree').innerHTML = '';
@@ -1205,6 +1227,7 @@ end:
 
     $[if `process.env.SEARCH === "true"`]$
     document.querySelector('#search').addEventListener('input', search);
+    document.querySelector('#searchengine').addEventListener('change', search);
     $[end]$
 
     document.querySelector('#name').addEventListener('click', (e) => {
