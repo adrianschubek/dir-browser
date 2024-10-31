@@ -30,7 +30,7 @@ function HomepageHeader() {
         <div className="row">
           <div className="col col--6">
             <a href="https://dir-demo.adriansoftware.de" target="_blank">
-              <img style={{ boxShadow: "0px 0px 10px 0px #8585857d" }} src="/img/p1.png" />
+              <img style={{ boxShadow: "0px 0px 10px 0px #8585857d" }} src="/img/main2.png" />
             </a>
             {/* TODO: iframe of demo */}
           </div>
@@ -73,7 +73,7 @@ function SectionDocker() {
 function Section2() {
   return <div className=" xxx" style={{ textAlign: "center", background: "#000000", padding: "3em", paddingTop: "3em", paddingBottom: "3em" }}>
     <h1 className="hero__title" style={{ color: "var(--ifm-color-gray-700)", marginLeft: "auto" }}>🌙 Darkmode</h1>
-    <img /* style={{ boxShadow: "0px 0px 10px 0px #8585857d" }} */ src="/img/p2.png" />
+    <img /* style={{ boxShadow: "0px 0px 10px 0px #8585857d" }} */ src="/img/main1.png" />
   </div>
 }
 
