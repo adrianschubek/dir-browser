@@ -90,7 +90,8 @@ ENV METADATA=true
 
 ENV SEARCH=true
 
-ENV SEARCH_ENGINE=simple
+# s=simple,g=glob,r=regex
+ENV SEARCH_ENGINE=s,g
 # regex only:
 ENV SEARCH_MAX_DEPTH=25
 
