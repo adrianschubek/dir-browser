@@ -3,6 +3,72 @@ sidebar_position: 1.5
 ---
 # Changelog
 
+## [3.8.0] - 2024-10-31
+
+### 🚀 Features
+
+- Support user selection of multiple search engines ([e7f4689](https://github.com/adrianschubek/dir-browser/commit/e7f46897a20f0bd21853d60e6db31ef0a880491b))
+
+### 🐛 Bug Fixes
+
+- Simple search should be case insensitive ([7c9791f](https://github.com/adrianschubek/dir-browser/commit/7c9791f021eac00e2c4a51b92d1b9b47efb28192))
+
+### 📚 Documentation
+
+- Fix typo ([81861c5](https://github.com/adrianschubek/dir-browser/commit/81861c56942483700f57be98919b4920e3c4bf8f))
+- Update search ([36b0eea](https://github.com/adrianschubek/dir-browser/commit/36b0eeabb936a8cf207aca03c6c26b24911c7165))
+
+### ⚙️ Miscellaneous Tasks
+
+- Update engine env ([f64c9b1](https://github.com/adrianschubek/dir-browser/commit/f64c9b16137fc0455a6a2f95f567dde27609aa3a))
+
+## [3.7.0] - 2024-10-30
+
+### 🚀 Features
+
+- Add global search env config ([37066a9](https://github.com/adrianschubek/dir-browser/commit/37066a9fe41ec47cdc44c4485ba1785079e8c9d7))
+- Add global search. closes #31 ([d35d7b7](https://github.com/adrianschubek/dir-browser/commit/d35d7b71423fd56872eb3cef7a8c641e7f6a5075))
+- Add simple search engine ([7ca9458](https://github.com/adrianschubek/dir-browser/commit/7ca9458cb40d2549fd524813985b0d7c89cc57f9))
+
+### 📚 Documentation
+
+- Update description meta ([792c9bf](https://github.com/adrianschubek/dir-browser/commit/792c9bf8eb0f9523d2ef6145c0aadf2e1824a968))
+- Add global search ([d1e8efa](https://github.com/adrianschubek/dir-browser/commit/d1e8efa2371db36f26924ed045cd755f4ceee1a8))
+- Add simple search engine ([b7c1db4](https://github.com/adrianschubek/dir-browser/commit/b7c1db482ed40d447831186ae5f02c7245e25ce6))
+
+### ⚙️ Miscellaneous Tasks
+
+- Update commonmark ([8d24ef4](https://github.com/adrianschubek/dir-browser/commit/8d24ef453975fcaaa32bd34f9e6de760e4e8a3c7))
+- Update preprocessor paths ([2e471ae](https://github.com/adrianschubek/dir-browser/commit/2e471ae8adb36bf93bec21318fbc21bf71a186e7))
+- Set default engine ([86f9faa](https://github.com/adrianschubek/dir-browser/commit/86f9faa5f168beacd09075dd0548516431606fae))
+
+## [3.6.1] - 2024-10-29
+
+### 🐛 Bug Fixes
+
+- Readme render order ([e6c5f3c](https://github.com/adrianschubek/dir-browser/commit/e6c5f3c0606bd859c99b01212e5e0d88152f967a))
+- Use default zip compression ([966ad75](https://github.com/adrianschubek/dir-browser/commit/966ad75b0b6dc74f1473314f0443219a49902a38))
+
+### 📚 Documentation
+
+- Default zip compression ([d0038cd](https://github.com/adrianschubek/dir-browser/commit/d0038cd8622775c0a65b41655c770d6b84287b7b))
+
+## [3.6.0] - 2024-10-29
+
+### 🚀 Features
+
+- Support multiple readmes ([70c3f91](https://github.com/adrianschubek/dir-browser/commit/70c3f913d96f10441faa1f53717f995728729b5c))
+
+### 🐛 Bug Fixes
+
+- Track batch downloads ([a0e5f6d](https://github.com/adrianschubek/dir-browser/commit/a0e5f6dd65b18c91774938e8b8d9e63029db0d44))
+
+### 📚 Documentation
+
+- Fix wording ([a878c2d](https://github.com/adrianschubek/dir-browser/commit/a878c2da556d6e8fa6a00c0df6da224dbc568f30))
+- Batch download tracker ([a3ef7cb](https://github.com/adrianschubek/dir-browser/commit/a3ef7cb27fc4e8b6e723f08c59d0355d502eac53))
+- Update batch tracking ([f36adb0](https://github.com/adrianschubek/dir-browser/commit/f36adb0be8be2af0fd9d857fc91e37ef884e23fd))
+
 ## [3.5.0] - 2024-10-29
 
 ### 🚀 Features
