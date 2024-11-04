@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '3.8.0');
+define('VERSION', '3.8.1');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
@@ -406,8 +406,8 @@ if ($path_is_dir) {
   }
 
   $[if `process.env.METADATA === "true"`]$
-  // skip if file is .dbmeta.json
-  if (str_contains($local_path, ".dbmeta.json")) goto skip;
+  // skip if file is .dbmeta.
+  if (str_contains($local_path, ".dbmeta.")) goto skip;
 
   // check if password proteced
   if (file_exists($local_path . '.dbmeta.json')) {
