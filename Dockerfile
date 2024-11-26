@@ -1,6 +1,6 @@
-# includes redis
-
 FROM php:8.4-fpm-alpine AS base
+
+ENV DIRBROWSER_VERSION=3.9.0
 
 RUN apk update && apk upgrade
 
@@ -20,7 +20,7 @@ RUN apk add --no-cache redis
 
 RUN apk add --no-cache nginx
 
-RUN apk add --no-cache supervisor
+RUN apk add --no-cache bash
 
 RUN apk add --no-cache curl \
   && curl -fSsL https://github.com/adrianschubek/utpp/releases/download/0.5.0/utpp-alpine -o /usr/local/bin/utpp && chmod +x /usr/local/bin/utpp\
@@ -40,15 +40,18 @@ COPY server/nginx/nginx.conf /etc/nginx/nginx.conf
 
 COPY server/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
 
-COPY server/supervisor/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
 COPY server/php/fpm-pool.conf /usr/local/etc/php-fpm.d/www.conf
 
 COPY server/php/php.ini /usr/local/etc/php/conf.d/custom.ini
 
 COPY src/index.php /var/www/html
 
+# skipped in v3.9
+# COPY src/worker.php /var/www/html
+
 COPY src/init.sh /init.sh
+
+RUN chmod +x /init.sh
 
 ENV THEME=default
 
@@ -109,12 +112,13 @@ ENV BATCH_MAX_TOTAL_SIZE=500
 ENV BATCH_MAX_FILE_SIZE=100
 # MB, how much system disk space to keep free at all times
 ENV BATCH_MIN_SYSTEM_FREE_DISK=500
+# watch filesystem
+ENV WORKER_WATCH=true
+# seconds re-scan
+ENV WORKER_SCAN_INTERVAL=60
 
-# TODO Ratelimiting?
-
-RUN chmod +x /init.sh
+ENV WORKER_FORCE_RESCAN=
 
 EXPOSE 8080
 
-# Let supervisord start nginx & php-fpm
 CMD ["/init.sh"]
