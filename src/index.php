@@ -1,6 +1,6 @@
 <?php
 
-define('VERSION', '3.8.1');
+define('VERSION', '${{`process.env.DIRBROWSER_VERSION`}}$');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
