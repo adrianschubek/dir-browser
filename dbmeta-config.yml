@@ -1,0 +1,68 @@
+version: 1
+
+theme: default
+
+date_format: relative
+
+hash:
+  enabled: true
+  folder: false
+  required: false
+  algo: sha256
+
+api: true
+
+layout: basic  # Options: basic, popup, full
+
+preview: false  # Show files in tree on hover
+
+readme:
+  name: 
+    - readme.md
+    - readme.txt
+    - readme.html
+    - readme
+    - read.me
+    - read me
+    - liesmich.md
+    - liesmich.txt
+    - liesmich
+    - lies mich
+    - index.html
+    - index.htm
+    - index.txt
+    - license
+  first: false # display readme on top of file list
+  meta: true
+  render: true
+
+download:
+  counter: false
+
+open_new_tab: false
+
+highlight_updated: true
+
+metadata: true
+
+search:
+  enabled: true
+  engine:
+    - simple
+    - glob
+  max_depth: 25
+  max_results: 100
+
+batch_download:
+  enabled: true
+  type: zip
+  zip_compress_algo: DEFAULT
+  max_total_size: 500  # MB
+  max_file_size: 100  # MB per file
+  min_system_free_disk: 500  # MB
+
+worker:
+  watch: true  # Watch filesystem for changes (inotify)
+  scan_interval: 300  # Seconds re-scan. -1 for never
+  force_rescan: true  # Manual rescan
+  force_rescan_key: ""
