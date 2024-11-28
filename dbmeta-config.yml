@@ -10,7 +10,8 @@ hash:
   required: false
   algo: sha256
 
-api: true
+api: 
+  enabled: true # renamed from API
 
 layout: basic  # Options: basic, popup, full
 
