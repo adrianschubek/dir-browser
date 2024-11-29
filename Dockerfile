@@ -46,12 +46,15 @@ COPY server/php/php.ini /usr/local/etc/php/conf.d/custom.ini
 
 COPY src/index.php /var/www/html
 
-# skipped in v3.9
-# COPY src/worker.php /var/www/html
+COPY src/worker.php /var/www/html
 
 COPY src/init.sh /init.sh
 
 RUN chmod +x /init.sh
+
+COPY src/fswatcher.sh /fswatcher.sh
+
+RUN chmod +x /fswatcher.sh
 
 ENV THEME=default
 
@@ -112,13 +115,21 @@ ENV BATCH_MAX_TOTAL_SIZE=500
 ENV BATCH_MAX_FILE_SIZE=100
 # MB, how much system disk space to keep free at all times
 ENV BATCH_MIN_SYSTEM_FREE_DISK=500
-# watch filesystem
+# watch filesystem for changes (inotify)
 ENV WORKER_WATCH=true
-# seconds re-scan
-ENV WORKER_SCAN_INTERVAL=60
+# seconds auto re-scan. -1 for never
+ENV WORKER_SCAN_INTERVAL=300
+# manual rescan
+ENV WORKER_FORCE_RESCAN=true
+# password for triggering manual rescan
+ENV WORKER_FORCE_RESCAN_KEY=
+# by default only hashes again if modtime or size changed
+ENV WORKER_ALWAYS_HASH=false
 
-ENV WORKER_FORCE_RESCAN=
+ENV WORKER_TTL_OFFSET=180
+
+ENV WORKER_WATCH_DEBOUNCE=5
 
 EXPOSE 8080
 
-CMD ["/init.sh"]
+ENTRYPOINT ["/init.sh"]

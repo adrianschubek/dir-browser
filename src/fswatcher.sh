@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Debounce time in seconds
-DEBOUNCE_TIME=5
+DEBOUNCE_TIME=$WORKER_WATCH_DEBOUNCE
 
 # Declare an associative array to track timers
 declare -A file_timers
