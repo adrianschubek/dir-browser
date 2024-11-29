@@ -39,11 +39,6 @@ load_config() {
     value=$(yq eval ".${line}" "$CONFIG")
     env_var_name=$(to_env_var "$key")
 
-    # skip if contains new line
-    if [[ "$value" == *$'\n'* ]]; then
-      continue
-    fi
-
     # Check if the value is an array
     if [[ $(echo "$value" | yq eval 'type' -) == "!!seq" ]]; then
       # Concatenate array elements with ";"
@@ -75,18 +70,18 @@ echo -e "${CYAN} -> https://dir.adriansoftware.de <- ${NC}"
 # if CONFIG is set then load otherwie skip step
 if [ ! -f "$CONFIG" ]; then
   STEP=$((STEP+1))
-  echo -e "${GRAY}[ $STEP/$MAX_STEPS ] Skip loading config... use default${NC}"
+  echo -e "${GRAY}[ $STEP/$MAX_STEPS ]  Skip loading config... use default${NC}"
 else
-  step "Loading custom config..."
+  step "⌛ Loading custom config..."
   load_config
-  step_ok "Config loaded!"
+  step_ok "✅ Config loaded!"
 fi
 
-step "Pre-processing configs using utpp..."
-utpp "/etc/nginx/**;/usr/local/etc/php*/**;/var/www/html/*.php"
-step_ok "Pre-processing done!"
+step "⌛ Pre-processing configs using utpp..."
+utpp "/etc/nginx/**;/usr/local/etc/php*/**;/var/www/html/*.php;/fswatcher.sh"
+step_ok "✅ Pre-processing done!"
 
-step "Starting php-fpm..."
+step "⌛ Starting php-fpm..."
 php-fpm -RF &
 
 # wait for php-fpm to be ready
@@ -96,32 +91,33 @@ while true; do
   fi
   sleep 1
 done
-step_ok "php-fpm is ready!"
+step_ok "✅ php-fpm is ready!"
 
-step "Starting redis..."
+step "⌛ Starting redis..."
 redis-server /etc/redis.conf --save 60 1 &
+# dragonfly --logtostderr
 
 # wait for ready to be ready
 while true; do
   redis-cli ping | grep -q "PONG" && break
   sleep 1
 done
-step_ok "redis is ready!"
+step_ok "✅ redis is ready!"
 
-step "Starting worker..."
+step "⌛ Starting worker..."
 php /var/www/html/worker.php --loop &
-step_ok "worker is ready!"
+step_ok "✅ worker is ready!"
 
-if [ "$WORKER_WATCH" = "true" ]; then
-  step "Starting fswatcher..."
+if [ "$WORKER_WATCH_ENABLED" = "true" ]; then
+  step "⌛ Starting fswatcher..."
   /fswatcher.sh &
-  step_ok "fswatcher is ready!"
+  step_ok "✅ fswatcher is ready!"
 else 
   STEP=$((STEP+1))
-  echo -e "${GRAY}[ $STEP/$MAX_STEPS ] Skip fswatcher... manual scans required${NC}"
+  echo -e "${GRAY}[ $STEP/$MAX_STEPS ] ⚠️ Skip fswatcher... manual scans required${NC}"
 fi
 
-step "Starting nginx..."
+step "⌛ Starting nginx..."
 nginx -g 'daemon off;' &
 
 # wait for nginx to be ready
@@ -129,7 +125,7 @@ while true; do
   curl -s http://localhost:80/ > /dev/null && break
   sleep 1
 done
-step_ok "nginx is ready!"
+step_ok "✅ nginx is ready!"
 
 STEP=$((STEP+1))
 echo -e "${GREEN} -> All services running!${NC}"
