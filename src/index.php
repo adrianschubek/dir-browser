@@ -308,7 +308,6 @@ if ($path_is_dir) {
     $item->size = $file_size;
     $item->is_dir = $is_dir;
     $item->modified_date = $file_modified_date;
-    $item->dl_count =  $[if `process.env.DOWNLOAD_COUNTER === "true"`]$!$is_dir ? $redis->get($url) :$[end]$ 0;
     $item->meta = $meta ?? null;
     if ($is_dir) {
       array_push($sorted_folders, $item);
@@ -320,6 +319,14 @@ if ($path_is_dir) {
     if ($file !== "..") $total_items++;
     $total_size += $file_size;
   }
+  // fast! mget for folders and files
+  $[if `process.env.DOWNLOAD_COUNTER === "true"`]$
+  $dl_counters = $redis->mget(array_map(fn ($file) => $file->url, array_merge($sorted_folders, $sorted_files)));
+  $folders_len_tmp = count($sorted_folders);
+  $files_len_tmp = count($sorted_files);
+  for ($i = 0; $i < $folders_len_tmp; $i++) $sorted_folders[$i]->dl_count = $dl_counters[$i];
+  for ($i = 0; $i < $files_len_tmp; $i++) $sorted_files[$i]->dl_count = $dl_counters[$i + $folders_len_tmp];
+  $[end]$
 
   natcasesort($sorted_folders);
   natcasesort($sorted_files);
