@@ -536,7 +536,7 @@ end:
   <link href="${{`process.env.THEME_URL !== undefined ? process.env.THEME_URL : "https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/cosmo/bootstrap.min.css"`}}$" rel="stylesheet" data-turbo-eval="false">
   $[end]$
   $[ifeq env:README_RENDER true]$
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/adrianschubek/dir-browser@main/assets/readme/gh.css" data-turbo-eval="false"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/adrianschubek/dir-browser@3.x/assets/readme/gh.css" data-turbo-eval="false"/>
   $[end]$
   <style data-turbo-eval="false">
     $[ifeq env:TRANSITION true]$
