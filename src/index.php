@@ -396,6 +396,26 @@ if ($path_is_dir) {
   }
   $[end]$
 
+  // Pagination
+  $current_page = max(1, intval($_GET["p"] ?? 1));
+  $max_pages = ceil(count($sorted) / ${{`process.env.PAGINATION_PER_PAGE`}}$);
+  $current_page = min($current_page, $max_pages);
+  $page_start_offset = ($current_page - 1) * ${{`process.env.PAGINATION_PER_PAGE`}}$;
+  $sorted = array_slice($sorted, $page_start_offset, ${{`process.env.PAGINATION_PER_PAGE`}}$);
+  $actual_length = count($sorted) - 1; // removes .. from count
+
+  $pages = [$current_page];
+  // add first 2 .. and last 2 pages. add ".." in between
+  for ($i = 1; $i <= 2; $i++) {
+    if ($current_page - $i > 1) array_unshift($pages, $current_page - $i);
+    if ($current_page + $i < $max_pages) array_push($pages, $current_page + $i);
+  }
+  // add first and last page
+  if ($current_page - 3 > 1) array_unshift($pages, "..");
+  if ($current_page + 3 < $max_pages) array_push($pages, "..");
+  if ($current_page != 1) array_unshift($pages, 1);
+  if ($current_page !== $max_pages) array_push($pages, $max_pages);
+
 } elseif (file_exists($local_path)) {
   // local path is file. serve it directly using nginx
 
@@ -603,6 +623,24 @@ end:
     a[data-file-selected="1"] {
       background-color: var(--bs-primary-bg-subtle);
     }
+
+    .pagination {      
+      border-radius: var(--bs-border-radius-lg) !important;
+    }
+    /* .pagination > li > a {
+      color: var(--bs-secondary-color) !important;
+    } */
+    .pagination > li > a > svg {
+      margin-bottom: 3px;
+    }
+    .pagination > li:first-child > a {
+      border-top-left-radius: var(--bs-border-radius-lg) !important;
+      border-bottom-left-radius: var(--bs-border-radius-lg) !important;
+    } 
+    .pagination > li:last-child > a {
+      border-top-right-radius: var(--bs-border-radius-lg) !important;
+      border-bottom-right-radius: var(--bs-border-radius-lg) !important;
+    }
   </style>
   $[if `process.env.ICONS !== "false"`]$
   <link data-turbo-eval="false" href="https://cdn.jsdelivr.net/npm/file-icons-js@1/css/style.min.css" rel="stylesheet"></link>
@@ -648,7 +686,7 @@ end:
       if (isset($readme_render)) {
     ?>
     <div class="container pt-3">
-      <div class="card rounded border-2 p-3 markdown-body-light markdown-body-dark" id="readme">
+      <div class="card rounded  p-3 markdown-body-light markdown-body-dark" id="readme">
         <?= $readme_render ?>
       </div>
     </div>
@@ -658,7 +696,7 @@ end:
   $[end]$
   <div class="container py-3">    
     <?php if (defined("AUTH_REQUIRED")) { ?>
-      <div class="card rounded border-2 m-auto" style="max-width: 500px;">
+      <div class="card rounded  m-auto" style="max-width: 500px;">
         <div class="card-body">
           <h4 class="alert-heading key-icon">Protected file</h4>
           <p class="mb-2">Please enter the password to access this file.</p>
@@ -669,7 +707,7 @@ end:
         </div>
       </div>
     <?php } else if (!$path_is_dir) { ?>
-      <div class="card rounded border-2 m-auto" style="max-width: 500px;">
+      <div class="card rounded  m-auto" style="max-width: 500px;">
         <div class="card-body text-center">
           <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-unknown" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -684,7 +722,7 @@ end:
       </div>
 
     <?php } else { ?>
-      <div class="rounded container position-sticky card border-2 px-3" style="top:0; z-index: 5;border-bottom-left-radius: 0 !important;border-bottom-right-radius: 0 !important;">
+      <div class="rounded container position-sticky card  px-3" style="top:0; z-index: 5;border-bottom-left-radius: 0 !important;border-bottom-right-radius: 0 !important;">
         <div class="row db-row py-2 text-muted">          
           <div class="col" id="path">
             <a href="${{`process.env.BASE_PATH ?? ''`}}$/">/</a><?php
@@ -751,8 +789,8 @@ end:
           <div class="col col-auto text-end d-none d-md-inline-block" id="mod">Actions</div>
         </div>
       </div>
-      <div class="rounded container card border-2 px-3 d-none" style="border-top: none !important;border-top-right-radius: 0 !important;border-top-left-radius: 0 !important;" id="resultstree"></div>
-      <div class="rounded container card border-2 px-3" style="border-top: none !important;border-top-right-radius: 0 !important;border-top-left-radius: 0 !important;" id="filetree">
+      <div class="rounded container card  px-3 d-none" style="border-top: none !important;border-top-right-radius: 0 !important;border-top-left-radius: 0 !important;" id="resultstree"></div>
+      <div class="rounded container card  px-3" style="border-top: none !important;border-top-right-radius: 0 !important;border-top-left-radius: 0 !important;" id="filetree">
         
         <?php
         $now = new DateTime();
@@ -878,7 +916,7 @@ end:
     if (isset($readme_render)) {
   ?>
   <div class="container pb-3">
-    <div class="card rounded border-2 p-3 markdown-body-light markdown-body-dark" id="readme">
+    <div class="card rounded p-3 markdown-body-light markdown-body-dark" id="readme">
       <?= $readme_render ?>
     </div>
   </div>
@@ -887,9 +925,23 @@ end:
   ?>
   $[end]$
 
+  <?php if ($max_pages > 1) { ?>
+  <div class="container pb-3" style="display:flex;justify-content:center;">
+    <nav aria-label="Page navigation example">
+    <ul class="pagination">
+      <li class="page-item"><a class="page-link <?= $current_page <= 1 ? "disabled" : "" ?>" href="${{`process.env.BASE_PATH ?? ''`}}$<?= $request_uri . "?p=" . ($current_page - 1) ?>"><svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="iconX icon-tabler icons-tabler-outline icon-tabler-chevron-left"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 6l-6 6l6 6" /></svg></a></li>
+      <?php foreach ($pages as $p) { ?>
+      <li class="page-item"><a class="page-link <?= $p == $current_page ? "active" : "" ?> <?= $p == ".." ? "disabled" : "" ?>" href="${{`process.env.BASE_PATH ?? ''`}}$<?= $request_uri . "?p=" . ($p) ?>"><?= $p ?></a></li>
+      <?php } ?>
+      <li class="page-item"><a class="page-link <?= $current_page >= $max_pages ? "disabled" : "" ?>" href="${{`process.env.BASE_PATH ?? ''`}}$<?= $request_uri . "?p=" . ($current_page + 1) ?>"><svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="iconX icon-tabler icons-tabler-outline icon-tabler-chevron-right"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l6 6l-6 6" /></svg></a></li>
+    </ul>
+    </nav>
+  </div>
+  <?php } ?>
+
   <div class="mt-auto">
     <div class="container py-2 text-center" id="footer">
-      <?= $total_items ?> Items | <?= human_filesize($total_size) ?> $[if `process.env.TIMING === "true"`]$| <?= (hrtime(true) - $time_start)/1000000 ?> ms $[end]$$[if `process.env.API === "true"`]$| <a href="<?= '/' . implode(separator: '/', array: $url_parts) . '?ls' ?>" target="_blank"><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-api"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 13h5" /><path d="M12 16v-8h3a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2h-3" /><path d="M20 8v8" /><path d="M9 16v-5.5a2.5 2.5 0 0 0 -5 0v5.5" /></svg></a>$[end]$<br>
+      Displaying <?= max(1, $page_start_offset) ?>-<?= min($page_start_offset - 1 + ${{`process.env.PAGINATION_PER_PAGE`}}$, $total_items) ?> of <?= $total_items ?> | <?= human_filesize($total_size) ?> $[if `process.env.TIMING === "true"`]$| <?= (hrtime(true) - $time_start)/1000000 ?> ms $[end]$$[if `process.env.API === "true"`]$| <a href="<?= '/' . implode(separator: '/', array: $url_parts) . '?ls' ?>" target="_blank"><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-api"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 13h5" /><path d="M12 16v-8h3a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2h-3" /><path d="M20 8v8" /><path d="M9 16v-5.5a2.5 2.5 0 0 0 -5 0v5.5" /></svg></a>$[end]$<br>
     <span style="opacity:0.8"><span style="opacity: 0.8;">Powered by</span>  <a href="https://dir.adriansoftware.de" class="text-decoration-none text-primary" target="_blank">dir-browser</a> v<?= VERSION ?></span>  
     </div>
   </div>
@@ -897,7 +949,7 @@ end:
   $[if `process.env.LAYOUT === "popup" || process.env.LAYOUT === "full"`]$
   <div class="modal rounded fade show" style="background-color:rgba(0, 0, 0, 0.2);" id="file-popup" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-scrollable">
-      <div class="modal-content rounded border-2">
+      <div class="modal-content rounded ">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="staticBackdropLabel">Modal title</h1>
           <button type="button" class="btn-close" id="file-popup-x" data-bs-dismiss="modal" aria-label="Close"></button>
