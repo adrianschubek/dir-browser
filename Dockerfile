@@ -1,6 +1,6 @@
 FROM php:8.4-fpm-alpine AS base
 
-ENV DIRBROWSER_VERSION=3.10.0
+ENV DIRBROWSER_VERSION=3.11.0
 
 RUN apk update && apk upgrade
 
@@ -30,7 +30,7 @@ RUN apk add --no-cache composer
 
 WORKDIR /var/www/html
 
-RUN composer require "league/commonmark:^2.5"
+RUN composer require "league/commonmark:^2.6"
 
 RUN mkdir -p /data/nginx/cache
 # for batch downloads
