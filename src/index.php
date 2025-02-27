@@ -936,11 +936,11 @@ end:
   <div class="container pb-3" style="display:flex;justify-content:center;">
     <nav aria-label="Page navigation example">
     <ul class="pagination">
-      <li class="page-item"><a class="page-link <?= $current_page <= 1 ? "disabled" : "" ?>" href="${{`process.env.BASE_PATH ?? ''`}}$<?= $request_uri . "?p=" . ($current_page - 1) ?>"><svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="iconX icon-tabler icons-tabler-outline icon-tabler-chevron-left"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 6l-6 6l6 6" /></svg></a></li>
+      <li class="page-item"><a data-turbo-prefetch="false" class="page-link <?= $current_page <= 1 ? "disabled" : "" ?>" href="${{`process.env.BASE_PATH ?? ''`}}$<?= $request_uri . "?p=" . ($current_page - 1) ?>"><svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="iconX icon-tabler icons-tabler-outline icon-tabler-chevron-left"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 6l-6 6l6 6" /></svg></a></li>
       <?php foreach ($pages as $p) { ?>
-      <li class="page-item"><a class="page-link <?= $p == $current_page ? "active" : "" ?> <?= $p == ".." ? "disabled" : "" ?>" href="${{`process.env.BASE_PATH ?? ''`}}$<?= $request_uri . "?p=" . ($p) ?>"><?= $p ?></a></li>
+      <li class="page-item"><a data-turbo-prefetch="false" class="page-link <?= $p == $current_page ? "active" : "" ?> <?= $p == ".." ? "disabled" : "" ?>" href="${{`process.env.BASE_PATH ?? ''`}}$<?= $request_uri . "?p=" . ($p) ?>"><?= $p ?></a></li>
       <?php } ?>
-      <li class="page-item"><a class="page-link <?= $current_page >= $max_pages ? "disabled" : "" ?>" href="${{`process.env.BASE_PATH ?? ''`}}$<?= $request_uri . "?p=" . ($current_page + 1) ?>"><svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="iconX icon-tabler icons-tabler-outline icon-tabler-chevron-right"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l6 6l-6 6" /></svg></a></li>
+      <li class="page-item"><a data-turbo-prefetch="false" class="page-link <?= $current_page >= $max_pages ? "disabled" : "" ?>" href="${{`process.env.BASE_PATH ?? ''`}}$<?= $request_uri . "?p=" . ($current_page + 1) ?>"><svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="iconX icon-tabler icons-tabler-outline icon-tabler-chevron-right"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l6 6l-6 6" /></svg></a></li>
     </ul>
     </nav>
   </div>
