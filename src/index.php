@@ -480,7 +480,7 @@ if ($path_is_dir) {
       "mime" => mime_content_type($local_path) ?? "application/octet-stream",
       "size" => filesize($local_path),
       "modified" => filemtime($local_path),
-      "downloads" => ${{`process.env.DOWNLOAD_COUNTER === "true" ? "intval($redis->get($file->url))" : "0"`}}$,
+      "downloads" => ${{`process.env.DOWNLOAD_COUNTER === "true" ? "intval($redis->get($relative_path))" : "0"`}}$,
       "hash_${{`process.env.HASH_ALGO`}}$" => ${{`process.env.HASH === "true" ? "hash_file('"+process.env.HASH_ALGO+"', $local_path)" : "null"`}}$
     ];
     header("Content-Type: application/json");
