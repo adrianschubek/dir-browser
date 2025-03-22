@@ -3,6 +3,101 @@ sidebar_position: 1.5
 ---
 # Changelog
 
+All notable changes to this project will be documented in this file.
+
+## [3.12.0] - 2025-03-22
+
+### 🚀 Features
+
+- Toggle prefetching for files and folders ([372ef3f](https://github.com/adrianschubek/dir-browser/commit/372ef3f2e5a36b7234596ec8bb3c1fecf1d501de))
+
+### 📚 Documentation
+
+- Update demo run command ([521434f](https://github.com/adrianschubek/dir-browser/commit/521434fdd7e21cc07b3df6cd3e52fb99be03c515))
+
+## [3.11.2] - 2025-03-19
+
+### 🐛 Bug Fixes
+
+- File info api downloads always 0 ([43877d1](https://github.com/adrianschubek/dir-browser/commit/43877d172c5d9312ffcd24f4d5a329be9200ddc5))
+
+## [3.11.1] - 2025-02-27
+
+### 🐛 Bug Fixes
+
+- Readme css url ([99fd80f](https://github.com/adrianschubek/dir-browser/commit/99fd80ff7821c990a53fd1e37b3c4aaba7ae0ae2))
+- Skip prefetching for pagination buttons ([ca5e73e](https://github.com/adrianschubek/dir-browser/commit/ca5e73e2571e6402a67016a18d1425c41e001553))
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump version ([b39f2a9](https://github.com/adrianschubek/dir-browser/commit/b39f2a9e0d6da567102db065a347dfbd1cd82255))
+
+## [3.11.0] - 2025-02-27
+
+### 🚀 Features
+
+- Improve performance for large folders. fixes #35 ([435de39](https://github.com/adrianschubek/dir-browser/commit/435de394a9512e50018a03bbb7f8604b978bbad4))
+
+### 📚 Documentation
+
+- Fix import ([a32825e](https://github.com/adrianschubek/dir-browser/commit/a32825e040a2f4a8551ca4a247473bcbc6f32865))
+
+### ⚙️ Miscellaneous Tasks
+
+- Update commonmark ([41ddc68](https://github.com/adrianschubek/dir-browser/commit/41ddc68924b4e146ccddd2b8e523186c35d094da))
+
+## [3.10.0] - 2025-02-27
+
+### 🚀 Features
+
+- Add pagination. closes #34 ([bb53b36](https://github.com/adrianschubek/dir-browser/commit/bb53b36900ee3ffae05b7b360d17e6ca51173a6d))
+
+### 🐛 Bug Fixes
+
+- Nginx permissions. fixes #33 ([46323d7](https://github.com/adrianschubek/dir-browser/commit/46323d7a975898856f02a25562428f21a5fa1116))
+- Workflow docs ([783f54d](https://github.com/adrianschubek/dir-browser/commit/783f54d1b300951cf930043957cc07e56003170b))
+- New workflow ([342f244](https://github.com/adrianschubek/dir-browser/commit/342f2442e064ced987be937a63231ee67c1db545))
+- Workflow ([7fe5fa7](https://github.com/adrianschubek/dir-browser/commit/7fe5fa7c2262cc5971237e476016111a5f505f4e))
+- Workflow npm ([134e92f](https://github.com/adrianschubek/dir-browser/commit/134e92f767d24eef064be40b37aad818a720a9a8))
+- Workflow cache ([6bc1e85](https://github.com/adrianschubek/dir-browser/commit/6bc1e852dc813b5b9b55e51ebb5a8aa6eb6a3d23))
+- Workflow cmd ([43dd303](https://github.com/adrianschubek/dir-browser/commit/43dd303174ca23096a90a57a30aec6bf3befd1c1))
+- Path ([361ca71](https://github.com/adrianschubek/dir-browser/commit/361ca71274b935bcebcca89fdf85a122ad2cb72f))
+
+### 📚 Documentation
+
+- Add pagination ([49fabb4](https://github.com/adrianschubek/dir-browser/commit/49fabb415c214e4af16ea32aa889f114615f7f9a))
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump version ([9620e5b](https://github.com/adrianschubek/dir-browser/commit/9620e5bf742b8f633d95eca3741fb41aa8af4bc6))
+- Fix workflow docs ([433bd54](https://github.com/adrianschubek/dir-browser/commit/433bd54f0d6a1ad1df3949b2b73c81990d0da9e5))
+- Bump version ([eb9a0bc](https://github.com/adrianschubek/dir-browser/commit/eb9a0bc1b5ddadd2e446742f8e96285a44ca0e04))
+
+## [3.9.0] - 2024-11-26
+
+### 🚜 Refactor
+
+- Custom init ([4dcab15](https://github.com/adrianschubek/dir-browser/commit/4dcab15cdd3c27b731c39c32ad0b944d95a058dc))
+
+### ⚡ Performance
+
+- Drop supervisor. use custom init ([9a4f653](https://github.com/adrianschubek/dir-browser/commit/9a4f65337100628682f721d3c9e2a755a4f7a9a4))
+
+### ⚙️ Miscellaneous Tasks
+
+- Upgrade to php 8.4 ([8cddaca](https://github.com/adrianschubek/dir-browser/commit/8cddacad00f044803f9ac09e0bb15b02a979d579))
+- Use env version ([b29025c](https://github.com/adrianschubek/dir-browser/commit/b29025c44b73f9b0883dece0408afda668bea1e2))
+
+## [3.8.1] - 2024-11-04
+
+### 🐛 Bug Fixes
+
+- Deny .dbmeta.md direct url access ([5bb93c4](https://github.com/adrianschubek/dir-browser/commit/5bb93c4b31641e1582867ce730822245862c0ae6))
+
+### 📚 Documentation
+
+- Update header ([1049849](https://github.com/adrianschubek/dir-browser/commit/104984911a219ac41cb027d5b2db90aadcdda3d0))
+
 ## [3.8.0] - 2024-10-31
 
 ### 🚀 Features
