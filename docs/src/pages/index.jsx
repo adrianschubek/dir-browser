@@ -65,7 +65,7 @@ function SectionDocker() {
   return <div className="" style={{ textAlign: "center", background: "#000000" }}>
     {/* <h1 className="hero__title" style={{ color: "var(--ifm-color-gray-700)", marginLeft: "auto" }}>🌙 DDD</h1> */}
     <CodeBlock className="headercode">
-      docker run --rm -p 8080:80 -v /my/local/folder:/var/www/html/public:ro -v rdb:/var/lib/redis/ -it adrianschubek/dir-browser
+      docker run --rm -p 8080:80 -v $(pwd):/var/www/html/public:ro -v rdb:/var/lib/redis/ -it adrianschubek/dir-browser
     </CodeBlock>
   </div>
 }
