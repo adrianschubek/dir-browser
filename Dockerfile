@@ -1,4 +1,4 @@
-FROM php:8.4-fpm-alpine AS base
+FROM php:8.4.8RC1-fpm-alpine AS base
 
 ENV DIRBROWSER_VERSION=3.9.0
 
