@@ -5,6 +5,26 @@ sidebar_position: 1.5
 
 All notable changes to this project will be documented in this file.
 
+## [3.13.0] - 2025-06-09
+
+### 🚀 Features
+
+- Cors allow any origin ([0e3819b](https://github.com/adrianschubek/dir-browser/commit/0e3819b37aef09663f16dca363814cfa261fd281))
+
+### 🐛 Bug Fixes
+
+- Cors for files ([e726dff](https://github.com/adrianschubek/dir-browser/commit/e726dff023c19b321adc363ca78def35c96f758c))
+
+### 📚 Documentation
+
+- Update changelog ([ae8deb3](https://github.com/adrianschubek/dir-browser/commit/ae8deb303826074ef7b1628f6340058d4a15000d))
+- Cors ([993bd17](https://github.com/adrianschubek/dir-browser/commit/993bd17622cbacaf4dd834a0b3900bf27b41a6c2))
+
+### ⚙️ Miscellaneous Tasks
+
+- Update LICENSE date ([012f608](https://github.com/adrianschubek/dir-browser/commit/012f608713e3dc9e14acc372a74a8547f8df1f0a))
+- Update commonmark ([3294438](https://github.com/adrianschubek/dir-browser/commit/32944384bfb2daa1084ee9b61e14150af9a7a34a))
+
 ## [3.12.0] - 2025-03-22
 
 ### 🚀 Features
