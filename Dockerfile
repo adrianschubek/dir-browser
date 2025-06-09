@@ -30,7 +30,7 @@ RUN apk add --no-cache composer
 
 WORKDIR /var/www/html
 
-RUN composer require "league/commonmark:^2.6"
+RUN composer require "league/commonmark:^2.7"
 
 RUN mkdir -p /data/nginx/cache
 # for batch downloads
