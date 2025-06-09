@@ -1,0 +1,9 @@
+# CORS
+
+CORS (Cross-Origin Resource Sharing) is a security feature implemented by web browsers that allows or restricts web applications running at one origin to make requests to resources from another origin. 
+
+By default any origin is allowed to access the resources of the server. However, you can restrict access to the same origin by setting the `CORS_ALLOW_ANY_ORIGIN` environment variable to `false`.
+
+import EnvConfig from '@site/src/components/EnvConfig';
+
+<EnvConfig name="CORS_ALLOW_ANY_ORIGIN" init="true" values="true,false" versions="3.13"/>
