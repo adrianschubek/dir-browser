@@ -277,51 +277,77 @@ if ($path_is_dir) {
 
   $sorted_files = [];
   $sorted_folders = [];
-  foreach (($files = scandir($local_path)) as $file) {
-    // $relative_path. remove '/var/www/public' from path
-    $url = substr($local_path, strlen(PUBLIC_FOLDER)) . '/' . $file;
+  
+  // Use FilesystemIterator for better performance
+  $iterator = new FilesystemIterator(
+    $local_path,
+    FilesystemIterator::KEY_AS_PATHNAME | FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::SKIP_DOTS
+  );
 
-    // always skip current folder '.' or parent folder '..' if current path is root or file should be ignored or .dbmeta.json
-    if ($file === '.' || $file === '..' && count($url_parts) === 0 || $file !== '..' && hidden($url) $[if `process.env.METADATA === "true"`]$|| str_contains($file, ".dbmeta.")$[end]$) continue;
+  // Add the parent directory ".." manually if not in the root
+  if (count($url_parts) > 0) {
+    $parent_path = dirname($local_path . '/.'); // a safe way to get parent
+    $parent_file_info = new SplFileInfo($parent_path);
+    $item = new File();
+    $item->name = '..';
+    $item->url = "/" . implode(separator: '/', array: array_slice($url_parts, 0, -1)); // remove last part
+    // remove last slash if exists
+    if (str_ends_with($item->url, '/')) {
+      $item->url = substr($item->url, 0, -1); // temp fix
+    }
+    $item->size = 0; // Or $parent_file_info->getSize();
+    $item->is_dir = true;
+    $item->modified_date = gmdate('Y-m-d\TH:i:s\Z', $parent_file_info->getMTime());
+    $item->meta = null;
+    $sorted_folders[] = $item;
+  }
 
-    $file_size = filesize($local_path . '/' . $file);
+  foreach ($iterator as $path => $fileinfo) {
+    /* @var SplFileInfo $fileinfo */
+    $filename = $fileinfo->getFilename();
+    $url = substr($path, strlen(PUBLIC_FOLDER));
 
-    $is_dir = is_dir($local_path . '/' . $file);
+    // Skip hidden files or metadata files
+    if (hidden($url) $[if `process.env.METADATA === "true"`]$ || str_contains($filename, ".dbmeta.")$[end]$) {
+      continue;
+    }
 
-    $file_modified_date = gmdate('Y-m-d\TH:i:s\Z', filemtime($local_path . '/' . $file));
+    $is_dir = $fileinfo->isDir();
+    $meta = null; // Reset meta
 
     $[if `process.env.METADATA === "true"`]$
-    // load metadata if file exists
-    $meta_file = realpath($local_path . '/' . $file . '.dbmeta.json');
-    if ($meta_file !== false) {
-      $meta = json_decode(file_get_contents($meta_file));
-      if (isset($meta->description)) { // escape meta->description 
-        $meta->description = htmlspecialchars($meta->description, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    $meta_file_path = $path . '.dbmeta.json';
+    if (file_exists($meta_file_path)) {
+      $meta_content = file_get_contents($meta_file_path);
+      if ($meta_content) {
+        $meta = json_decode($meta_content);
+        if (isset($meta->description)) { // escape meta->description 
+          $meta->description = htmlspecialchars($meta->description, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+        }
+        if ($meta?->hidden === true) {
+          continue;
+        }
       }
-      if ($meta !== null && $meta->hidden === true) continue;
-    } else {
-      // Variables stay alive in php so we need to reset it explicitly
-      $meta = null;
     }
     $[end]$
 
     $item = new File();
-    $item->name = $file;
+    $item->name = $filename;
     $item->url = $url;
-    $item->size = $file_size;
+    $item->size = $is_dir ? 0 : $fileinfo->getSize(); // Dirs don't have a relevant size here
     $item->is_dir = $is_dir;
-    $item->modified_date = $file_modified_date;
-    $item->meta = $meta ?? null;
-    if ($is_dir) {
-      array_push($sorted_folders, $item);
-    } else {
-      array_push($sorted_files, $item);
-    }
+    $item->modified_date = gmdate('Y-m-d\TH:i:s\Z', $fileinfo->getMTime());
+    $item->meta = $meta;
 
-    // don't count parent folder
-    if ($file !== "..") $total_items++;
-    $total_size += $file_size;
+    if ($is_dir) {
+      $sorted_folders[] = $item;
+    } else {
+      $sorted_files[] = $item;
+      $total_size += $item->size;
+    }
   }
+  $total_items = count($sorted_folders) + count($sorted_files) - (count($url_parts) > 0 ? 1 : 0); // Exclude '..' from count
+
   // fast! mget for folders and files
   $[if `process.env.DOWNLOAD_COUNTER === "true"`]$
   $dl_counters = $redis->mget(array_map(fn ($file) => $file->url, array_merge($sorted_folders, $sorted_files)));
