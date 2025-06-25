@@ -295,6 +295,9 @@ if ($path_is_dir) {
     $meta_file = realpath($local_path . '/' . $file . '.dbmeta.json');
     if ($meta_file !== false) {
       $meta = json_decode(file_get_contents($meta_file));
+      if (isset($meta->description)) { // escape meta->description 
+        $meta->description = htmlspecialchars($meta->description, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+      }
       if ($meta !== null && $meta->hidden === true) continue;
     } else {
       // Variables stay alive in php so we need to reset it explicitly
