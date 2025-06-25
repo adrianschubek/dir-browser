@@ -343,6 +343,15 @@ if ($path_is_dir) {
   $[if `process.env.API === "true"`]$
   if(isset($_REQUEST["ls"])) {
     $info = [];
+    $[end]$
+    $[if `process.env.API === "true" && process.env.DOWNLOAD_COUNTER === "true"`]$
+    // Get all counters in one call
+    $urls = array_map(fn($file) => $file->url, $sorted);
+    $all_counters = $redis->mget($urls);
+    $counters_map = array_combine($urls, $all_counters);
+    $[end]$
+    $[if `process.env.API === "true"`]$
+
     foreach ($sorted as $file) {
       if ($file->name === "..") continue; // skip parent folder
       $info[] = [
@@ -351,7 +360,7 @@ if ($path_is_dir) {
         "type" => $file->is_dir ? "dir" : "file",
         "size" => intval($file->size),
         "modified" => $file->modified_date,
-        "downloads" => ${{`process.env.DOWNLOAD_COUNTER === "true" ? "intval($redis->get($file->url))" : "0"`}}$
+        "downloads" => ${{`process.env.DOWNLOAD_COUNTER === "true" ? "intval($counters_map[$file->url] ?? 0)" : "0"`}}$
       ];
     }
     header("Content-Type: application/json");
