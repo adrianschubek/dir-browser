@@ -5,6 +5,21 @@ sidebar_position: 1.5
 
 All notable changes to this project will be documented in this file.
 
+## [3.14.0] - 2025-06-25
+
+### 🐛 Bug Fixes
+
+- Escape meta description ([6e34b29](https://github.com/adrianschubek/dir-browser/commit/6e34b29ae8b5e7ef648264b0043532e1cd858538))
+
+### ⚡ Performance
+
+- Use redis mget for api list ([e89e288](https://github.com/adrianschubek/dir-browser/commit/e89e2881c94acfa02a0c9c8f549b7f1d9f469fa1))
+- Use native filesystem iterator ([3459043](https://github.com/adrianschubek/dir-browser/commit/34590437c903531cff2854292be3a74d94d58161))
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump version ([6d1dce0](https://github.com/adrianschubek/dir-browser/commit/6d1dce0ab2e336adb0399f5a643ecb77876abc2b))
+
 ## [3.13.0] - 2025-06-09
 
 ### 🚀 Features
