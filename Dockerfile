@@ -1,6 +1,6 @@
 FROM php:8.4-fpm-alpine AS base
 
-ENV DIRBROWSER_VERSION=3.13.0
+ENV DIRBROWSER_VERSION=3.14.0
 
 RUN apk update && apk upgrade
 
