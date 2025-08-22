@@ -5,6 +5,12 @@ sidebar_position: 1.5
 
 All notable changes to this project will be documented in this file.
 
+## [3.14.1] - 2025-08-22
+
+### 🐛 Bug Fixes
+
+- Disabled download counter breaks listing. fixes #38 ([9df7b94](https://github.com/adrianschubek/dir-browser/commit/9df7b9456109c8fa82d9b9f6d99fe65eb8bbcf6a))
+
 ## [3.14.0] - 2025-06-25
 
 ### 🐛 Bug Fixes
