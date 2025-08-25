@@ -5,6 +5,12 @@ sidebar_position: 1.5
 
 All notable changes to this project will be documented in this file.
 
+## [3.15.0] - 2025-08-25
+
+### 🚀 Features
+
+- Persist sorting. fixes #39 ([eb175f3](https://github.com/adrianschubek/dir-browser/commit/eb175f3f65e646a0152693b5f6232f8ae1ae9b09))
+
 ## [3.14.1] - 2025-08-22
 
 ### 🐛 Bug Fixes
