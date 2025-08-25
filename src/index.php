@@ -1263,6 +1263,17 @@ end:
       $[end]$
     })
 
+    // if localstoage has sort:order:name, apply it
+    if (localStorage.getItem("sort:order:name")) {
+      sort('name', localStorage.getItem("sort:order:name") === "desc");
+    } else if (localStorage.getItem("sort:order:dl")) {
+      sort('dl', localStorage.getItem("sort:order:dl") === "desc");
+    } else if (localStorage.getItem("sort:order:size")) {
+      sort('size', localStorage.getItem("sort:order:size") === "desc");
+    } else if (localStorage.getItem("sort:order:mod")) {
+      sort('mod', localStorage.getItem("sort:order:mod") === "desc");
+    }
+
     // Readme open in new tab fix
     $[if `process.env.OPEN_NEW_TAB === "true"`]$
     document.querySelectorAll("#readme a").forEach((el) => {
@@ -1331,28 +1342,44 @@ end:
 
     document.querySelector('#name').addEventListener('click', (e) => {
       e.preventDefault();
-      sessionStorage.setItem("sort:order:name", sessionStorage.getItem("sort:order:name") === "asc" ? "desc" : "asc");
-      sort('name', sessionStorage.getItem("sort:order:name") === "desc");
+      localStorage.setItem("sort:order:name", localStorage.getItem("sort:order:name") === "asc" ? "desc" : "asc");
+      sort('name', localStorage.getItem("sort:order:name") === "desc");
+      // reset other sort orders
+      localStorage.removeItem("sort:order:dl");
+      localStorage.removeItem("sort:order:size");
+      localStorage.removeItem("sort:order:mod");
     });
 
     $[if `process.env.DOWNLOAD_COUNTER === "true"`]$
     document.querySelector('#dl').addEventListener('click', (e) => {
       e.preventDefault();
-      sessionStorage.setItem("sort:order:dl", sessionStorage.getItem("sort:order:dl") === "asc" ? "desc" : "asc");
-      sort('dl', sessionStorage.getItem("sort:order:dl") === "desc");
+      localStorage.setItem("sort:order:dl", localStorage.getItem("sort:order:dl") === "asc" ? "desc" : "asc");
+      sort('dl', localStorage.getItem("sort:order:dl") === "desc");
+      // reset other sort orders
+      localStorage.removeItem("sort:order:name");
+      localStorage.removeItem("sort:order:size");
+      localStorage.removeItem("sort:order:mod");
     });
     $[end]$
 
     document.querySelector('#size').addEventListener('click', (e) => {
       e.preventDefault();
-      sessionStorage.setItem("sort:order:size", sessionStorage.getItem("sort:order:size") === "asc" ? "desc" : "asc");
-      sort('size', sessionStorage.getItem("sort:order:size") === "desc");
+      localStorage.setItem("sort:order:size", localStorage.getItem("sort:order:size") === "asc" ? "desc" : "asc");
+      sort('size', localStorage.getItem("sort:order:size") === "desc");
+      // reset other sort orders
+      localStorage.removeItem("sort:order:name");
+      localStorage.removeItem("sort:order:dl");
+      localStorage.removeItem("sort:order:mod");
     });
 
     document.querySelector('#mod').addEventListener('click', (e) => {
       e.preventDefault();
-      sessionStorage.setItem("sort:order:mod", sessionStorage.getItem("sort:order:mod") === "asc" ? "desc" : "asc");
-      sort('mod', sessionStorage.getItem("sort:order:mod") === "desc");
+      localStorage.setItem("sort:order:mod", localStorage.getItem("sort:order:mod") === "asc" ? "desc" : "asc");
+      sort('mod', localStorage.getItem("sort:order:mod") === "desc");
+      // reset other sort orders
+      localStorage.removeItem("sort:order:name");
+      localStorage.removeItem("sort:order:dl");
+      localStorage.removeItem("sort:order:size");
     });
   </script>
   $[if `process.env.ICONS !== "false"`]$
