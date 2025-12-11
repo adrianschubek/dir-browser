@@ -1,10 +1,8 @@
-FROM php:8.4-fpm-alpine AS base
+FROM php:8.5-fpm-alpine AS base
 
-ENV DIRBROWSER_VERSION=3.15.0
+ENV DIRBROWSER_VERSION=3.16.0
 
 RUN apk update && apk upgrade
-
-RUN docker-php-ext-install opcache
 
 RUN apk add --no-cache libzip-dev \
   && docker-php-ext-configure zip \
