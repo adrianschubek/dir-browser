@@ -5,6 +5,19 @@ sidebar_position: 1.5
 
 All notable changes to this project will be documented in this file.
 
+## [3.16.0] - 2025-12-11
+
+### 🚀 Features
+
+- Show clipboard copy value for file name, download count, and modified date ([57b3e5f](https://github.com/adrianschubek/dir-browser/commit/57b3e5f80ad8848db30b191eb8a3de744c11f20f))
+
+### ⚙️ Miscellaneous Tasks
+
+- Update GitHub Actions to use latest Docker actions ([12aff6c](https://github.com/adrianschubek/dir-browser/commit/12aff6cf160492519df2368a1ea1aad080be436b))
+- Update upload-pages-artifact action ([3214bff](https://github.com/adrianschubek/dir-browser/commit/3214bff3b2d817180186301b9ff26b587a08e65c))
+- Update docs action to node 22 ([2ff8e38](https://github.com/adrianschubek/dir-browser/commit/2ff8e38e71c329b9d4486b9a16c471b36b6e56db))
+- Update PHP version to 8.5 and bump DIRBROWSER_VERSION to 3.16.0 ([6a99d9b](https://github.com/adrianschubek/dir-browser/commit/6a99d9b9a935a7d02ad0b5c00b9573dc5cec81bc))
+
 ## [3.15.0] - 2025-08-25
 
 ### 🚀 Features
