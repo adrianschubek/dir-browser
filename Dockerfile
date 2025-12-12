@@ -1,6 +1,6 @@
 FROM php:8.5-fpm-alpine AS base
 
-ENV DIRBROWSER_VERSION=3.16.0
+ENV DIRBROWSER_VERSION=4.0.0
 
 RUN apk update && apk upgrade
 
@@ -67,11 +67,10 @@ ENV HASH_ALGO=sha256
 
 ENV API=true
 
-# TODO: full = popup fullscreen
-# basic,popup,full
-ENV LAYOUT=basic
+# basic,popup
+ENV LAYOUT=popup
 # TODO: show files in tree on hover
-ENV PREVIEW=false
+# ENV PREVIEW=false
 
 ENV README_NAME=readme.md;readme.txt;readme.html;readme;read.me;read\ me;liesmich.md;liesmich.txt;liesmich;lies\ mich;index.html;index.htm;index.txt;license
 
