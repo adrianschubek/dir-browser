@@ -5,6 +5,24 @@ sidebar_position: 1.5
 
 All notable changes to this project will be documented in this file.
 
+## [4.0.0] - 2025-12-12
+
+### 🚀 Features
+
+- Add popup preview and raw streaming for media files ([617400a](https://github.com/adrianschubek/dir-browser/commit/617400ac12a5b293297cf673c91b64e7f15c1d78))
+- Add copy file content and hash to clipboard ([0234403](https://github.com/adrianschubek/dir-browser/commit/02344032883af359cf8e9d4c4f8614ba38dc6c29))
+- Remove old actions dropdown from file display ([ae74339](https://github.com/adrianschubek/dir-browser/commit/ae743398f2fc20fb2843954f55b3b89858ee00a7))
+
+### 📚 Documentation
+
+- Update layout ([be3f3b9](https://github.com/adrianschubek/dir-browser/commit/be3f3b917a0a853a3a7c4df329ca7846bea44039))
+- Add v4 label ([3714f07](https://github.com/adrianschubek/dir-browser/commit/3714f0711c64c77011e285e01fddc7adb9da3e7b))
+
+### ⚙️ Miscellaneous Tasks
+
+- Update DIRBROWSER_VERSION to 4.0.0 and adjust layout environment variable ([2f55fda](https://github.com/adrianschubek/dir-browser/commit/2f55fdad9503d4773af94fbf10bc7070d0cadccd))
+- Update Bootstrap CSS and JS to version 5.3.8 ([54e4857](https://github.com/adrianschubek/dir-browser/commit/54e4857dfbc435721349c966603d3a44005cc98b))
+
 ## [3.16.0] - 2025-12-11
 
 ### 🚀 Features
