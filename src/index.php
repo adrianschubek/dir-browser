@@ -43,6 +43,15 @@ function numsize($size, $round = 2)
   return round($size / pow(1000, ($i = floor(log($size, 1000)))), $round) . $unit[$i];
 }
 
+function safe_utf8(string $input): string
+{
+  // Ensure JSON output is valid UTF-8.
+  // iconv is commonly available; if it fails, fall back to stripping invalid bytes.
+  $converted = @iconv('UTF-8', 'UTF-8//IGNORE', $input);
+  if ($converted !== false) return $converted;
+  return preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $input) ?? '';
+}
+
 // fix whitespace in path results in not found errors
 $request_uri = rawurldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 
@@ -1092,8 +1101,11 @@ end:
           </div>
         </div>
         <div class="modal-footer">
-        ${{`process.env.API === "true" ? '<a id="file-info-url-api" href="" type="button" class="btn rounded btn-secondary" data-bs-dismiss="modal">API <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-code"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 8l-4 4l4 4" /><path d="M17 8l4 4l-4 4" /><path d="M14 4l-4 16" /></svg></a>' : ''`}}$
-          <a id="file-info-url" type="button" class="btn rounded btn-primary">Download <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-download"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg></a>
+        <!-- TODO: add copy button if kind == text -->
+        <button id="file-popup-copy" type="button" class="btn rounded btn-secondary" disabled><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-copy"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7m0 2.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z" /><path d="M4.012 16.737a2.005 2.005 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1" /></svg> Copy Text</button>
+
+        ${{`process.env.API === "true" ? '<a id="file-info-url-api" href="?info" target="_blank" type="button" class="btn rounded btn-secondary"><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-code"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 8l-4 4l4 4" /><path d="M17 8l4 4l-4 4" /><path d="M14 4l-4 16" /></svg> API</a>' : ''`}}$
+          <a id="file-info-url" type="button" class="btn rounded btn-primary"><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-download"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg> Download</a>
         </div>
       </div>
     </div>
@@ -1102,6 +1114,38 @@ end:
 
   <!-- Powered by https://github.com/adrianschubek/dir-browser -->
   <script data-turbo-eval="false">
+    const copyTextToClipboard = async (text) => {
+      if (typeof text !== 'string' || text.length === 0) return false;
+
+      // Prefer async clipboard API when available (requires secure context).
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+          return true;
+        }
+      } catch (e) {
+        // Fall back below.
+      }
+
+      // HTTP / non-secure fallback using execCommand.
+      try {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.top = '-1000px';
+        textarea.style.left = '-1000px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        textarea.setSelectionRange(0, textarea.value.length);
+        const ok = document.execCommand('copy');
+        document.body.removeChild(textarea);
+        return ok;
+      } catch (e) {
+        return false;
+      }
+    };
+
     $[if `process.env.DATE_FORMAT === "relative"`]$
     function getRelativeTimeString(date, lang = navigator.language) {
       const timeMs = typeof date === "number" ? date : date.getTime();
@@ -1133,11 +1177,11 @@ end:
     $[if `process.env.HASH === "true"`]$
     // via api bc otherwise we need to include the hash in the tree itself which is costly
     const getHashViaApi = async (url) => {
-      await fetch(url)
-        .then(response => response.json())
-        .then(data => {
-          navigator.clipboard.writeText(data.hash_${{`process.env.HASH_ALGO`}}$);
-        });
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('Hash request failed');
+      const data = await res.json();
+      const hash = data.hash_${{`process.env.HASH_ALGO`}}$;
+      await copyTextToClipboard(String(hash ?? ''));
     }
     $[end]$
 
@@ -1542,7 +1586,18 @@ end:
     updateMultiselect((localStorage.getItem("multiSelectMode") ?? false) === "true");
     $[end]$
 
-    $[if `process.env.LAYOUT === "popup" || process.env.LAYOUT === "full"`]$
+    $[if `process.env.LAYOUT === "popup"`]$
+    (() => {
+      const copyBtn = document.querySelector('#file-popup-copy');
+      if (copyBtn && copyBtn.dataset.dbBoundClick !== '1') {
+        copyBtn.dataset.dbBoundClick = '1';
+        copyBtn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          await copyPreviewToClipboard();
+        });
+      }
+    })();
+
     document.querySelectorAll('.db-file').forEach((item) => {
       // skip folders
       if (item.getAttribute('data-file-isdir') === '1') {
