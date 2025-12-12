@@ -86,7 +86,7 @@ const config = {
               path: '/v2',
             },
             "current": {
-              label: 'v3 (latest✅)',
+              label: 'v3/v4 (latest✅)',
               banner: "none",
               path: '/v3',
             },
