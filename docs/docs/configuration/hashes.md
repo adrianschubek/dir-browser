@@ -40,6 +40,10 @@ This feature should not be used to restrict access as the hash is publicly avail
 To protect the file use the [password protection](password.mdx) feature.
 :::
 
+:::danger
+If you are hosting large files (1GB+) hashing them may take a significant amount of time and CPU resources on the server potentially leading to a Denial of Service for other users. Consinder disabling this feature in this case `HASH=false`.
+:::
+
 import EnvConfig from '@site/src/components/EnvConfig';
 
 <!-- <EnvConfig name="HASH" init="true" values="true,false"/> -->
