@@ -526,6 +526,87 @@ if ($path_is_dir) {
   }
   $[end]$
 
+  // Popup preview endpoint (kept separate from API=true)
+  // Returns a small preview + metadata without incrementing download counter.
+  if (isset($_REQUEST["preview"])) {
+    $mime = mime_content_type($local_path) ?? "application/octet-stream";
+    $ext = mb_strtolower(pathinfo($local_path, PATHINFO_EXTENSION));
+
+    $kind = "none";
+    if (str_starts_with($mime, "image/")) {
+      $kind = "image";
+    } elseif (str_starts_with($mime, "video/")) {
+      $kind = "video";
+    } elseif ($mime === "application/json" || $ext === "json") {
+      $kind = "json";
+    } elseif ($mime === "text/csv" || $ext === "csv") {
+      $kind = "csv";
+    } elseif (str_starts_with($mime, "text/") || in_array($ext, ["txt", "log", "md", "yaml", "yml", "ini", "conf", "xml", "html", "css", "js", "ts", "php"])) {
+      $kind = "text";
+    }
+
+    $preview = [
+      "kind" => $kind,
+      "mime" => $mime,
+      "truncated" => false,
+      "text" => null,
+    ];
+
+    // For media we don't inline bytes; client will request ?raw=1.
+    if ($kind === "text" || $kind === "json" || $kind === "csv") {
+      $max_bytes = 128 * 1024;
+      $raw = @file_get_contents($local_path, false, null, 0, $max_bytes + 1);
+      if ($raw === false) {
+        $preview["kind"] = "none";
+      } else {
+        $preview["truncated"] = strlen($raw) > $max_bytes;
+        if ($preview["truncated"]) {
+          $raw = substr($raw, 0, $max_bytes);
+        }
+
+        // Make sure it's safe for JSON encoding.
+        $raw = safe_utf8($raw);
+
+        if ($kind === "json") {
+          $decoded = json_decode($raw);
+          if ($decoded !== null || trim($raw) === "null") {
+            $pretty = json_encode($decoded, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            $preview["text"] = $pretty === false ? $raw : $pretty;
+          } else {
+            // Invalid JSON; fall back to raw text preview.
+            $preview["kind"] = "text";
+            $preview["text"] = $raw;
+          }
+        } else {
+          $preview["text"] = $raw;
+        }
+      }
+    }
+
+    $size = filesize($local_path);
+    $modified_iso = gmdate('Y-m-d\\TH:i:s\\Z', filemtime($local_path));
+
+    $payload = [
+      "url" => $relative_path,
+      "name" => basename($local_path),
+      "mime" => $mime,
+      "size" => $size,
+      "size_human" => human_filesize($size),
+      "modified" => $modified_iso,
+      "downloads" => ${{`process.env.DOWNLOAD_COUNTER === "true" ? "intval($redis->get($relative_path))" : "0"`}}$,
+      "preview" => $preview,
+    ];
+    header("Content-Type: application/json");
+    die(json_encode($payload));
+  }
+
+  // Raw streaming for popup media previews without increasing download counter.
+  if (isset($_REQUEST["raw"])) {
+    header("Content-Type: ");
+    header("X-Accel-Redirect: /__internal_public__" . $relative_path);
+    die();
+  }
+
   $[if `process.env.DOWNLOAD_COUNTER === "true"`]$
   $redis->incr($relative_path);
   $[end]$
@@ -993,16 +1074,22 @@ end:
     </div>
   </div>
 
-  $[if `process.env.LAYOUT === "popup" || process.env.LAYOUT === "full"`]$
-  <div class="modal rounded fade show" style="background-color:rgba(0, 0, 0, 0.2);" id="file-popup" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable">
+  $[if `process.env.LAYOUT === "popup"`]$
+  <div class="modal rounded fade" style="background-color:rgba(0, 0, 0, 0.2);" id="file-popup" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-fullscreen-lg-down modal-lg">
       <div class="modal-content rounded ">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="staticBackdropLabel">Modal title</h1>
           <button type="button" class="btn-close" id="file-popup-x" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          ...
+          <div id="file-popup-preview" class="mb-3">
+            <div class="text-body-secondary">Loading…</div>
+          </div>
+          <div class="border-top pt-2">
+            <div class="fw-semibold mb-2">Metadata</div>
+            <dl class="row mb-0" id="file-popup-meta"></dl>
+          </div>
         </div>
         <div class="modal-footer">
         ${{`process.env.API === "true" ? '<a id="file-info-url-api" href="" type="button" class="btn rounded btn-secondary" data-bs-dismiss="modal">API <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-code"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 8l-4 4l4 4" /><path d="M17 8l4 4l-4 4" /><path d="M14 4l-4 16" /></svg></a>' : ''`}}$
@@ -1243,12 +1330,162 @@ end:
       items.forEach((item) => item.remove());
       sorted.forEach((item) => document.querySelector('#filetree').appendChild(item));
     };
-    $[if `process.env.LAYOUT === "popup" || process.env.LAYOUT === "full"`]$
-      const setFileinfo = (data) => {
+    $[if `process.env.LAYOUT === "popup"`]$
+      const popupState = {
+        preview: {
+          kind: 'none',
+          text: ''
+        },
+        apiInfoUrl: ''
+      };
+
+      const fileUrlWithParam = (urlString, key, value) => {
+        const url = new URL(urlString, window.location.href);
+        url.searchParams.set(key, value);
+        return url.toString();
+      };
+
+      const setMeta = (entries) => {
+        const meta = document.querySelector('#file-popup-meta');
+        meta.innerHTML = '';
+        entries.forEach(({ label, value }) => {
+          const dt = document.createElement('dt');
+          dt.className = 'col-4 text-body-secondary';
+          dt.textContent = label;
+          const dd = document.createElement('dd');
+          dd.className = 'col-8';
+          if (value instanceof Node) {
+            dd.appendChild(value);
+          } else {
+            dd.textContent = String(value ?? '');
+          }
+          meta.appendChild(dt);
+          meta.appendChild(dd);
+        });
+      };
+
+      const updateCopyButton = () => {
+        const btn = document.querySelector('#file-popup-copy');
+        if (!btn) return;
+        const canCopy = (popupState.preview.kind === 'text' || popupState.preview.kind === 'json' || popupState.preview.kind === 'csv')
+          && typeof popupState.preview.text === 'string'
+          && popupState.preview.text.length > 0;
+        btn.disabled = !canCopy;
+      };
+
+      const copyPreviewToClipboard = async () => {
+        await copyTextToClipboard(popupState.preview.text || '');
+      };
+
+      const setPreview = (preview, rawUrl) => {
+        const node = document.querySelector('#file-popup-preview');
+        node.innerHTML = '';
+
+        popupState.preview.kind = preview?.kind ?? 'none';
+        popupState.preview.text = '';
+        updateCopyButton();
+
+        if (!preview || preview.kind === 'none') {
+          const el = document.createElement('div');
+          el.className = 'text-body-secondary';
+          el.textContent = 'No preview available for this file.';
+          node.appendChild(el);
+          return;
+        }
+
+        if (preview.kind === 'image') {
+          const img = document.createElement('img');
+          img.className = 'img-fluid rounded';
+          img.alt = 'Preview';
+          img.src = rawUrl;
+          node.appendChild(img);
+          return;
+        }
+
+        if (preview.kind === 'video') {
+          const video = document.createElement('video');
+          video.className = 'w-100 rounded';
+          video.controls = true;
+          const source = document.createElement('source');
+          source.src = rawUrl;
+          source.type = preview.mime || 'video/mp4';
+          video.appendChild(source);
+          node.appendChild(video);
+          return;
+        }
+
+        const pre = document.createElement('pre');
+        pre.className = 'bg-body-tertiary p-2 rounded small';
+        pre.style.maxHeight = '50vh';
+        pre.style.overflow = 'auto';
+        pre.textContent = preview.text || '';
+        node.appendChild(pre);
+
+        popupState.preview.text = pre.textContent;
+        updateCopyButton();
+
+        if (preview.truncated) {
+          const note = document.createElement('div');
+          note.className = 'text-body-secondary small mt-1';
+          note.textContent = 'Preview truncated.';
+          node.appendChild(note);
+        }
+      };
+
+      const setFileinfo = async (data) => {
         document.querySelector('#file-popup .modal-title').innerText = data.name;
-        document.querySelector("#file-info-url-api").href = data.url + "?info";
-        document.querySelector("#file-info-url").href = data.url;
-        document.querySelector('#file-popup').classList.add("d-block");
+        const apiBtn = document.querySelector('#file-info-url-api');
+        popupState.apiInfoUrl = fileUrlWithParam(data.url, 'info', '');
+        if (apiBtn) apiBtn.href = popupState.apiInfoUrl;
+        document.querySelector('#file-info-url').href = data.url;
+
+        const popup = document.querySelector('#file-popup');
+        popup.classList.add('d-block');
+        popup.classList.add('show');
+
+        const previewNode = document.querySelector('#file-popup-preview');
+        previewNode.innerHTML = '<div class="text-body-secondary">Loading…</div>';
+        setMeta([]);
+
+        try {
+          const previewUrl = fileUrlWithParam(data.url, 'preview', '1');
+          const res = await fetch(previewUrl);
+          if (!res.ok) throw new Error('Preview request failed');
+          const payload = await res.json();
+          const rawUrl = fileUrlWithParam(data.url, 'raw', '1');
+          setPreview(payload.preview, rawUrl);
+
+          const modified = payload.modified ? new Date(payload.modified).toLocaleString() : '';
+          const entries = [
+            { label: 'Size', value: payload.size_human ?? String(payload.size ?? '') },
+            { label: 'Modified', value: modified },
+            { label: 'Downloads', value: String(payload.downloads ?? 0) },
+            { label: 'MIME', value: payload.mime ?? '' },
+          ];
+          $[end]$
+          $[if `process.env.LAYOUT === "popup" && process.env.HASH === "true"`]$
+          // Show hash entry; actual hash is fetched on demand via API.
+          if (typeof getHashViaApi === 'function') {
+            const link = document.createElement('a');
+            link.href = '#';
+            link.className = 'link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover';
+            link.textContent = 'Click to calculate hash';
+            link.addEventListener('click', async (e) => {
+              link.textContent = 'Calculating…';
+              e.preventDefault();
+              if (!popupState.apiInfoUrl) return;
+              await getHashViaApi(popupState.apiInfoUrl);
+              link.textContent = 'Hash copied to clipboard';
+            });
+            entries.push({ label: 'Hash', value: link });
+          }
+          $[end]$
+          $[if `process.env.LAYOUT === "popup"`]$
+
+          setMeta(entries);
+        } catch (err) {
+          previewNode.innerHTML = '<div class="text-danger">Failed to load preview.</div>';
+        }
       }
     $[end]$
   </script>
@@ -1312,13 +1549,15 @@ end:
         return;
       }
       item.addEventListener('click', async (e) => {
+        // If multiselect mode is on, keep existing multiselect behavior.
+        if ((localStorage.getItem("multiSelectMode") ?? "false") === "true") return;
         e.preventDefault();
 
         // only do this on reload click button refreshFileinfo()
         // const data = await fetch(item.href + "?info").then((res) => res.json());
         // alert(JSON.stringify(data, null, 2));
 
-        setFileinfo({
+        await setFileinfo({
           name: item.getAttribute('data-file-name'),
           url: item.href
         });
@@ -1328,10 +1567,12 @@ end:
     document.querySelector('#file-popup').addEventListener('click', (e) => {
       if (e.target === document.querySelector('#file-popup')) {
         document.querySelector('#file-popup').classList.remove("d-block");
+        document.querySelector('#file-popup').classList.remove("show");
       }
     });
     document.querySelector('#file-popup-x').addEventListener('click', (e) => {
       document.querySelector('#file-popup').classList.remove("d-block");
+      document.querySelector('#file-popup').classList.remove("show");
     });
     $[end]$
 
