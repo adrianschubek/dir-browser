@@ -636,23 +636,23 @@ end:
   $[end]$
   <title>Dir Browser - <?= '/' . implode(separator: '/', array: $url_parts) ?></title>
   $[ifeq env:THEME cerulean]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/cerulean/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/cerulean/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
   $[ifeq env:THEME materia]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/materia/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/materia/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
   $[ifeq env:THEME quartz]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/quartz/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/quartz/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
   $[ifeq env:THEME sandstone]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/sandstone/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/sandstone/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
   $[ifeq env:THEME sketchy]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/sketchy/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/sketchy/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
   $[ifeq env:THEME united]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/united/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/united/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
   $[ifeq env:THEME yeti]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/yeti/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/yeti/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
   $[ifeq env:THEME litera]$
-  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/litera/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
+  <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/litera/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
   $[else]$
-  <link href="${{`process.env.THEME_URL !== undefined ? process.env.THEME_URL : "https://cdn.jsdelivr.net/npm/bootswatch@5.3.3/dist/cosmo/bootstrap.min.css"`}}$" rel="stylesheet" data-turbo-eval="false">
+  <link href="${{`process.env.THEME_URL !== undefined ? process.env.THEME_URL : "https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/cosmo/bootstrap.min.css"`}}$" rel="stylesheet" data-turbo-eval="false">
   $[end]$
   $[ifeq env:README_RENDER true]$
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/adrianschubek/dir-browser@3.x/assets/readme/gh.css" data-turbo-eval="false"/>
@@ -1634,7 +1634,7 @@ end:
   </script>
   $[end]$  
   <!-- TODO: remove bundle -->
-  <script data-turbo-eval="false" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script data-turbo-eval="false" src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
   $[if `process.env.JS_URL_ONCE !== undefined`]$
   <script data-turbo-eval="false" src="${{`process.env.JS_URL`}}$"></script>
