@@ -124,7 +124,7 @@ const config = {
       announcementBar: {
         id: 'abar',
         content:
-          '🔥 dir-browser <a href="/v3/intro">v3.0</a> released with tons of new features and fresh UI 🔥',
+          '🔥 dir-browser <a href="/v4/intro">v4.0</a> released with support for password-protected folders 🔐',
         backgroundColor: '#fafbfc',
         textColor: '#091E42',
         isCloseable: true,

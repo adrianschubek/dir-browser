@@ -2,9 +2,9 @@
 sidebar_position: 1
 ---
 
-# 👋 Welcome
+# dir-browser
 
-![](/img/p1.png)
+<!-- ![](/img/p1.png) -->
 <!-- ![](/img/dir-browser.png) -->
 
 ## Demo

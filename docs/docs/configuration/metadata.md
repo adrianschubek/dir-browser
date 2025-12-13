@@ -27,6 +27,10 @@ The `*.dbmeta.json` files are hidden from the user and cannot be viewed.
 If you are looking for the ".dbmeta.**md**" files, see [Readme Rendering](./readme.md).
 :::
 
+:::info Backward Compatibility
+Individual file password protection using metadata files is no longer supported since v4. Use [Folder Passwords](./password.mdx) instead.
+:::
+
 ## Properties
 
 #### Description
