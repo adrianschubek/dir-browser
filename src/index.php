@@ -399,7 +399,7 @@ if ($path_is_dir) {
       ];
     }
     header("Content-Type: application/json");
-    die(json_encode($info));
+    die(json_encode($info, JSON_UNESCAPED_SLASHES));
   }
   $[end]$
 
@@ -531,7 +531,7 @@ if ($path_is_dir) {
       "hash_${{`process.env.HASH_ALGO`}}$" => ${{`process.env.HASH === "true" ? "hash_file('"+process.env.HASH_ALGO+"', $local_path)" : "null"`}}$
     ];
     header("Content-Type: application/json");
-    die(json_encode($info));
+    die(json_encode($info, JSON_UNESCAPED_SLASHES));
   }
   $[end]$
 
