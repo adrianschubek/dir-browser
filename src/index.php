@@ -1206,7 +1206,9 @@ end:
       const data = await res.json();
       const hash = data.hash_${{`process.env.HASH_ALGO`}}$;
       if (hash === null || hash === undefined || String(hash).length === 0) throw new Error('unavailable');
-      await copyTextToClipboard(String(hash ?? ''));
+      const text = String(hash ?? '');
+      await copyTextToClipboard(text);
+      return text;
     }
     $[end]$
 
@@ -1541,7 +1543,7 @@ end:
               const note = document.createElement('span');
               note.className = 'text-body-secondary';
               note.textContent = `Too large to hash (>${HASH_MAX_FILE_SIZE_MB} MB)`;
-              entries.push({ label: 'Hash', value: note });
+              entries.push({ label: 'Hash (${{`process.env.HASH_ALGO`}}$)', value: note });
             } else {
               const link = document.createElement('a');
               link.href = '#';
@@ -1552,13 +1554,13 @@ end:
                 e.preventDefault();
                 if (!popupState.apiInfoUrl) return;
                 try {
-                  await getHashViaApi(popupState.apiInfoUrl);
-                  link.textContent = 'Hash copied to clipboard';
+                  const hash = await getHashViaApi(popupState.apiInfoUrl);
+                  link.textContent = `${hash} (copied to clipboard)`;
                 } catch (err) {
                   link.textContent = err && String(err.message) === 'too_large' ? 'Too large to hash' : 'Hash unavailable';
                 }
               });
-              entries.push({ label: 'Hash', value: link });
+              entries.push({ label: 'Hash (${{`process.env.HASH_ALGO`}}$)', value: link });
             }
           }
           $[end]$
