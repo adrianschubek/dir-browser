@@ -583,6 +583,8 @@ if ($path_is_dir) {
       $kind = "image";
     } elseif (str_starts_with($mime, "video/")) {
       $kind = "video";
+    } elseif (str_starts_with($mime, "audio/") || in_array($ext, ["mp3", "m4a", "aac", "wav", "ogg", "oga", "opus", "flac"])) {
+      $kind = "audio";
     } elseif ($mime === "application/json" || $ext === "json") {
       $kind = "json";
     } elseif ($mime === "text/csv" || $ext === "csv") {
@@ -1482,6 +1484,19 @@ end:
           source.type = preview.mime || 'video/mp4';
           video.appendChild(source);
           node.appendChild(video);
+          return;
+        }
+
+        if (preview.kind === 'audio') {
+          const audio = document.createElement('audio');
+          audio.className = 'w-100';
+          audio.controls = true;
+          audio.preload = 'metadata';
+          const source = document.createElement('source');
+          source.src = rawUrl;
+          source.type = preview.mime || 'audio/mpeg';
+          audio.appendChild(source);
+          node.appendChild(audio);
           return;
         }
 
