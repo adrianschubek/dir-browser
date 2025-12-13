@@ -36,7 +36,6 @@ https://dir-demo.adriansoftware.de
 - Highlight recently updated files
 - Track request timing
 - **arm64** support
-- Works **without JavaScript** enabled
 
 ## Next steps
 
