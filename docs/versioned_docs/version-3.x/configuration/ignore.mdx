@@ -1,0 +1,81 @@
+---
+sidebar_position: 6
+---
+
+# Hide Files & Folders
+
+:::info
+In contrast to using [metadata](./metadata.md) the file or folder is completely hidden/ignored from the filetree, all APIs and cannot be accessed via URL.
+:::
+
+### Ignore patterns
+
+Hide specific files or folders by defining an ignore pattern using regular expressions.
+
+It uses [preg_match](https://www.php.net/manual/en/function.preg-match.php) to match the file path. Pattern matching is case insensitive.
+If a match is found the file/folder will be hidden.
+The path always starts with a `/`, which is the mounted folder.
+
+#### Examples
+
+| Pattern                               | Description                                                      | Hidden                                         | Not Hidden                                     |
+| ------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------- | ---------------------------------------------- |
+| `/\..*`                               | Hide everything starting with a dot `.` like `.env`, `.git`...   | `/foo/.bar`, `/.foo/bar`                       | `/foo/bar`                                     |
+| `^/foo/.*\.txt$`                      | Hide everything in the folder `/foo` ending with `.txt`          | `/foo/abc.txt`                                 | `/foo/abc.md`, `/bar/foo/abc.txt`              |
+| `^/node_modules/`                     | Hide the folder `/node_modules` and its content                  | `/node_modules`                                | `/foo/node_modules`                            |
+| `/node_modules/`                      | Hide the folder `node_modules` and its content at any level      | `/node_modules`, `/foo/node_modules`           | `/node_modules_123`                            |
+| `^/reports/2023.*\.pdf`               | Hide all pdf files in the folder `/reports` starting with `2023` | `/reports/2023-01.pdf`, `/reports/2023-02.pdf` | `/reports/2022-01.pdf`, `/reports/2023-01.txt` |
+| `^/secret/.*\.(jpg\|png)$` | Hide all images deep inside the folder `/secret`                 | `/secret/foo.jpg`, `/secret/bar/abc.png`       | `/secret/foo.png.txt`, `/foo/secret/abc.png`        |
+
+
+You can hide some files and folders by setting the environment variable `IGNORE` to a pattern. By default everything is shown.
+
+<details>
+<summary>Legacy (v1.2 - v3.2) ignore pattern matching</summary>
+
+Patterns are matched against the file name and every parent folder name **individually** not as a path.
+
+For example if you have a file `foo/bar/secret.txt`. This path will be split into an array `['foo', 'bar', 'secret.txt']` and each part will be matched against the pattern. If at any point the pattern matches the name, it will be hidden.
+
+Usecase: Hide everything starting with a dot <kbd>.</kbd> using a `.*` pattern globally at any nesting level. This will hide `/foo/bar/.foobar`, `/.baz`, `/foo/.secret/bar` etc.
+
+It uses [fnmatch](https://www.php.net/manual/en/function.fnmatch.php) to match the pattern.
+
+| Pattern  | Description                            |
+| -------- | -------------------------------------- |
+| `*`      | Matches everything (including nothing) |
+| `?`      | Matches any single character           |
+| `[seq]`  | Matches any character in seq           |
+| `[!seq]` | Matches any character not in seq       |
+
+- pattern `foo` will hide the file `foo/bar/secret.txt` because `foo` matches the first array element `foo`.
+- pattern `*bar*` will hide the file `foo/bar/secret.txt` because `*bar*` matches the second array element `bar`.
+- pattern `*.txt` will hide the file `foo/bar/secret.txt` because `*.txt` matches the third array element `secret.txt`.
+
+#### Examples
+
+- `*[ab].txt` hides all files or folder ending with either `a.txt` or `b.txt`.
+
+- `.*` hides all files or folder starting with a dot <kbd>.</kbd>
+
+- `[a-zA-Z0-9]*` hides all files or folder starting with a letter or number.
+
+- `[!a-zA-Z0-9]*` hides all files or folder not starting with a letter or number.
+
+- `report-???.pdf` hides `report-001.pdf`, `report-123.pdf` but not `report-1.pdf`.
+
+</details>
+
+### Multiple patterns
+
+You can specify multiple patterns and seperate them using a `;`. If any of the patterns matches, the file or folder will be hidden.
+
+import EnvConfig from "@site/src/components/EnvConfig";
+
+<EnvConfig
+  name="IGNORE"
+  init="<empty>"
+  values="<patterns>"
+  versions="1.2"
+  desc="changed to regex instead of fnmatch in v3.3"
+/>
