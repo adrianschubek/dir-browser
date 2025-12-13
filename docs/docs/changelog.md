@@ -5,6 +5,25 @@ sidebar_position: 1.5
 
 All notable changes to this project will be documented in this file.
 
+## [4.1.0] - 2025-12-13
+
+### 🚀 Features
+
+- Add max file size limit for hashing functionality ([621dd96](https://github.com/adrianschubek/dir-browser/commit/621dd96391724d0567ed2f2653473b33885df0d5))
+- Show generated hash and used algo ([004b02b](https://github.com/adrianschubek/dir-browser/commit/004b02bbb6060e8b64c307fb6154eeb3d9678658))
+- Add audio preview ([3a992da](https://github.com/adrianschubek/dir-browser/commit/3a992daa62702e3ae960227450d2897d7087a593))
+- Add folder password protection. fixes #30 ([80a543e](https://github.com/adrianschubek/dir-browser/commit/80a543e89aeaef0130ad4bd6349ce1946319ae02))
+
+### 🐛 Bug Fixes
+
+- Dont escape forward slashes in url field in API ([d4d6b00](https://github.com/adrianschubek/dir-browser/commit/d4d6b004b367260d0eb4f2dff1f5e997105eec51))
+
+### 📚 Documentation
+
+- Add warning about performance impact of hashing large files ([66e7d1e](https://github.com/adrianschubek/dir-browser/commit/66e7d1ebee7d549c9dda2886528103f90399aee9))
+- Freeze v3 docs ([8536f4b](https://github.com/adrianschubek/dir-browser/commit/8536f4bf7f61ea55796efd3c888702cccc6310f3))
+- Prepare v4 ([d721beb](https://github.com/adrianschubek/dir-browser/commit/d721beb3b2e8840a0773a0a1e796ede4800168a9))
+
 ## [4.0.0] - 2025-12-12
 
 ### 🚀 Features
