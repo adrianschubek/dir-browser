@@ -1,3 +1,3 @@
 {
-  "password_hash": "$2y$10$kwS/gp3aGLQ.DqUNhiqiPe1HDBN4mYlyfd06DIC/157L9WAaWngIy"
+  "description": "(legacy) password protection moved to .access.json"
 }

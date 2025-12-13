@@ -36,6 +36,214 @@ function human_filesize($bytes, $decimals = 2): string
   return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$sz[$factor] . "B";
 }
 
+function normalize_user_path(string $user_path): string
+{
+  $path = rawurldecode(parse_url($user_path, PHP_URL_PATH) ?? '');
+  if ($path === '') return '/';
+  if ($path[0] !== '/') $path = '/' . $path;
+  return $path;
+}
+
+function is_access_config_file_path(string $path): bool
+{
+  return basename($path) === '.access.json';
+}
+
+function request_access_key(): ?string
+{
+  // Header takes precedence for API clients.
+  if (isset($_SERVER['HTTP_X_KEY']) && is_string($_SERVER['HTTP_X_KEY']) && $_SERVER['HTTP_X_KEY'] !== '') {
+    return $_SERVER['HTTP_X_KEY'];
+  }
+
+  // UI unlock form submits via POST.
+  if (isset($_POST['key']) && is_string($_POST['key']) && $_POST['key'] !== '') {
+    return $_POST['key'];
+  }
+
+  // Cookie-based auth for browser sessions.
+  if (isset($_COOKIE['dir_browser_key']) && is_string($_COOKIE['dir_browser_key']) && $_COOKIE['dir_browser_key'] !== '') {
+    return $_COOKIE['dir_browser_key'];
+  }
+
+  // Legacy support (not promoted): allow ?key=... but we will redirect to a clean URL.
+  if (isset($_GET['key']) && is_string($_GET['key']) && $_GET['key'] !== '') {
+    return $_GET['key'];
+  }
+
+  return null;
+}
+
+function set_auth_cookie(string $key): void
+{
+  $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+  $path = '${{`process.env.BASE_PATH ?? ''`}}$';
+  if ($path === '') $path = '/';
+  // Cookie is httpOnly to avoid leaking via JS.
+  setcookie('dir_browser_key', $key, [
+    'expires' => time() + 60 * 60 * 24 * 30,
+    'path' => $path,
+    'secure' => $secure,
+    'httponly' => true,
+    'samesite' => 'Lax',
+  ]);
+}
+
+function redirect_without_key_param(): void
+{
+  $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
+  $query = [];
+  parse_str(parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY) ?? '', $query);
+  unset($query['key']);
+  $qs = http_build_query($query);
+  header('Location: ' . $path . ($qs !== '' ? ('?' . $qs) : ''));
+  http_response_code(303);
+  die();
+}
+
+/**
+ * Read a .access.json file from a directory.
+ * Returns an associative array with only keys that were explicitly set.
+ * Supported keys: password_hash (string), password_raw (string), hidden (bool), inherit (bool)
+ */
+function read_access_config(string $dir): ?array
+{
+  static $cache = [];
+  if (isset($cache[$dir])) return $cache[$dir] ?: null;
+  $path = rtrim($dir, '/') . '/.access.json';
+  if (!is_file($path)) {
+    $cache[$dir] = false;
+    return null;
+  }
+
+  $raw = @file_get_contents($path);
+  if ($raw === false) {
+    $cache[$dir] = false;
+    return null;
+  }
+
+  $json = json_decode($raw, true);
+  if (!is_array($json)) {
+    $cache[$dir] = false;
+    return null;
+  }
+
+  $cfg = [];
+  if (array_key_exists('password_hash', $json) && is_string($json['password_hash']) && $json['password_hash'] !== '') {
+    $cfg['password_hash'] = $json['password_hash'];
+  }
+  if (array_key_exists('password_raw', $json) && is_string($json['password_raw']) && $json['password_raw'] !== '') {
+    $cfg['password_raw'] = $json['password_raw'];
+  }
+  if (array_key_exists('hidden', $json)) {
+    $cfg['hidden'] = (bool) $json['hidden'];
+  }
+  if (array_key_exists('inherit', $json)) {
+    $cfg['inherit'] = (bool) $json['inherit'];
+  }
+
+  $cache[$dir] = $cfg;
+  return $cfg;
+}
+
+/**
+ * Compute effective access config for a directory by evaluating .access.json
+ * in the directory and all its parents up to PUBLIC_FOLDER.
+ *
+ * Rules:
+ * - Current directory config always applies.
+ * - Parent configs apply only if their inherit=true (default true when unspecified).
+ * - Child configs override parent configs.
+ */
+function effective_access_for_dir(string $dir): array
+{
+  static $effectiveCache = [];
+  if (isset($effectiveCache[$dir])) return $effectiveCache[$dir];
+
+  $chain = [];
+  $cursor = $dir;
+  while (true) {
+    $cfg = read_access_config($cursor);
+    if ($cfg !== null) {
+      $chain[] = ['dir' => $cursor, 'cfg' => $cfg];
+    }
+    if ($cursor === PUBLIC_FOLDER) break;
+    $parent = dirname($cursor);
+    if ($parent === $cursor || !str_starts_with($parent, PUBLIC_FOLDER)) break;
+    $cursor = $parent;
+  }
+
+  $chain = array_reverse($chain);
+
+  $effective = [
+    'hidden' => false,
+    'requires_password' => false,
+  ];
+
+  foreach ($chain as $entry) {
+    $cfgDir = $entry['dir'];
+    $cfg = $entry['cfg'];
+
+    $applies = ($cfgDir === $dir) || (($cfg['inherit'] ?? true) === true);
+    if (!$applies) continue;
+
+    if (array_key_exists('hidden', $cfg)) {
+      $effective['hidden'] = (bool) $cfg['hidden'];
+    }
+
+    // Password: child overrides parent.
+    if (array_key_exists('password_hash', $cfg)) {
+      $effective['password_hash'] = $cfg['password_hash'];
+      unset($effective['password_raw']);
+    }
+    if (!array_key_exists('password_hash', $cfg) && array_key_exists('password_raw', $cfg)) {
+      $effective['password_raw'] = $cfg['password_raw'];
+      unset($effective['password_hash']);
+    }
+  }
+
+  $effective['requires_password'] = isset($effective['password_hash']) || isset($effective['password_raw']);
+  $effectiveCache[$dir] = $effective;
+  return $effective;
+}
+
+function access_key_authorized(array $effective, ?string $key): bool
+{
+  if (!($effective['requires_password'] ?? false)) return true;
+  if ($key === null || $key === '') return false;
+  if (isset($effective['password_hash'])) {
+    return password_verify($key, $effective['password_hash']);
+  }
+  if (isset($effective['password_raw'])) {
+    return hash_equals((string) $effective['password_raw'], (string) $key);
+  }
+  return false;
+}
+
+/**
+ * Evaluate access status for a local filesystem path (file or directory).
+ * - hidden: if true, resource should behave as not found.
+ * - requires_password: if true and not authorized, resource should require unlock.
+ */
+function access_status_for_local_path(string $local_path, bool $includeProtected = false): array
+{
+  $dir = is_dir($local_path) ? $local_path : dirname($local_path);
+  $effective = effective_access_for_dir($dir);
+  $key = request_access_key();
+
+  $authorized = access_key_authorized($effective, $key);
+  if ($includeProtected) {
+    // For search indexing: allow returning protected URLs, but still respect hidden.
+    $authorized = true;
+  }
+
+  return [
+    'hidden' => (bool) ($effective['hidden'] ?? false),
+    'requires_password' => (bool) ($effective['requires_password'] ?? false),
+    'authorized' => $authorized,
+  ];
+}
+
 function numsize($size, $round = 2)
 {
   if ($size === 0) return '0';
@@ -95,6 +303,8 @@ class File
   public string $modified_date;
   public int $dl_count = 0;
   public ?object $meta;
+  public bool $auth_required = false;
+  public bool $auth_locked = false;
 
   public function __toString(): string
   {
@@ -132,8 +342,14 @@ function hidden(string $path): bool {
  * @return string|false path if available, false if not
  */
 function available(string $user_path, bool $includeProtected = false): string | false {
+  $user_path = normalize_user_path($user_path);
+  if (is_access_config_file_path($user_path)) return false;
   $path = realpath(PUBLIC_FOLDER . $user_path);
   if ($path === false || !str_starts_with($path, PUBLIC_FOLDER) || hidden($path)) return false;
+  // Folder-level access control via .access.json
+  $access = access_status_for_local_path($path, $includeProtected);
+  if ($access['hidden']) return false;
+  if (!$includeProtected && $access['requires_password'] && !$access['authorized']) return false;
   $[if `process.env.METADATA === "true"`]$
   if (str_contains($path, ".dbmeta.")) return false;
   $meta_file = realpath($path . '.dbmeta.json');
@@ -142,8 +358,6 @@ function available(string $user_path, bool $includeProtected = false): string | 
     if (!isset($meta)) return true;
     // hidden check
     if (isset($meta->hidden) && $meta->hidden === true) return false;
-    // if password or password_hash set reject 
-    if (!$includeProtected && (isset($meta->password) || isset($meta->password_hash))) return false;
   }
   $[end]$
   return $path;
@@ -197,11 +411,21 @@ function globalsearch(string $query, string $root_folder, string $engine): array
     if ($found_counter >= ${{`process.env.SEARCH_MAX_RESULTS`}}$) break;
     if (($path = available(substr($path, strlen(PUBLIC_FOLDER)), true)) !== false) {
       // only paths are returned due to performance reasons
+      $is_dir = is_dir($path);
+      $auth_locked = false;
+      $auth_required = false;
+      if ($is_dir) {
+        $a = access_status_for_local_path($path);
+        $auth_required = (bool) $a['requires_password'];
+        $auth_locked = $auth_required && !$a['authorized'];
+      }
       $search_results[] = [
         "url" => substr($path, strlen(PUBLIC_FOLDER)),
         // strip base path from url
         "name" => substr($path, strlen($root_folder) + 1 /* slash */),
-        "is_dir" => is_dir($path),
+        "is_dir" => $is_dir,
+        "auth_required" => $auth_required,
+        "auth_locked" => $auth_locked,
       ];
       $found_counter++;
       // $file_size = filesize($path);
@@ -227,6 +451,15 @@ function globalsearch(string $query, string $root_folder, string $engine): array
 $[if `process.env.SEARCH === "true"`]$
 // global search api
 if (isset($_REQUEST["q"]) && isset($_REQUEST["e"]) && $path_is_dir) {
+  $access = access_status_for_local_path($local_path);
+  if ($access['hidden']) {
+    http_response_code(404);
+    die("Not found");
+  }
+  if ($access['requires_password'] && !$access['authorized']) {
+    http_response_code(401);
+    die("Authentication required");
+  }
   $search = $_REQUEST["q"];
   $engine = $_REQUEST["e"];
   if ($search === "") {
@@ -304,6 +537,34 @@ if ($path_is_dir) {
     goto skip; /* Folder should be ignored so skip to 404 */
   }  
 
+  // Folder access control (.access.json)
+  $access = access_status_for_local_path($local_path);
+  if ($access['hidden']) {
+    $path_is_dir = false;
+    goto skip;
+  }
+  if ($access['requires_password']) {
+    if ($access['authorized']) {
+      // Persist in cookie if user supplied a key via POST or legacy ?key.
+      $k = request_access_key();
+      if ($k !== null && ($k !== ($_COOKIE['dir_browser_key'] ?? null)) && (isset($_POST['key']) || isset($_GET['key']))) {
+        set_auth_cookie($k);
+      }
+      // PRG pattern: after successful POST (or legacy ?key), redirect to clean URL without key.
+      if (isset($_POST['key']) || isset($_GET['key'])) {
+        redirect_without_key_param();
+      }
+    } else {
+      http_response_code(401);
+      define('AUTH_REQUIRED', true);
+      define('AUTH_RESOURCE', 'folder');
+      if (isset($_POST['key']) && is_string($_POST['key']) && $_POST['key'] !== '') {
+        define('AUTH_ERROR', true);
+      }
+      goto end;
+    }
+  }
+
   $sorted_files = [];
   $sorted_folders = [];
   
@@ -337,12 +598,24 @@ if ($path_is_dir) {
     $url = substr($path, strlen(PUBLIC_FOLDER));
 
     // Skip hidden files or metadata files
-    if (hidden($url) $[if `process.env.METADATA === "true"`]$ || str_contains($filename, ".dbmeta.")$[end]$) {
+    if ($filename === '.access.json' || hidden($url) $[if `process.env.METADATA === "true"`]$ || str_contains($filename, ".dbmeta.")$[end]$) {
       continue;
     }
 
     $is_dir = $fileinfo->isDir();
     $meta = null; // Reset meta
+
+    // Folder access state for UI
+    $auth_required = false;
+    $auth_locked = false;
+    if ($is_dir) {
+      $childAccess = access_status_for_local_path($path);
+      if ($childAccess['hidden']) {
+        continue;
+      }
+      $auth_required = (bool) $childAccess['requires_password'];
+      $auth_locked = $auth_required && !$childAccess['authorized'];
+    }
 
     $[if `process.env.METADATA === "true"`]$
     $meta_file_path = $path . '.dbmeta.json';
@@ -367,6 +640,8 @@ if ($path_is_dir) {
     $item->is_dir = $is_dir;
     $item->modified_date = gmdate('Y-m-d\TH:i:s\Z', $fileinfo->getMTime());
     $item->meta = $meta;
+    $item->auth_required = $auth_required;
+    $item->auth_locked = $auth_locked;
 
     if ($is_dir) {
       $sorted_folders[] = $item;
@@ -499,28 +774,38 @@ if ($path_is_dir) {
     goto skip; /* File should be ignored so skip to 404 */
   }
 
+  if (is_access_config_file_path($relative_path)) {
+    goto skip;
+  }
+
+  // Folder access control (.access.json)
+  $access = access_status_for_local_path($local_path);
+  if ($access['hidden']) {
+    goto skip;
+  }
+  if ($access['requires_password']) {
+    if ($access['authorized']) {
+      $k = request_access_key();
+      if ($k !== null && ($k !== ($_COOKIE['dir_browser_key'] ?? null)) && (isset($_POST['key']) || isset($_GET['key']))) {
+        set_auth_cookie($k);
+      }
+      if (isset($_POST['key']) || isset($_GET['key'])) {
+        redirect_without_key_param();
+      }
+    } else {
+      http_response_code(401);
+      define('AUTH_REQUIRED', true);
+      define('AUTH_RESOURCE', 'file');
+      if (isset($_POST['key']) && is_string($_POST['key']) && $_POST['key'] !== '') {
+        define('AUTH_ERROR', true);
+      }
+      goto end;
+    }
+  }
+
   $[if `process.env.METADATA === "true"`]$
   // skip if file is .dbmeta.
   if (str_contains($local_path, ".dbmeta.")) goto skip;
-
-  // check if password proteced
-  if (file_exists($local_path . '.dbmeta.json')) {
-    $meta = json_decode(file_get_contents($local_path . '.dbmeta.json'));
-    if (isset($meta->password_hash)) {
-      if (!isset($_REQUEST["key"]) || !password_verify($_REQUEST["key"], $meta->password_hash)) {
-        http_response_code(401);
-        define('AUTH_REQUIRED', true);
-        goto end;
-      }
-    }
-    if (isset($meta->password)) {
-      if (!isset($_REQUEST["key"]) || $_REQUEST["key"] !== $meta->password) { // allows get and post reqeusts
-        http_response_code(401);
-        define('AUTH_REQUIRED', true);
-        goto end;
-      }
-    }
-  }
   $[end]$
 
   $[if `process.env.HASH`]$
@@ -872,11 +1157,14 @@ end:
     <?php if (defined("AUTH_REQUIRED")) { ?>
       <div class="card rounded  m-auto" style="max-width: 500px;">
         <div class="card-body">
-          <h4 class="alert-heading key-icon">Protected file</h4>
-          <p class="mb-2">Please enter the password to access this file.</p>
-          <form method="post">
+          <h4 class="alert-heading key-icon"><?= (defined('AUTH_RESOURCE') && AUTH_RESOURCE === 'folder') ? 'Protected folder' : 'Protected file' ?></h4>
+          <p class="mb-2">Please enter the password to access this content.</p>
+          <?php if (defined('AUTH_ERROR')) { ?>
+            <div class="alert alert-danger py-2" role="alert">Incorrect password.</div>
+          <?php } ?>
+          <form method="post" data-turbo="false">
             <input autofocus type="password" class="form-control mb-2 rounded" id="key" name="key" required>
-            <button type="submit" class="btn rounded btn-primary key-icon form-control">Continue</button>
+            <button type="submit" class="btn rounded btn-primary key-icon form-control">Unlock</button>
           </form>
         </div>
       </div>
@@ -971,7 +1259,7 @@ end:
           $fileDate = new DateTime($file->modified_date);
           $diff = $now->diff($fileDate)->days;
         ?>
-        <a data-turbo-prefetch="<?= $file->is_dir ? "${{env:PREFETCH_FOLDERS}}$" : "${{env:PREFETCH_FILES}}$" ?>" data-turbo-action="advance" data-file-selected="0" data-file-isdir="<?= $file->is_dir ? "1" : "0" ?>" data-file-name="<?= $file->name ?>" data-file-dl="$[if `process.env.DOWNLOAD_COUNTER === "true"`]$<?= $file->dl_count ?>$[end]$" data-file-size="<?= $file->size ?>" data-file-mod="<?= $file->modified_date ?>"  href="${{`process.env.BASE_PATH ?? ''`}}$<?= $file->url ?><?= /* extra slash for dirs */ $file->is_dir ? "/" : "" ?>" class="row db-row py-2 db-file">
+        <a data-turbo-prefetch="<?= $file->is_dir ? "${{env:PREFETCH_FOLDERS}}$" : "${{env:PREFETCH_FILES}}$" ?>" data-turbo-action="advance" data-file-selected="0" data-file-isdir="<?= $file->is_dir ? "1" : "0" ?>" data-auth-required="<?= ($file->is_dir && $file->auth_required) ? "1" : "0" ?>" data-auth-locked="<?= ($file->is_dir && $file->auth_locked) ? "1" : "0" ?>" data-file-name="<?= $file->name ?>" data-file-dl="$[if `process.env.DOWNLOAD_COUNTER === "true"`]$<?= $file->dl_count ?>$[end]$" data-file-size="<?= $file->size ?>" data-file-mod="<?= $file->modified_date ?>"  href="${{`process.env.BASE_PATH ?? ''`}}$<?= $file->url ?><?= /* extra slash for dirs */ $file->is_dir ? "/" : "" ?>" class="row db-row py-2 db-file">
           <div class="col col-auto multiselect" style="display:none">
             <input class="form-check-input" style="padding:5px;pointer-events:none" type="checkbox" aria-label="..." />
           </div>
@@ -1013,11 +1301,7 @@ end:
                   <span class="badge bg-<?= $l[0] ?>"><?= $l[1] ?></span>
             <?php
                 }
-                if ($file->meta->password !== null || $file->meta->password_hash !== null) {
-            ?>
-              <span title="Password protected" class="key-icon"></span>
-            <?php
-                }
+                // per-file password protection via .dbmeta.json was removed in favor of folder-level .access.json
               }
             ?>
             </div>
@@ -1130,6 +1414,26 @@ end:
   </div>
   $[end]$
 
+  <!-- Password auth popup for protected folders (keeps full-page prompt as fallback) -->
+  <div class="modal rounded fade" style="background-color:rgba(0, 0, 0, 0.2);" id="auth-popup" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-fullscreen-sm-down" style="max-width: 520px;">
+      <div class="modal-content rounded ">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="auth-popup-title">Protected folder</h1>
+          <button type="button" class="btn-close" id="auth-popup-x" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="text-body-secondary mb-2">Enter the password to access this folder.</div>
+          <div class="alert alert-danger py-2 d-none" id="auth-popup-error" role="alert">Incorrect password.</div>
+          <form id="auth-popup-form" data-turbo="false">
+            <input type="password" class="form-control mb-2 rounded" id="auth-popup-key" name="key" autocomplete="current-password" required>
+            <button type="submit" class="btn rounded btn-primary key-icon form-control" id="auth-popup-submit">Unlock</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Powered by https://github.com/adrianschubek/dir-browser -->
   <script data-turbo-eval="false">
     const copyTextToClipboard = async (text) => {
@@ -1222,12 +1526,20 @@ end:
       form.method = 'POST';
       form.action = '${{`process.env.BASE_PATH ?? ''`}}$';
       form.style.display = 'none';
+      const basePath = '${{`process.env.BASE_PATH ?? ''`}}$';
       document.querySelectorAll('.db-file').forEach((file) => {
         if ((all || file.getAttribute('data-file-selected') === "1") && file.getAttribute('data-file-name') !== "..") {
           const input = document.createElement('input');
           input.type = 'hidden';
           input.name = 'download_batch[]';
-          input.value = file.getAttribute('href');
+          // Always send just the path (relative to dir-browser PUBLIC_FOLDER), without BASE_PATH and without query params.
+          const href = file.getAttribute('href');
+          const url = new URL(href, window.location.origin);
+          let path = url.pathname;
+          if (basePath && path.startsWith(basePath)) {
+            path = path.slice(basePath.length) || '/';
+          }
+          input.value = path;
           form.appendChild(input);          
         }
       });
@@ -1314,6 +1626,10 @@ end:
       item.classList.add('list-group-item', 'list-group-item-action', 'db-file');
       item.href = "${{`process.env.BASE_PATH ?? ''`}}$" + result.url;
       item.setAttribute('data-file-isdir', result.is_dir);
+      if (result.is_dir) {
+        item.setAttribute('data-auth-required', result.auth_required ? '1' : '0');
+        item.setAttribute('data-auth-locked', result.auth_locked ? '1' : '0');
+      }
       // TODO
       // item.setAttribute('data-file-name', result.name);
       // item.setAttribute('data-file-dl', result.dl);
@@ -1370,6 +1686,110 @@ end:
       }
     };
     $[end]$
+
+    // Auth popup for protected folders
+    const authPopupState = {
+      targetUrl: '',
+      title: 'Protected folder'
+    };
+
+    const showAuthPopup = (url, title) => {
+      authPopupState.targetUrl = url;
+      authPopupState.title = title || 'Protected folder';
+      const popup = document.querySelector('#auth-popup');
+      const titleNode = document.querySelector('#auth-popup-title');
+      const keyInput = document.querySelector('#auth-popup-key');
+      const err = document.querySelector('#auth-popup-error');
+      const submit = document.querySelector('#auth-popup-submit');
+      if (!popup) return;
+      if (titleNode) titleNode.textContent = authPopupState.title;
+      if (err) err.classList.add('d-none');
+      if (submit) submit.disabled = false;
+      if (keyInput) keyInput.value = '';
+
+      popup.classList.add('d-block');
+      popup.classList.add('show');
+      setTimeout(() => keyInput?.focus(), 50);
+    };
+
+    const hideAuthPopup = () => {
+      const popup = document.querySelector('#auth-popup');
+      if (!popup) return;
+      popup.classList.remove('d-block');
+      popup.classList.remove('show');
+    };
+
+    document.addEventListener('click', (e) => {
+      const a = e.target?.closest ? e.target.closest('a.db-file') : null;
+      if (!a) return;
+      // Only for folders that are locked.
+      if (a.getAttribute('data-file-isdir') !== '1') return;
+      if (a.getAttribute('data-auth-locked') !== '1') return;
+      // If multiselect mode is on, keep existing multiselect behavior.
+      if ((localStorage.getItem('multiSelectMode') ?? 'false') === 'true') return;
+      e.preventDefault();
+      const name = a.getAttribute('data-file-name') || 'Protected folder';
+      showAuthPopup(a.href, name);
+    });
+
+    // Delegated handlers (survive Turbo navigation / DOM swaps)
+    document.addEventListener('click', (e) => {
+      const t = e.target;
+      if (!t) return;
+      if (t.id === 'auth-popup-x') {
+        e.preventDefault();
+        hideAuthPopup();
+        return;
+      }
+      if (t.id === 'auth-popup') {
+        hideAuthPopup();
+        return;
+      }
+    });
+
+    document.addEventListener('submit', async (e) => {
+      const form = e.target;
+      if (!form || form.id !== 'auth-popup-form') return;
+      e.preventDefault();
+
+      const keyInput = document.querySelector('#auth-popup-key');
+      const err = document.querySelector('#auth-popup-error');
+      const submit = document.querySelector('#auth-popup-submit');
+      const key = keyInput?.value ?? '';
+      if (err) {
+        err.textContent = 'Incorrect password.';
+        err.classList.add('d-none');
+      }
+      if (!authPopupState.targetUrl) return;
+      if (!key || key.length === 0) return;
+
+      try {
+        if (submit) submit.disabled = true;
+        const res = await fetch(authPopupState.targetUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+          body: 'key=' + encodeURIComponent(key),
+          credentials: 'same-origin',
+        });
+
+        if (res.status === 401) {
+          if (err) err.classList.remove('d-none');
+          if (submit) submit.disabled = false;
+          keyInput?.focus();
+          keyInput?.select();
+          return;
+        }
+
+        // Success: cookie should be set; navigate normally.
+        window.location.href = authPopupState.targetUrl;
+      } catch (ex) {
+        if (err) {
+          err.textContent = 'Authentication failed. Please try again.';
+          err.classList.remove('d-none');
+        }
+        if (submit) submit.disabled = false;
+      }
+    });
 
     const sortElements = (key, elems) => elems.sort((a, b) => {
       const aVal = a.getAttribute(`data-file-${key}`);

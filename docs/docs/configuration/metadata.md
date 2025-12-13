@@ -19,11 +19,9 @@ The `*.dbmeta.json` files are hidden from the user and cannot be viewed.
   "description": "A short project description ⭐",
   "labels": ["danger:Laravel", "primary:PHP 8", "dark:Hot 🔥"],
   "hidden": false,
-  "password": "mysecurepassword",
   "hash_required": false
 }
 ```
-<!-- TODO: "password": "mysecurepassword" -->
 
 :::info
 If you are looking for the ".dbmeta.**md**" files, see [Readme Rendering](./readme.md).
@@ -61,15 +59,9 @@ Labels must not contain a semicolon `;`.
 The file can still be accessed via URL directly. If you want to ignore it completely, consider using an [IGNORE](./ignore.mdx) pattern.
 :::
 
-If set to `true`, the file or folder is hidden from the file tree. Can be combined with password protection.
+If set to `true`, the file or folder is hidden from the file tree.
 
 > Default is `false`.
-
-#### Password
-
-See [Password Protection](password.mdx).
-
-> Default is empty.
 
 #### Hash Required
 

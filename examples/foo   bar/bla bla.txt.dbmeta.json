@@ -1,6 +1,5 @@
 {
-  "password": "foobar",
-  "hidden": "false",
+  "hidden": false,
   "description": "Cool description",
   "labels": ["success:Foo", "secondary:Bar", "danger:Foobar"]
 }
