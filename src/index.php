@@ -81,10 +81,10 @@ function set_auth_cookie(string $key): void
   if ($path === '') $path = '/';
   // Cookie is httpOnly to avoid leaking via JS.
   setcookie('dir_browser_key', $key, [
-    'expires' => time() + 60 * 60 * 24 * 30,
+    'expires' => time() + ${{`process.env.AUTH_COOKIE_LIFETIME`}}$,
     'path' => $path,
     'secure' => $secure,
-    'httponly' => true,
+    'httponly' => ${{`process.env.AUTH_COOKIE_HTTPONLY`}}$,
     'samesite' => 'Lax',
   ]);
 }
