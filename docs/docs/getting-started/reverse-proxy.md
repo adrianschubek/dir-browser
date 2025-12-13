@@ -3,7 +3,7 @@ sidebar_position: 2
 ---
 # Reverse Proxy
 
-For production use, you should use a reverse proxy like [nginx](https://nginx.org/), [traefik](https://traefik.io/traefik/) or [Apache](https://httpd.apache.org/) to serve the directory browser. This has many advantages, like SSL support, caching and more.
+For production, put dir-browser behind a reverse proxy like [nginx](https://nginx.org/), [traefik](https://traefik.io/traefik/) or [Apache](https://httpd.apache.org/). This gives you TLS termination, central logging, and optional caching.
 
 Here are some basic configurations for different reverse proxies. You may need to adjust them to your needs.
 
@@ -53,12 +53,12 @@ server {
 </details>
 
 ### Subfolder/Different basepath
-Since version 1.3.3 you can deploy the application to a different basepath/subfolder e.g. `/foobar/` and all links, files and folders will be relative to this path.
+You can deploy the application under a subpath (base path), for example `/foobar/`. All internal links and API requests will be generated relative to that base path.
 
-Set the `BASE_PATH` environment variable to the subfolder you want to deploy the application to. For example:
+Set the `BASE_PATH` environment variable to your subpath (without the trailing slash). For example:
 
 ```bash
-docker run -d -p 8080:80 -e BASE_PATH="/foobar" -v /my/local/folder:/var/www/html/public:ro -v rdb:/var/lib/redis/ -it adrianschubek/dir-browser
+docker run -d -p 8080:80 -e BASE_PATH="/foobar" -v /my/local/folder:/var/www/html/public:ro -v rdb:/var/lib/redis/ -it adrianschubek/dir-browser:latest
 ```
 
 <!-- import EnvConfig from '@site/src/components/EnvConfig';

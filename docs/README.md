@@ -1,16 +1,22 @@
 # Website
 
-This website is built using [Docusaurus 2](https://docusaurus.io/), a modern static website generator.
+This documentation site is built with [Docusaurus](https://docusaurus.io/).
+
+Prerequisites:
+- Node.js (see the required version in `docs/package.json`)
+- A package manager (this repo uses Yarn in the examples)
 
 ### Installation
 
 ```
+$ cd docs
 $ yarn
 ```
 
 ### Local Development
 
 ```
+$ cd docs
 $ yarn start
 ```
 
@@ -19,6 +25,7 @@ This command starts a local development server and opens up a browser window. Mo
 ### Build
 
 ```
+$ cd docs
 $ yarn build
 ```
 

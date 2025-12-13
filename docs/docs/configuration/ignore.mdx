@@ -10,22 +10,26 @@ In contrast to using [metadata](./metadata.md) the file or folder is completely 
 
 ### Ignore patterns
 
-Hide specific files or folders by defining an ignore pattern using regular expressions.
+Hide specific files or folders by defining ignore patterns as regular expressions.
 
-It uses [preg_match](https://www.php.net/manual/en/function.preg-match.php) to match the file path. Pattern matching is case insensitive.
-If a match is found the file/folder will be hidden.
+Internally, each pattern is evaluated against the full file path using [preg_match](https://www.php.net/manual/en/function.preg-match.php). Matching is case-insensitive.
+If any pattern matches, the file/folder will be hidden.
+
+Notes:
+- The path always starts with `/`, which is the mounted folder.
+- Patterns are wrapped as `#<pattern>#im` internally. Avoid using `#` in patterns.
 The path always starts with a `/`, which is the mounted folder.
 
 #### Examples
 
-| Pattern                               | Description                                                      | Hidden                                         | Not Hidden                                     |
-| ------------------------------------- | ---------------------------------------------------------------- | ---------------------------------------------- | ---------------------------------------------- |
-| `/\..*`                               | Hide everything starting with a dot `.` like `.env`, `.git`...   | `/foo/.bar`, `/.foo/bar`                       | `/foo/bar`                                     |
-| `^/foo/.*\.txt$`                      | Hide everything in the folder `/foo` ending with `.txt`          | `/foo/abc.txt`                                 | `/foo/abc.md`, `/bar/foo/abc.txt`              |
-| `^/node_modules/`                     | Hide the folder `/node_modules` and its content                  | `/node_modules`                                | `/foo/node_modules`                            |
-| `/node_modules/`                      | Hide the folder `node_modules` and its content at any level      | `/node_modules`, `/foo/node_modules`           | `/node_modules_123`                            |
-| `^/reports/2023.*\.pdf`               | Hide all pdf files in the folder `/reports` starting with `2023` | `/reports/2023-01.pdf`, `/reports/2023-02.pdf` | `/reports/2022-01.pdf`, `/reports/2023-01.txt` |
-| `^/secret/.*\.(jpg\|png)$` | Hide all images deep inside the folder `/secret`                 | `/secret/foo.jpg`, `/secret/bar/abc.png`       | `/secret/foo.png.txt`, `/foo/secret/abc.png`        |
+| Pattern | Description | Hidden | Not Hidden |
+| --- | --- | --- | --- |
+| `/\..*` | Hide dotfiles like `.env`, `.git` at any depth | `/foo/.bar`, `/.foo/bar` | `/foo/bar` |
+| `^/foo/.*\.txt$` | Hide everything in `/foo` ending with `.txt` | `/foo/abc.txt` | `/foo/abc.md`, `/bar/foo/abc.txt` |
+| `^/node_modules/` | Hide `/node_modules` only at the root | `/node_modules` | `/foo/node_modules` |
+| `/node_modules/` | Hide `node_modules` at any depth | `/node_modules`, `/foo/node_modules` | `/node_modules_123` |
+| `^/reports/2023.*\.pdf$` | Hide PDFs in `/reports` starting with `2023` | `/reports/2023-01.pdf` | `/reports/2022-01.pdf`, `/reports/2023-01.txt` |
+| `^/secret/.*\.(jpg\|png)$` | Hide images anywhere under `/secret` | `/secret/foo.jpg`, `/secret/bar/abc.png` | `/secret/foo.png.txt`, `/foo/secret/abc.png` |
 
 
 You can hide some files and folders by setting the environment variable `IGNORE` to a pattern. By default everything is shown.
@@ -37,7 +41,7 @@ Patterns are matched against the file name and every parent folder name **indivi
 
 For example if you have a file `foo/bar/secret.txt`. This path will be split into an array `['foo', 'bar', 'secret.txt']` and each part will be matched against the pattern. If at any point the pattern matches the name, it will be hidden.
 
-Usecase: Hide everything starting with a dot <kbd>.</kbd> using a `.*` pattern globally at any nesting level. This will hide `/foo/bar/.foobar`, `/.baz`, `/foo/.secret/bar` etc.
+Use case: Hide everything starting with a dot <kbd>.</kbd> using a `.*` pattern globally at any nesting level. This will hide `/foo/bar/.foobar`, `/.baz`, `/foo/.secret/bar` etc.
 
 It uses [fnmatch](https://www.php.net/manual/en/function.fnmatch.php) to match the pattern.
 
@@ -68,7 +72,7 @@ It uses [fnmatch](https://www.php.net/manual/en/function.fnmatch.php) to match t
 
 ### Multiple patterns
 
-You can specify multiple patterns and seperate them using a `;`. If any of the patterns matches, the file or folder will be hidden.
+You can specify multiple patterns and separate them using `;`. If any pattern matches, the file or folder will be hidden.
 
 import EnvConfig from "@site/src/components/EnvConfig";
 

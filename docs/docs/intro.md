@@ -14,16 +14,16 @@ https://dir-demo.adriansoftware.de
 ## Features
 - **Download counter** for all files
 - Secure by default. **Read-only** access
-- Extremly **fast** file serving through **nginx**
+- Extremely **fast** file serving through **nginx**
 - **README** markdown rendering support
 - **JSON API** for programmatic access
 - **Batch download** of files and folders in a zip archive
-- **file integrity** check with **hashes**
-- **custom description** and **labels** for files and folders
+- **File integrity** checks with **hashes**
+- **Custom descriptions** and **labels** for files and folders
 - **Search** and **sorting** built-in
 - **Password** protection
 - **Hide** files and folders
-- Light and **Darkmode**
+- Light and **Dark mode**
 - File **icons**
 - Many **Themes** available
 - **Clean URLs** equivalent to file system paths
@@ -37,3 +37,8 @@ https://dir-demo.adriansoftware.de
 - Track request timing
 - **arm64** support
 - Works **without JavaScript** enabled
+
+## Next steps
+
+- Start here: [Installation](/getting-started/installation.md)
+- Then configure features via environment variables

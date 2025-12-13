@@ -4,18 +4,18 @@ sidebar_position: 2
 
 # Development
 
-Contributions are welcome. If you would like to contribute, please follow the steps below.
+Contributions are welcome. To run dir-browser locally from source:
 
-1. Clone the repository https://github.com/adrianschubek/dir-browser
-2. Run the following command in the project folder. Be sure to replace `/some/local/folder` with a valid path to a folder.
+1. Clone the repository: https://github.com/adrianschubek/dir-browser
+2. Build and run the image from the project root. Replace `/some/local/folder` with a local folder you want to serve.
 
 ```
 docker run --rm --name dir -p 8080:80 -v /some/local/folder:/var/www/html/public:ro -v redissave:/var/lib/redis/  -it $(docker build -q -f Dockerfile .)
 ```
 It may take a few minutes to build the image.
 
-3. Open http://localhost:8080 in your browser
+3. Open http://localhost:8080
 
-If you make any changes to the code, you have to rerun the docker command.
+After making code changes, rebuild and re-run the container.
 
-This project uses special syntax from the [utpp](https://github.com/adrianschubek/utpp) project, a CLI tool to pre-process and execute JavScript inside configuration files at startup. It's created by the same author as this project. If you would like to learn more about it, please visit the [documentation](https://utpp.adriansoftware.de/).
+This project uses special syntax from [utpp](https://github.com/adrianschubek/utpp), a CLI tool that preprocesses templates and can execute JavaScript at build time. If you want to learn more, see https://utpp.adriansoftware.de/.

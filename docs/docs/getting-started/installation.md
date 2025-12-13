@@ -10,7 +10,7 @@ Use the image from [Docker Hub](https://hub.docker.com/r/adrianschubek/dir-brows
 docker run -d -p 8080:80 -v /my/local/folder:/var/www/html/public:ro -v rdb:/var/lib/redis/ adrianschubek/dir-browser
 ```
 
-where `/my/local/folder` is the local folder you want to serve and `8080` is the port you want to use.
+Replace `/my/local/folder` with the folder you want to serve. `8080` is the host port.
 
 Access the directory browser at `http://localhost:8080`.
 
@@ -33,19 +33,21 @@ DATE_FORMAT=local
 You can also use [Docker Compose](https://docs.docker.com/compose/) to run the container.
 
 ```yaml title="docker-compose.yml"
-version: 3
 services:
   dir-browser:
     image: adrianschubek/dir-browser:latest
-    restart: always
+    restart: unless-stopped
     ports:
-      - 8080:80
+      - "8080:80"
     volumes:
       - /my/local/folder:/var/www/html/public:ro
       - rdb:/var/lib/redis/
-    environment: # here you can set configuration options (see configuration section for more details)
-      - THEME=cosmo
-      - DATE_FORMAT=local
+    environment:
+      THEME: cosmo
+      DATE_FORMAT: local
+
+volumes:
+  rdb:
 ```
 
 :::info
@@ -62,14 +64,21 @@ In this case you should modify the `ports` section and add `127.0.0.1` before th
 
 ## Updating
 
-To update the container, simply pull the latest image from Docker Hub, stop the container and start it again.
+To update the container, simply pull the latest image from Docker Hub, remove the container and start it again.
 
 :::tip
 Find the container ID using `docker ps`.
 :::
 
 ```
-docker pull adrianschubek/dir-browser
+docker pull adrianschubek/dir-browser:latest
 docker rm -f <containerID>
-docker run -d -p 8080:80 -v /my/local/folder:/var/www/html/public:ro -v rdb:/var/lib/redis/ adrianschubek/dir-browser
+docker run -d -p 8080:80 -v /my/local/folder:/var/www/html/public:ro -v rdb:/var/lib/redis/ adrianschubek/dir-browser:latest
+```
+
+If you are using Docker Compose, update with:
+
+```bash
+docker compose pull
+docker compose up -d
 ```

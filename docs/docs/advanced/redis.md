@@ -2,6 +2,8 @@
 
 Redis is used to store the [download counter](./../configuration/download-count.md) data. If the download counter is disabled, Redis will not be loaded/started at all.
 
+Counters are stored with the request path as key (relative to the mounted folder), for example `/reports/2024.pdf`.
+
 ### Access
 
 Sometimes it is useful to access the Redis instance directly e.g. for resetting a counter. This can be done using the `redis-cli` tool inside the container.
@@ -18,6 +20,8 @@ redis-cli
 See https://redis.io/docs/latest/commands/ for a list of available commands.
 
 ### List all stored counters
+For small datasets you can use `KEYS`, but note that it can be slow on large databases.
+
 ```bash title="$> KEYS *"
 ...
 25) "/src/index.php"
@@ -33,10 +37,10 @@ See https://redis.io/docs/latest/commands/ for a list of available commands.
 ...
 ```
 ### Read a counter
-```bash title="$> GET /src/index.php"
+```bash title="$> GET /example.txt"
 123
 ```
 ### Reset/Modify a counter
-```bash title="$> SET /src/index.php 0"
+```bash title="$> SET /example.txt 0"
 OK
 ```

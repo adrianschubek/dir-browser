@@ -42,4 +42,4 @@ This engine is the most powerful but slower than the glob engine. It is useful f
 
 import EnvConfig from '@site/src/components/EnvConfig';
 
-<EnvConfig name="SEARCH|SEARCH_ENGINE|SEARCH_MAX_DEPTH|SEARCH_MAX_RESULTS|REVERSE_SORT" init="true|s,g|25|100|false" values="true,false|s,g,r|integer|integer|true,false" versions="3.7|3.8|3.7|3.7|1.0" desc="Enables or disables the search functionality|s=simple, g=glob, r=regex. Multiple values seperated using commas.|Maximum recursive search depth (simple and regex engine only)|Maximum number of results in a single request|By default files and folders are sorted by name using natural sort."/>
+<EnvConfig name="SEARCH|SEARCH_ENGINE|SEARCH_MAX_DEPTH|SEARCH_MAX_RESULTS|REVERSE_SORT" init="true|s,g|25|100|false" values="true,false|s,g,r|integer|integer|true,false" versions="3.7|3.8|3.7|3.7|1.0" desc="Enables or disables the search functionality|s=simple, g=glob, r=regex. Multiple values separated using commas.|Maximum recursive search depth (simple and regex engine only)|Maximum number of results in a single request|By default files and folders are sorted by name using natural sort."/>
