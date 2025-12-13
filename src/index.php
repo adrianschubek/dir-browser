@@ -52,6 +52,26 @@ function safe_utf8(string $input): string
   return preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/u', '', $input) ?? '';
 }
 
+function hash_max_file_size_bytes(): ?int
+{
+  $raw = getenv('HASH_MAX_FILE_SIZE_MB');
+  if ($raw === false || $raw === '') return null;
+  if (!is_numeric($raw)) return null;
+  $mb = floatval($raw);
+  if ($mb <= 0) return null;
+  $bytes = (int) floor($mb * 1024 * 1024);
+  return $bytes > 0 ? $bytes : null;
+}
+
+function hashing_allowed_for_file(string $path): bool
+{
+  $maxBytes = hash_max_file_size_bytes();
+  if ($maxBytes === null) return true;
+  $size = @filesize($path);
+  if ($size === false) return false;
+  return $size <= $maxBytes;
+}
+
 // fix whitespace in path results in not found errors
 $request_uri = rawurldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 
@@ -506,6 +526,15 @@ if ($path_is_dir) {
   $[if `process.env.HASH`]$
   // only allow download if requested hash matches actual hash
   if (${{`process.env.HASH_REQUIRED === "true" ? "true ||" : ""`}}$ isset($_REQUEST["hash"]) || isset($meta) && $meta->hash_required === true) {
+    if (!hashing_allowed_for_file($local_path)) {
+      http_response_code(413);
+      $limitMb = getenv('HASH_MAX_FILE_SIZE_MB');
+      die("<b>Hashing disabled.</b> File exceeds HASH_MAX_FILE_SIZE_MB (" . htmlspecialchars((string) $limitMb) . " MB).");
+    }
+    if (!isset($_REQUEST["hash"])) {
+      http_response_code(403);
+      die("<b>Access denied.</b> Hash is required for this file.");
+    }
     if ($_REQUEST["hash"] !== hash_file('${{`process.env.HASH_ALGO`}}$', $local_path)) {
       http_response_code(403);
       die("<b>Access denied.</b> Supplied hash does not match actual file hash.");
@@ -521,6 +550,14 @@ if ($path_is_dir) {
 
   $[if `process.env.API === "true"`]$
   if(isset($_REQUEST["info"])) {
+    $hash_value = null;
+    $[end]$
+    $[if `process.env.API === "true" && process.env.HASH === "true"`]$
+    if (hashing_allowed_for_file($local_path)) {
+      $hash_value = hash_file('${{`process.env.HASH_ALGO`}}$', $local_path);
+    }
+    $[end]$
+    $[if `process.env.API === "true"`]$
     $info = [
       "url" => $relative_path, // FIXME: use host domain! abc.de/foobar
       "name" => basename($local_path),
@@ -528,7 +565,7 @@ if ($path_is_dir) {
       "size" => filesize($local_path),
       "modified" => filemtime($local_path),
       "downloads" => ${{`process.env.DOWNLOAD_COUNTER === "true" ? "intval($redis->get($relative_path))" : "0"`}}$,
-      "hash_${{`process.env.HASH_ALGO`}}$" => ${{`process.env.HASH === "true" ? "hash_file('"+process.env.HASH_ALGO+"', $local_path)" : "null"`}}$
+      "hash_${{`process.env.HASH_ALGO`}}$" => $hash_value
     ];
     header("Content-Type: application/json");
     die(json_encode($info, JSON_UNESCAPED_SLASHES));
@@ -1155,11 +1192,20 @@ end:
 
     $[if `process.env.HASH === "true"`]$
     // via api bc otherwise we need to include the hash in the tree itself which is costly
+    const HASH_MAX_FILE_SIZE_MB = Number('${{`process.env.HASH_MAX_FILE_SIZE_MB ?? ""`}}$');
+    const HASH_MAX_FILE_SIZE_BYTES = Number.isFinite(HASH_MAX_FILE_SIZE_MB) && HASH_MAX_FILE_SIZE_MB > 0
+      ? Math.floor(HASH_MAX_FILE_SIZE_MB * 1024 * 1024)
+      : null;
+
     const getHashViaApi = async (url) => {
       const res = await fetch(url);
-      if (!res.ok) throw new Error('Hash request failed');
+      if (!res.ok) {
+        if (res.status === 413) throw new Error('too_large');
+        throw new Error('request_failed');
+      }
       const data = await res.json();
       const hash = data.hash_${{`process.env.HASH_ALGO`}}$;
+      if (hash === null || hash === undefined || String(hash).length === 0) throw new Error('unavailable');
       await copyTextToClipboard(String(hash ?? ''));
     }
     $[end]$
@@ -1489,18 +1535,31 @@ end:
           $[if `process.env.LAYOUT === "popup" && process.env.HASH === "true"`]$
           // Show hash entry; actual hash is fetched on demand via API.
           if (typeof getHashViaApi === 'function') {
-            const link = document.createElement('a');
-            link.href = '#';
-            link.className = 'link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover';
-            link.textContent = 'Click to calculate hash';
-            link.addEventListener('click', async (e) => {
-              link.textContent = 'Calculating…';
-              e.preventDefault();
-              if (!popupState.apiInfoUrl) return;
-              await getHashViaApi(popupState.apiInfoUrl);
-              link.textContent = 'Hash copied to clipboard';
-            });
-            entries.push({ label: 'Hash', value: link });
+            const fileSize = Number(payload.size ?? 0);
+            const hashingTooLarge = HASH_MAX_FILE_SIZE_BYTES !== null && Number.isFinite(fileSize) && fileSize > HASH_MAX_FILE_SIZE_BYTES;
+            if (hashingTooLarge) {
+              const note = document.createElement('span');
+              note.className = 'text-body-secondary';
+              note.textContent = `Too large to hash (>${HASH_MAX_FILE_SIZE_MB} MB)`;
+              entries.push({ label: 'Hash', value: note });
+            } else {
+              const link = document.createElement('a');
+              link.href = '#';
+              link.className = 'link-primary link-offset-2 link-underline-opacity-25 link-underline-opacity-100-hover';
+              link.textContent = 'Click to calculate hash';
+              link.addEventListener('click', async (e) => {
+                link.textContent = 'Calculating…';
+                e.preventDefault();
+                if (!popupState.apiInfoUrl) return;
+                try {
+                  await getHashViaApi(popupState.apiInfoUrl);
+                  link.textContent = 'Hash copied to clipboard';
+                } catch (err) {
+                  link.textContent = err && String(err.message) === 'too_large' ? 'Too large to hash' : 'Hash unavailable';
+                }
+              });
+              entries.push({ label: 'Hash', value: link });
+            }
           }
           $[end]$
           $[if `process.env.LAYOUT === "popup"`]$

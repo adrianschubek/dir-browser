@@ -40,11 +40,8 @@ This feature should not be used to restrict access as the hash is publicly avail
 To protect the file use the [password protection](password.mdx) feature.
 :::
 
-:::danger
-If you are hosting large files (1GB+) hashing them may take a significant amount of time and CPU resources on the server potentially leading to a Denial of Service for other users. Consinder disabling this feature in this case `HASH=false`.
-:::
 
 import EnvConfig from '@site/src/components/EnvConfig';
 
 <!-- <EnvConfig name="HASH" init="true" values="true,false"/> -->
-<EnvConfig name="HASH|HASH_REQUIRED|HASH_ALGO" init="true|false|sha256" values="true,false|true,false|md2,md4,md5,sha1,sha224,sha256,sha384,sha512/224,sha512/256,sha512,sha3-224,sha3-256,sha3-384,sha3-512,ripemd128,ripemd160,ripemd256,ripemd320,whirlpool,snefru,snefru256,gost,gost-crypto,adler32,crc32,crc32b,crc32c,fnv132,fnv1a32,fnv164,fnv1a64,joaat,murmur3a,murmur3c,murmur3f,xxh32,xxh64,xxh3,xxh128" desc="|Hash is always required|" versions="3.0|3.3|3.1" />
+<EnvConfig name="HASH|HASH_MAX_FILE_SIZE_MB|HASH_REQUIRED|HASH_ALGO" init="true|100|false|sha256" values="true,false|integer|true,false|md2,md4,md5,sha1,sha224,sha256,sha384,sha512/224,sha512/256,sha512,sha3-224,sha3-256,sha3-384,sha3-512,ripemd128,ripemd160,ripemd256,ripemd320,whirlpool,snefru,snefru256,gost,gost-crypto,adler32,crc32,crc32b,crc32c,fnv132,fnv1a32,fnv164,fnv1a64,joaat,murmur3a,murmur3c,murmur3f,xxh32,xxh64,xxh3,xxh128" desc="|Hash is always required|" versions="3.0|3.3|3.1" />

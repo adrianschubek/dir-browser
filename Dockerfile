@@ -1,6 +1,6 @@
 FROM php:8.5-fpm-alpine AS base
 
-ENV DIRBROWSER_VERSION=4.0.0
+ENV DIRBROWSER_VERSION=4.1.0
 
 RUN apk update && apk upgrade
 
@@ -56,6 +56,8 @@ ENV THEME=default
 ENV DATE_FORMAT=relative
 
 ENV HASH=true
+
+ENV HASH_MAX_FILE_SIZE_MB=100
 
 ENV TRANSITION=false
 
