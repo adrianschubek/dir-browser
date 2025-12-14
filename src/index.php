@@ -93,12 +93,41 @@ function set_auth_cookie(string $key): void
   ]);
 }
 
+function delete_auth_cookie(): void
+{
+  $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+  $path = '${{`process.env.BASE_PATH ?? ''`}}$';
+  if ($path === '') $path = '/';
+  // Match cookie attributes used in set_auth_cookie to ensure deletion.
+  setcookie('dir_browser_key', '', [
+    'expires' => time() - 3600,
+    'path' => $path,
+    'secure' => $secure,
+    'httponly' => ${{`process.env.AUTH_COOKIE_HTTPONLY`}}$,
+    'samesite' => 'Lax',
+  ]);
+  unset($_COOKIE['dir_browser_key']);
+}
+
 function redirect_without_key_param(): void
 {
   $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
   $query = [];
   parse_str(parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY) ?? '', $query);
   unset($query['key']);
+  $qs = http_build_query($query);
+  header('Location: ' . $path . ($qs !== '' ? ('?' . $qs) : ''));
+  http_response_code(303);
+  die();
+}
+
+// Simple route: /some/path?logout (clears cookie-based auth).
+if (isset($_GET['logout'])) {
+  delete_auth_cookie();
+  $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
+  $query = [];
+  parse_str(parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY) ?? '', $query);
+  unset($query['logout']);
   $qs = http_build_query($query);
   header('Location: ' . $path . ($qs !== '' ? ('?' . $qs) : ''));
   http_response_code(303);
@@ -1202,6 +1231,21 @@ end:
             ?>
           </div>
           <div class="col-auto pe-0">
+            <?php
+              $show_logout = isset($access) && is_array($access) && (($access['requires_password'] ?? false) === true);
+              $logout_href = '';
+              if ($show_logout) {
+                $logout_path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
+                $logout_query = [];
+                parse_str(parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY) ?? '', $logout_query);
+                $logout_query['logout'] = '1';
+                $logout_qs = http_build_query($logout_query);
+                $logout_href = $logout_path . ($logout_qs !== '' ? ('?' . $logout_qs) : '');
+              }
+            ?>
+            <?php if ($show_logout) { ?>
+              <a href="<?= htmlspecialchars($logout_href) ?>" class="btn rounded btn-sm text-muted" id="icon" title="Logout" data-turbo="false"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#C62828" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-logout"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2" /><path d="M9 12h12l-3 -3" /><path d="M18 15l3 -3" /></svg></a>
+            <?php } ?>
             $[if `process.env.BATCH_DOWNLOAD === "true"`]$
             <a class="btn rounded btn-sm text-muted multiselect" onclick="downloadMultiple()" title="Download batch">
             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-download"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2" /><path d="M7 11l5 5l5 -5" /><path d="M12 4l0 12" /></svg>
