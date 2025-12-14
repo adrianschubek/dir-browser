@@ -1000,7 +1000,7 @@ end:
   <meta name="turbo-refresh-method" content="morph">
   <meta name="view-transition" content="same-origin" />
   $[end]$
-  <title>Dir Browser - <?= '/' . implode(separator: '/', array: $url_parts) ?></title>
+  <title>${{`process.env.TITLE`}}$ - <?= '/' . implode(separator: '/', array: $url_parts) ?></title>
   $[ifeq env:THEME cerulean]$
   <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/cerulean/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
   $[ifeq env:THEME materia]$
