@@ -12,6 +12,22 @@ dbv=$DIRBROWSER_VERSION
 echo -e "${GREEN_BG_BLACK_TEXT} dir-browser v${dbv} by Adrian Schubek${NC}"
 echo -e "${CYAN} -> https://dir.adriansoftware.de <- ${NC}"
 
+# crash if PASSWORD_USER is set but neither PASSWORD_RAW nor PASSWORD_HASH is set
+if [ -n "${PASSWORD_USER}" ] && [ -z "${PASSWORD_RAW}" ] && [ -z "${PASSWORD_HASH}" ]; then
+  echo -e "${RED}[ Error ] PASSWORD_USER is set but neither PASSWORD_RAW nor PASSWORD_HASH is set. Exiting.${NC}"
+  exit 1
+fi
+
+# print if password protection is enabled and which method is used
+if [ -n "${PASSWORD_USER}" ] && ( [ -n "${PASSWORD_RAW}" ] || [ -n "${PASSWORD_HASH}" ] ); then
+  if [ -n "${PASSWORD_HASH}" ]; then
+    echo -e "${GREEN}[ Info ] Global password protection is enabled using hashed password.${NC}"
+  else
+    echo -e "${GREEN}[ Info ] Global password protection is enabled using raw password.${NC}"
+  fi
+fi
+
+
 echo -e "${YELLOW}[ 1/$MAX_STEPS ] Pre-processing configs using utpp... ${NC}"
 utpp "/etc/nginx/**;/usr/local/etc/php*/**;/var/www/html/*.php"
 
