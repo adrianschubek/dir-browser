@@ -5,6 +5,30 @@ sidebar_position: 1.5
 
 All notable changes to this project will be documented in this file.
 
+## [4.2.0] - 2025-12-14
+
+### 🚀 Features
+
+- Add configurable auth cookie lifetime and httpOnly setting ([db626c1](https://github.com/adrianschubek/dir-browser/commit/db626c109a34986ab415d608ead7b8da488ea4fb))
+- Add password protection checks in init script ([a51c66b](https://github.com/adrianschubek/dir-browser/commit/a51c66bce45370c128fbf04e81f9d426d4d83126))
+- Logout functionality and cookie deletion ([df866e4](https://github.com/adrianschubek/dir-browser/commit/df866e4b0d97ade9f499c7c8dec096654c548c57))
+
+### 🐛 Bug Fixes
+
+- Enhance password protection messaging and logic in index.php ([24155b8](https://github.com/adrianschubek/dir-browser/commit/24155b8838cf96533688187c2599ee1cd340ffda))
+
+### 📚 Documentation
+
+- Improve docs ([b15c7b7](https://github.com/adrianschubek/dir-browser/commit/b15c7b73d4f4c5a60b5c3283907882ded201e0d1))
+- Remove note about noJS ([723f3a3](https://github.com/adrianschubek/dir-browser/commit/723f3a30455775f8cf7d0bf65fa2601428d480fe))
+- New cookie configs ([a99a479](https://github.com/adrianschubek/dir-browser/commit/a99a4794c5ef7681fe849936456e6b2afeacdc6f))
+- Update password protection documentation to include logout instructions ([2b2bcbf](https://github.com/adrianschubek/dir-browser/commit/2b2bcbf18b1b6fea7b8ce57d49cbf3a48793ff8e))
+
+### ⚙️ Miscellaneous Tasks
+
+- Update version 4.2.0 ([1446f3b](https://github.com/adrianschubek/dir-browser/commit/1446f3b1f435f52a0d60db9d9130f8275dcbb8b8))
+- Update commonmark ([dc270b5](https://github.com/adrianschubek/dir-browser/commit/dc270b576e2fd0f7c1efd101052bcbabe639252f))
+
 ## [4.1.0] - 2025-12-13
 
 ### 🚀 Features
