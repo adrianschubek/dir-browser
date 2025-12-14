@@ -22,7 +22,7 @@ $time_start = hrtime(true);
 $[end]$
 
 $[if `process.env.README_RENDER === "true"`]$
-require __DIR__ . "/vendor/autoload.php";
+require_once __DIR__ . "/vendor/autoload.php";
 use League\CommonMark\Environment\Environment;
 use League\CommonMark\Extension\Autolink\AutolinkExtension;
 use League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension;
@@ -31,6 +31,12 @@ use League\CommonMark\Extension\Strikethrough\StrikethroughExtension;
 use League\CommonMark\Extension\Table\TableExtension;
 use League\CommonMark\Extension\TaskList\TaskListExtension;
 use League\CommonMark\MarkdownConverter;
+$[end]$
+
+$[if `process.env.BATCH_DOWNLOAD === "true"`]$
+require_once __DIR__ . "/vendor/autoload.php";
+use ZipStream\ZipStream;
+use ZipStream\CompressionMethod;
 $[end]$
 
 function human_filesize($bytes, $decimals = 2): string
@@ -400,6 +406,7 @@ function available(string $user_path, bool $includeProtected = false): string | 
 function getDeepUrlsFromArray(array $input_urls): array {
   $urls = [];
   foreach ($input_urls as $url) {
+    $url = normalize_user_path((string) $url);
     if (($path = available($url)) !== false) {
       if (is_dir($path)) {
         // scan this folder. exclude special folders
@@ -409,7 +416,8 @@ function getDeepUrlsFromArray(array $input_urls): array {
         // recursion
         $urls = array_merge($urls, getDeepUrlsFromArray($deep_urls));
       } else {
-        $urls[] = $url;
+        // Always return canonical, decoded URLs (avoids %20 false negatives).
+        $urls[] = substr($path, strlen(PUBLIC_FOLDER));
       }
     }
   }
@@ -513,11 +521,64 @@ $[end]$
 
 $[if `process.env.BATCH_DOWNLOAD === "true"`]$
 function downloadBatch(array $urls) {
-  $total_size = 0;
-  $zip = new ZipArchive();
-  $zipname = tempnam(__DIR__ . "/tmp", 'db_batch_');
-  unlink($zipname); // fixes https://stackoverflow.com/a/64698936
   $all_urls = getDeepUrlsFromArray($urls);
+
+  // Pre-validate everything before sending any output/headers.
+  $total_size = 0;
+  $max_file_size = 0;
+  $files_to_zip = [];
+  $validation_error = null;
+  foreach ($all_urls as $user_url) {
+    // Paths are posted from the browser and may contain URL-encoded characters
+    // (e.g. spaces as %20). Normalize by decoding before validating.
+    $decoded_user_url = rawurldecode((string) $user_url);
+    $full_path = available($decoded_user_url);
+    if ($full_path === false || !is_file($full_path)) {
+      $validation_error = "Invalid file in batch: $user_url";
+      break;
+    }
+
+    // Re-derive canonical URL from realpath() to avoid zip-slip names like a/../b.
+    $canonical_url = substr($full_path, strlen(PUBLIC_FOLDER));
+    $fs = filesize($full_path);
+    if ($fs === false) {
+      $validation_error = "Cannot read filesize for $canonical_url";
+      break;
+    }
+    if ($fs > 1024 * 1024 * ${{`process.env.BATCH_MAX_FILE_SIZE`}}$) {
+      $validation_error = "File $canonical_url exceeds ${{`process.env.BATCH_MAX_FILE_SIZE`}}$ MB limit";
+      break;
+    }
+    $total_size += $fs;
+    if ($fs > $max_file_size) {
+      $max_file_size = $fs;
+    }
+    if ($total_size > 1024 * 1024 * ${{`process.env.BATCH_MAX_TOTAL_SIZE`}}$) {
+      $validation_error = "Total size of files exceeds ${{`process.env.BATCH_MAX_TOTAL_SIZE`}}$ MB limit";
+      break;
+    }
+
+    // Remove leading "/" bc some ZIP clients on Windows can be picky.
+    $archive_name = ltrim($canonical_url, '/');
+    if ($archive_name === '') {
+      $validation_error = 'Invalid empty archive name';
+      break;
+    }
+
+    $files_to_zip[] = [
+      'archive_name' => $archive_name,
+      'full_path' => $full_path,
+      'size' => $fs,
+      'mtime' => @filemtime($full_path) ?: null,
+    ];
+  }
+
+  if ($validation_error !== null) {
+    http_response_code(400);
+    header('Content-Type: text/plain; charset=utf-8');
+    echo "Batch download error: " . $validation_error;
+    die();
+  }
 
   $[end]$
   $[if `process.env.BATCH_DOWNLOAD === "true" && process.env.DOWNLOAD_COUNTER === "true"`]$
@@ -525,32 +586,77 @@ function downloadBatch(array $urls) {
   $redis->connect('127.0.0.1', 6379);
   $dl_counters = $redis->mget($all_urls);
   $new_dl_counters = [];
-  for ($i = 0; $i < count($all_urls); $i++) $new_dl_counters[$all_urls[$i]] = $dl_counters[$i] + 1;
+  for ($i = 0; $i < count($all_urls); $i++) $new_dl_counters[$all_urls[$i]] = ($dl_counters[$i] ?? 0) + 1;
   $redis->mset($new_dl_counters);
   $[end]$
   $[if `process.env.BATCH_DOWNLOAD === "true"`]$
   try {
-    $zip->open($zipname, ZipArchive::CREATE);
-    foreach ($all_urls as $path) {
-      // echo "Add file: " . PUBLIC_FOLDER . $path . "\n";
-      // scandir if is_directory. create folders if necessary (done addFile)
-      if (($fs = filesize(PUBLIC_FOLDER . $path)) > 1024 * 1024 * ${{`process.env.BATCH_MAX_FILE_SIZE`}}$) throw new Exception("File $file exceeds ${{`process.env.BATCH_MAX_FILE_SIZE`}}$ MB limit");
-      $total_size += $fs;
-      if ($total_size > 1024 * 1024 * ${{`process.env.BATCH_MAX_TOTAL_SIZE`}}$) throw new Exception("Total size of files exceeds ${{`process.env.BATCH_MAX_TOTAL_SIZE`}}$ MB limit");
-      if (disk_free_space(dirname($zipname)) - $total_size < ${{`process.env.BATCH_MIN_SYSTEM_FREE_DISK`}}$) throw new Exception("Not enough space to create zip");
-      // remove leading "/" bc windows cannot open zip
-      if ($zip->addFile(PUBLIC_FOLDER . $path, substr($path, 1)) === false) throw new Exception("Something went wrong when adding $file to zip");
-      $zip->setCompressionName($path, ZipArchive::CM_${{`process.env.BATCH_ZIP_COMPRESS_ALGO`}}$);
+    $streaming_started = false;
+
+    // Disable buffering/compression where possible to allow true streaming.
+    @ini_set('zlib.output_compression', 'Off');
+    @ini_set('implicit_flush', '1');
+    @ini_set('output_buffering', 'Off');
+    @ini_set('display_errors', '0');
+    @ini_set('html_errors', '0');
+    @set_time_limit(0);
+    @ignore_user_abort(true);
+    while (ob_get_level() > 0) {
+      @ob_end_clean();
     }
-    $zip->close();
-    header('Content-Type: application/zip');
-    header('Content-Length: ' . filesize($zipname));
-    header('Content-Disposition: attachment; filename="' . bin2hex(random_bytes(8)) . '.zip"');
-    readfile($zipname);
+    @ob_implicit_flush(true);
+
+    // Tell nginx to not buffer the (potentially huge) ZIP response.
+    header('X-Accel-Buffering: no');
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+    header('Pragma: no-cache');
+    header('Expires: 0');
+    // Ensure the response is not compressed by intermediaries.
+    header('Content-Encoding: identity');
+
+    $compression = CompressionMethod::DEFLATE;
+    $algo = strtoupper((string) '${{`process.env.BATCH_ZIP_COMPRESS_ALGO`}}$');
+    if ($algo === 'STORE' || $algo === 'STORED') {
+      $compression = CompressionMethod::STORE;
+    }
+
+    $zip = new ZipStream(
+      outputName: bin2hex(random_bytes(8)) . '.zip',
+      sendHttpHeaders: true,
+      contentType: 'application/zip',
+      defaultCompressionMethod: $compression,
+      defaultEnableZeroHeader: true,
+      enableZip64: true,
+      flushOutput: true,
+    );
+
+    // At this point, ZipStream may start emitting bytes as files are added.
+    $streaming_started = true;
+
+    foreach ($files_to_zip as $f) {
+      $lastMod = null;
+      if ($f['mtime'] !== null) {
+        $lastMod = (new DateTimeImmutable())->setTimestamp((int) $f['mtime']);
+      }
+      $zip->addFileFromPath(
+        fileName: $f['archive_name'],
+        path: $f['full_path'],
+        lastModificationDateTime: $lastMod,
+        exactSize: (int) $f['size'],
+        enableZeroHeader: false,
+      );
+    }
+
+    $zip->finish();
+    die();
   } catch (\Throwable $th) {
-    echo "Batch download error: " . $th->getMessage();
-  } finally {
-    unlink($zipname);
+    // If we've already started streaming ZIP bytes, do NOT write any additional
+    // output (it corrupts the archive). Best effort is to terminate.
+    if (!$streaming_started && !headers_sent()) {
+      http_response_code(500);
+      header('Content-Type: text/plain; charset=utf-8');
+      echo "Batch download error: " . $th->getMessage();
+    }
     die();
   }
 }

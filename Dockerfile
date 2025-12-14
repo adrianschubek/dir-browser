@@ -1,6 +1,6 @@
 FROM php:8.5-fpm-alpine AS base
 
-ENV DIRBROWSER_VERSION=4.2.0
+ENV DIRBROWSER_VERSION=4.3.0
 
 RUN apk update && apk upgrade
 
@@ -29,6 +29,8 @@ RUN apk add --no-cache composer
 WORKDIR /var/www/html
 
 RUN composer require "league/commonmark:^2.8"
+
+RUN composer require "maennchen/zipstream-php:^3.2"
 
 RUN mkdir -p /data/nginx/cache
 # for batch downloads
@@ -103,12 +105,12 @@ ENV SEARCH_MAX_RESULTS=100
 ENV BATCH_DOWNLOAD=true
 # TODO: add more: https://www.php.net/manual/en/book.zlib.php
 ENV BATCH_TYPE=zip
-# https://www.php.net/manual/en/zip.constants.php#ziparchive.constants.cm-default
-ENV BATCH_ZIP_COMPRESS_ALGO=DEFAULT
-# MB
-ENV BATCH_MAX_TOTAL_SIZE=500
-# MB per file
-ENV BATCH_MAX_FILE_SIZE=100
+# https://www.php.net/manual/en/zip.constants.php#ziparchive.constants.cm-default. keep STORE highly recommended for performance
+ENV BATCH_ZIP_COMPRESS_ALGO=STORE
+# MB (not strictly necessary anymore due to streaming, but still good to have a limit) 500 GB
+ENV BATCH_MAX_TOTAL_SIZE=500000
+# MB per file (not strictly necessary anymore due to streaming, but still good to have a limit) 500 GB
+ENV BATCH_MAX_FILE_SIZE=500000
 # MB, how much system disk space to keep free at all times
 ENV BATCH_MIN_SYSTEM_FREE_DISK=500
 # watch filesystem
