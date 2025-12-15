@@ -1588,8 +1588,39 @@ end:
     </div>
   </div>
 
+  <!-- Toasts -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3 border-4 rounded" style="z-index: 1100;">
+    <div id="batch-download-toast" class="toast border-4 rounded" role="alert" aria-live="polite" aria-atomic="true">
+      <div class="toast-header">
+        <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-folder-down"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 19h-7a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2h4l3 3h7a2 2 0 0 1 2 2v3.5" /><path d="M19 16v6" /><path d="M22 19l-3 3l-3 -3" /></svg>
+        <strong class="me-auto ms-1" id="batch-download-toast-header">...</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body" id="batch-download-toast-body">...</div>
+    </div>
+  </div>
+
   <!-- Powered by https://github.com/adrianschubek/dir-browser -->
   <script data-turbo-eval="false">
+    const showToast = (message, header) => {
+      try {
+        const toastEl = document.getElementById('batch-download-toast');
+        const toastBody = document.getElementById('batch-download-toast-body');
+        if (!toastEl || !toastBody) return;
+        toastBody.textContent = String(message ?? '');
+        if (header) {
+          const toastHeader = document.getElementById('batch-download-toast-header');
+          if (toastHeader) {
+            toastHeader.textContent = String(header);
+          }
+        }
+        if (typeof bootstrap === 'undefined' || !bootstrap.Toast) return;
+        bootstrap.Toast.getOrCreateInstance(toastEl, { delay: 13000 }).show();
+      } catch (e) {
+        // no-op
+      }
+    };
+
     const copyTextToClipboard = async (text) => {
       if (typeof text !== 'string' || text.length === 0) return false;
 
@@ -1703,10 +1734,12 @@ end:
     }
     const downloadThisFolder = async (path) => {
       console.log("Download this folder " + path);
+      showToast('Preparing batch download. This may take a few moments...', path);
       await download(true);
     }
     const downloadMultiple = async () => {
       console.log("Download multiple");
+      showToast('Preparing batch download. This may take a few moments...', path);
       await download(false);
     }
     const toggleMultiselect = () => {
