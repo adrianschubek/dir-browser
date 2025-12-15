@@ -450,7 +450,7 @@ function globalsearch(string $query, string $root_folder, string $engine): array
   $found_counter = 0;
   foreach ($found as $path) {
     if ($found_counter >= ${{`process.env.SEARCH_MAX_RESULTS`}}$) break;
-    if (($path = available(substr($path, strlen(PUBLIC_FOLDER)), true)) !== false) {
+    if (($path = available(substr($path, strlen(PUBLIC_FOLDER)))) !== false) {
       // only paths are returned due to performance reasons
       $is_dir = is_dir($path);
       $auth_locked = false;
