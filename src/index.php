@@ -130,7 +130,8 @@ function redirect_without_key_param(): void
 // Simple route: /some/path?logout (clears cookie-based auth).
 if (isset($_GET['logout'])) {
   delete_auth_cookie();
-  $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
+  $path = '${{`process.env.BASE_PATH ?? ''`}}$';
+  if ($path === '') $path = '/';
   $query = [];
   parse_str(parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY) ?? '', $query);
   unset($query['logout']);
