@@ -5,6 +5,24 @@ sidebar_position: 1.5
 
 All notable changes to this project will be documented in this file.
 
+## [4.3.1] - 2025-12-15
+
+### 🚀 Features
+
+- Show icon in list when folder is locked ([b4265f1](https://github.com/adrianschubek/dir-browser/commit/b4265f1a8674507226d3554967758367ef255226))
+- Show path and home link on full page auth form ([238f685](https://github.com/adrianschubek/dir-browser/commit/238f68576278033312807f1b47194c567691b1f3))
+
+### 🐛 Bug Fixes
+
+- Complete folder download when pagination active ([f688b9f](https://github.com/adrianschubek/dir-browser/commit/f688b9fdde938bcf67b7934f4c596043a3c54a76))
+- Don't show locked files in search results ([d50e52e](https://github.com/adrianschubek/dir-browser/commit/d50e52e739469e3bafd14bc8df65f60100f572e5))
+- Redirect to home after logout ([2cf0721](https://github.com/adrianschubek/dir-browser/commit/2cf07215a4435f803e7f27e8726a576a5eef99ed))
+
+### 📚 Documentation
+
+- Fix table ([21a6d75](https://github.com/adrianschubek/dir-browser/commit/21a6d75f2d85d912283f936b8c244e00f008912a))
+- Remove outdated note ([61ec2a1](https://github.com/adrianschubek/dir-browser/commit/61ec2a107fcf34aede116e086a97a8c708d01b14))
+
 ## [4.3.0] - 2025-12-15
 
 ### 🚀 Features
