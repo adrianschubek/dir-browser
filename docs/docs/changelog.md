@@ -5,6 +5,18 @@ sidebar_position: 1.5
 
 All notable changes to this project will be documented in this file.
 
+## [4.3.0] - 2025-12-15
+
+### 🚀 Features
+
+- Add TITLE config for custom page title ([376c081](https://github.com/adrianschubek/dir-browser/commit/376c081e6e48c21d0ca04081cf90311752f1d895))
+- Add batch download streaming ([ffcd246](https://github.com/adrianschubek/dir-browser/commit/ffcd246827eee320a3def47cd1d30443db080c9d))
+- Add toast notifications for batch download preparation ([80b2ad6](https://github.com/adrianschubek/dir-browser/commit/80b2ad6fffa1824997cb18001eb38ccaf850380e))
+
+### 📚 Documentation
+
+- Escape dollar sign for docker ([c7e1ece](https://github.com/adrianschubek/dir-browser/commit/c7e1eceb50c88f5ef76435e4edff4dbeb24e42fc))
+
 ## [4.2.0] - 2025-12-14
 
 ### 🚀 Features
