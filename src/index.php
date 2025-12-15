@@ -1735,7 +1735,29 @@ end:
     const downloadThisFolder = async (path) => {
       console.log("Download this folder " + path);
       showToast('Preparing batch download. This may take a few moments...', path);
-      await download(true);
+
+      const form = document.createElement('form');
+      form.method = 'POST';
+      form.action = '${{`process.env.BASE_PATH ?? ''`}}$';
+      form.style.display = 'none';
+
+      const basePath = '${{`process.env.BASE_PATH ?? ''`}}$';
+      const url = new URL(path, window.location.origin);
+      let folderPath = url.pathname;
+
+      if (basePath && folderPath.startsWith(basePath)) {
+        folderPath = folderPath.slice(basePath.length) || '/';
+      }
+
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'download_batch[]';
+      input.value = folderPath;
+      form.appendChild(input);
+
+      document.body.appendChild(form);
+      form.submit();
+      document.body.removeChild(form);
     }
     const downloadMultiple = async () => {
       console.log("Download multiple");
