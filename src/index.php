@@ -1298,6 +1298,7 @@ end:
       <div class="card rounded  m-auto" style="max-width: 500px;">
         <div class="card-body">
           <h4 class="alert-heading key-icon"><?= (defined('AUTH_RESOURCE') && AUTH_RESOURCE === 'folder') ? 'Protected folder' : 'Protected file' ?></h4>
+          <p class="mb-2 text-muted"><?= htmlspecialchars($request_uri) ?></p>
           <p class="mb-2">Please enter the password to access this content.</p>
           <?php if (defined('AUTH_ERROR')) { ?>
             <div class="alert alert-danger py-2" role="alert">Incorrect password.</div>
@@ -1306,6 +1307,9 @@ end:
             <input autofocus type="password" class="form-control mb-2 rounded" id="key" name="key" required>
             <button type="submit" class="btn rounded btn-primary key-icon form-control">Unlock</button>
           </form>
+        </div>
+        <div class="card-footer text-center">
+          <a href="${{`process.env.BASE_PATH ?? ''`}}$/">Back to Home</a>
         </div>
       </div>
     <?php } else if (!$path_is_dir) { ?>
