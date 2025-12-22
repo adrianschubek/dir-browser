@@ -1,23 +1,108 @@
-# API
+# API Reference
 
-### Folder listing
+dir-browser provides a lightweight HTTP API that allows you to retrieve directory listings and file metadata in JSON format. These endpoints are useful for building custom frontends or integrating with other services.
 
-Add `?ls` to a folder URL to get a JSON response of the folder content.
+:::info
+The `?ls` and `?info` endpoints require the `API` environment variable to be set to `true`.
+:::
 
-![](http1.gif)
+## Folder Listing (`?ls`)
 
-![image](https://github.com/adrianschubek/dir-browser/assets/19362349/72464d3e-6cf2-475e-86ca-45534ad9fdce)
+To retrieve the contents of a directory as a JSON array, append `?ls` to any folder URL.
 
-https://dir-demo.adriansoftware.de/?ls
+**Example Request:**
+`https://dir-demo.adriansoftware.de/?ls`
 
-### File info
+**Response Format:**
+```json
+[
+  {
+    "url": "/src",
+    "name": "src",
+    "type": "dir",
+    "size": 0,
+    "modified": "2024-06-04T16:41:55Z",
+    "downloads": 0
+  },
+  {
+    "url": "/dir-browser.png",
+    "name": "dir-browser.png",
+    "type": "file",
+    "size": 810266,
+    "modified": "2024-06-04T16:41:55Z",
+    "downloads": 51
+  },
+  {
+    "url": "/Dockerfile",
+    "name": "Dockerfile",
+    "type": "file",
+    "size": 1363,
+    "modified": "2024-06-04T16:41:55Z",
+    "downloads": 242
+  },
+]
+```
 
-Add `?info` to a file URL to get a JSON response of the file info. A password is required if the file is inside a password protected folder.
+![Folder Listing API](https://github.com/adrianschubek/dir-browser/assets/19362349/72464d3e-6cf2-475e-86ca-45534ad9fdce)
 
-![image](https://github.com/adrianschubek/dir-browser/assets/19362349/4e7e9928-50c6-41ee-864f-144866d6fe5f)
+## File Information (`?info`)
 
-https://dir-demo.adriansoftware.de/Dockerfile?info
+To retrieve detailed metadata for a specific file, append `?info` to the file URL.
 
+**Example Request:**
+`https://dir-demo.adriansoftware.de/Dockerfile?info`
+
+**Response Format:**
+```json
+{
+  "url": "/Dockerfile",
+  "name": "Dockerfile",
+  "mime": "text/plain",
+  "size": 1363,
+  "modified": 1717519315,
+  "downloads": 242,
+  "hash_sha256": "8102c6372ce8afd35c87df8a78cbd63386538211f45c0042b1a9a7e73630a9bb"
+}
+```
+
+![File Info API](https://github.com/adrianschubek/dir-browser/assets/19362349/4e7e9928-50c6-41ee-864f-144866d6fe5f)
+
+## File Preview (`?preview`)
+
+The `?preview` endpoint returns file metadata along with a content snippet for supported text-based files. This endpoint is used by the built-in popup previewer and **does not increment the download counter**.
+
+**Example Request:**
+`https://dir-demo.adriansoftware.de/README.md?preview`
+
+**Response Format:**
+```json
+{
+  "url": "/.example.env",
+  "name": ".example.env",
+  "mime": "text/plain",
+  "size": 75,
+  "size_human": "75.00 B",
+  "modified": "2024-06-04T16:41:55Z",
+  "downloads": 159,
+  "preview": {
+    "kind": "text",
+    "mime": "text/plain",
+    "truncated": false,
+    "text": "# DISPLAY_ERRORS=Off\n# HASH=false\n# HASH_ALGO=md5\n# API=false\n#LAYOUT=popup"
+  }
+}
+```
+
+## Raw Content (`?raw`)
+
+The `?raw` endpoint serves the file's raw content directly. Similar to `?preview`, it **does not increment the download counter**. This is primarily used for embedding media (images, videos, audio) in previews without affecting download statistics.
+
+**Example Request:**
+`https://dir-demo.adriansoftware.de/Dockerfile?raw`
+
+## Configuration
+
+The API endpoints can be enabled or disabled using the `API` environment variable. Disabling the API will also disable features that depend on it, such as the file previewer.
 
 import EnvConfig from "@site/src/components/EnvConfig";
 
