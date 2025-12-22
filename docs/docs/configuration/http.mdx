@@ -7,7 +7,7 @@ dir-browser provides a lightweight HTTP API that allows you to retrieve director
 To retrieve the contents of a directory as a JSON array, append `?ls` to any folder URL.
 
 **Example Request:**
-`https://dir-demo.adriansoftware.de/?ls`
+https://dir-demo.adriansoftware.de/?ls
 
 **Response Format:**
 ```json
@@ -44,7 +44,7 @@ To retrieve the contents of a directory as a JSON array, append `?ls` to any fol
 To retrieve detailed metadata for a specific file, append `?info` to the file URL.
 
 **Example Request:**
-`https://dir-demo.adriansoftware.de/Dockerfile?info`
+https://dir-demo.adriansoftware.de/Dockerfile?info
 
 **Response Format:**
 ```json
@@ -64,7 +64,7 @@ To retrieve detailed metadata for a specific file, append `?info` to the file UR
 The `?preview` endpoint returns file metadata along with a content snippet for supported text-based files. This endpoint is used by the built-in popup previewer and **does not increment the download counter**.
 
 **Example Request:**
-`https://dir-demo.adriansoftware.de/README.md?preview`
+https://dir-demo.adriansoftware.de/README.md?preview
 
 **Response Format:**
 ```json
@@ -90,7 +90,7 @@ The `?preview` endpoint returns file metadata along with a content snippet for s
 The `?raw` endpoint serves the file's raw content directly. Similar to `?preview`, it **does not increment the download counter**. This is primarily used for embedding media (images, videos, audio) in previews without affecting download statistics.
 
 **Example Request:**
-`https://dir-demo.adriansoftware.de/Dockerfile?raw`
+https://dir-demo.adriansoftware.de/Dockerfile?raw
 
 ## Configuration
 
