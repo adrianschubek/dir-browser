@@ -2,10 +2,6 @@
 
 dir-browser provides a lightweight HTTP API that allows you to retrieve directory listings and file metadata in JSON format. These endpoints are useful for building custom frontends or integrating with other services.
 
-:::info
-The `?ls` and `?info` endpoints require the `API` environment variable to be set to `true`.
-:::
-
 ## Folder Listing (`?ls`)
 
 To retrieve the contents of a directory as a JSON array, append `?ls` to any folder URL.
@@ -43,8 +39,6 @@ To retrieve the contents of a directory as a JSON array, append `?ls` to any fol
 ]
 ```
 
-![Folder Listing API](https://github.com/adrianschubek/dir-browser/assets/19362349/72464d3e-6cf2-475e-86ca-45534ad9fdce)
-
 ## File Information (`?info`)
 
 To retrieve detailed metadata for a specific file, append `?info` to the file URL.
@@ -64,8 +58,6 @@ To retrieve detailed metadata for a specific file, append `?info` to the file UR
   "hash_sha256": "8102c6372ce8afd35c87df8a78cbd63386538211f45c0042b1a9a7e73630a9bb"
 }
 ```
-
-![File Info API](https://github.com/adrianschubek/dir-browser/assets/19362349/4e7e9928-50c6-41ee-864f-144866d6fe5f)
 
 ## File Preview (`?preview`)
 
@@ -102,7 +94,7 @@ The `?raw` endpoint serves the file's raw content directly. Similar to `?preview
 
 ## Configuration
 
-The API endpoints can be enabled or disabled using the `API` environment variable. Disabling the API will also disable features that depend on it, such as the file previewer.
+The API endpoints can be enabled or disabled using the `API` environment variable. The `?ls` and `?info` endpoints require the `API` environment variable to be set to `true`.
 
 import EnvConfig from "@site/src/components/EnvConfig";
 
