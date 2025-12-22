@@ -6,11 +6,9 @@ import Image from "@theme/IdealImage";
 
 # Metadata
 
-Files and folders can be annotated with metadata. Metadata is stored in a file called `<name>.dbmeta.json`, where `<name>` is the exact file (including extension) or folder name. Put it in the same folder as the target file or folder. Metadata is stored in a JSON format specified below. 
+Files and folders can be enhanced with custom metadata to provide additional context, labels, or visibility controls. Metadata is defined in a JSON file named `<filename>.dbmeta.json` (for files) or `<foldername>.dbmeta.json` (for folders), located in the same directory as the target item.
 
-The `*.dbmeta.json` files are hidden from the user and cannot be viewed.
-
-<!-- This feature is enabled by default. To disable this, set the environment variable `NO_METADATA` to `true` when starting the container. -->
+Metadata files are automatically hidden from the directory listing and cannot be accessed directly by users.
 
 <Image img={require("@site/static/img/metadata.png")} />
 
@@ -23,25 +21,26 @@ The `*.dbmeta.json` files are hidden from the user and cannot be viewed.
 }
 ```
 
-:::info
-If you are looking for the ".dbmeta.**md**" files, see [Readme Rendering](./readme.md).
+:::info Readme Rendering
+If you want to provide longer, formatted descriptions for a folder using Markdown, please refer to the [Readme Rendering](./readme.md) documentation regarding `.dbmeta.md` files.
 :::
 
 :::info Backward Compatibility
-Individual file password protection using metadata files is no longer supported since v4. Use [Folder Passwords](./password.mdx) instead.
+Individual file password protection via metadata files was deprecated in v4. Please use [Folder Passwords](./password.mdx) for access control.
 :::
 
 ## Properties
 
-#### Description
+### Description
+A concise summary of the file or folder, displayed alongside the name in the file tree.
 
-A short description of the file or folder. This is displayed in the file tree. 
+*   **Type:** `string`
+*   **Default:** Empty
 
-> Default is empty.
+### Labels
+An array of badges to display next to the item. Each label must follow the format `style:text`.
 
-#### Labels
-
-Labels always start with a style and a colon `:`, followed by the label text. The following styles are available:
+The following styles are supported:
 - `primary`
 - `secondary`
 - `success`
@@ -52,27 +51,28 @@ Labels always start with a style and a colon `:`, followed by the label text. Th
 - `dark`
 
 :::warning
-Labels must not contain a semicolon `;`.
+Labels must not contain semicolons (`;`).
 :::
 
-> Default is empty.
+*   **Type:** `string[]`
+*   **Default:** `[]`
 
-#### Hidden
+### Hidden
+Determines whether the item is visible in the directory listing.
 
-:::warning
-The file can still be accessed via URL directly. If you want to ignore it completely, consider using an [IGNORE](./ignore.mdx) pattern.
+:::warning Security Note
+Setting `hidden` to `true` only removes the item from the UI. The file remains accessible via its direct URL. To restrict access entirely, use an [Ignore Pattern](./ignore.mdx) or [Folder Passwords](./password.mdx).
 :::
 
-If set to `true`, the file or folder is hidden from the file tree.
+*   **Type:** `boolean`
+*   **Default:** `false`
 
-> Default is `false`.
+### Hash Required
+Enforces integrity checks by requiring a valid hash in the request URL to allow downloads. For more details, see [Integrity & Hashes](./hashes.md).
 
-#### Hash Required
-
-See [Integrity & Hashes](hashes.md).
-
-> Default is `false`.
+*   **Type:** `boolean`
+*   **Default:** `false`
 
 import EnvConfig from "@site/src/components/EnvConfig";
 
-<EnvConfig name="METADATA" init="true" values="true,false" versions="3.3" desc="Enables support for metadata parsing. Disabling this feature will therefore disable all metadata related features like file passwords." />
+<EnvConfig name="METADATA" init="true" values="true,false" versions="3.3" desc="Enables or disables metadata parsing globally. Disabling this will also disable all features dependent on metadata, such as custom labels and descriptions." />
