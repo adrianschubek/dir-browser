@@ -5,7 +5,11 @@ import EnvConfig from "@site/src/components/EnvConfig";
 
 Display a large number of items in a list by splitting them into multiple pages.
 
-Pagination only visible when the number of items exceeds the number of items per page.
+Pagination is only visible when the number of items exceeds PAGINATION_PER_PAGE.
+
+:::note
+The API `?ls` always returns all items without pagination. Pagination is only applied to the web interface.
+:::
 
 <Image img={require("@site/static/img/pag1.png")} />
 
