@@ -516,7 +516,7 @@ if (isset($_REQUEST["q"]) && isset($_REQUEST["e"]) && $path_is_dir) {
   // start search from current folder
   $search_results = globalsearch($search, $local_path, $engine);
   header("Content-Type: application/json");
-  die(json_encode($search_results));
+  die(json_encode($search_results, JSON_UNESCAPED_SLASHES));
 }
 $[end]$
 
@@ -1070,7 +1070,7 @@ if ($path_is_dir) {
       "preview" => $preview,
     ];
     header("Content-Type: application/json");
-    die(json_encode($payload));
+    die(json_encode($payload, JSON_UNESCAPED_SLASHES));
   }
 
   // Raw streaming for popup media previews without increasing download counter.
