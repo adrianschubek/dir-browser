@@ -29,10 +29,10 @@ fi
 
 
 echo -e "${YELLOW}[ 1/$MAX_STEPS ] Pre-processing configs using utpp... ${NC}"
-utpp "/etc/nginx/**;/usr/local/etc/php*/**;/var/www/html/*.php"
+utpp "/etc/nginx/**;/etc/php/**;/var/www/html/*.php"
 
 echo -e "${YELLOW}[ 2/$MAX_STEPS ] Starting php-fpm... ${NC}"
-php-fpm -RF &
+php-fpm8.5 -F -R &
 
 # skipped in v3.9
 # echo -e "${YELLOW}[ 3/$MAX_STEPS ] Starting worker... ${NC}"
@@ -42,7 +42,8 @@ echo -e "${YELLOW}[ 3/$MAX_STEPS ] Starting nginx... ${NC}"
 nginx -g 'daemon off;' &
 
 echo -e "${YELLOW}[ 4/$MAX_STEPS ] Starting redis... ${NC}"
-redis-server /etc/redis.conf --save 60 1 &
+mkdir -p /run/redis
+redis-server /etc/redis/redis.conf --save 60 1 &
 
 echo -e "${GREEN}[ 5/$MAX_STEPS ] All services running!${NC}"
 wait -n

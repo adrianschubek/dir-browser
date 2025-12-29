@@ -1,30 +1,45 @@
-FROM php:8.5-fpm-alpine AS base
+FROM debian:trixie-slim AS base
 
-ENV DIRBROWSER_VERSION=4.3.1
+ENV DIRBROWSER_VERSION=4.3.2
 
-RUN apk update && apk upgrade
+ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apk add --no-cache libzip-dev \
-  && docker-php-ext-configure zip \
-  && docker-php-ext-install zip
+RUN set -eux; \
+  apt-get update; \
+  apt-get install -y --no-install-recommends \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release \
+    apt-transport-https \
+    unzip \
+    bash \
+    nginx \
+    redis-server; \
+  rm -rf /var/lib/apt/lists/*
 
-RUN apk add --no-cache autoconf build-base \
-  && pecl install -o -f redis \
-  && rm -rf /tmp/pear \
-  && docker-php-ext-enable redis \
-  && apk del autoconf build-base
+# Install PHP 8.5 from Sury (https://packages.sury.org/php/README.txt)
+RUN set -eux; \
+  curl -fsSL https://packages.sury.org/php/apt.gpg -o /etc/apt/trusted.gpg.d/php.gpg; \
+  echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list; \
+  apt-get update; \
+  apt-get install -y --no-install-recommends \
+    php8.5-cli \
+    php8.5-fpm \
+    php8.5-mbstring \
+    php8.5-zip \
+    php8.5-redis; \
+  ln -sf /usr/bin/php8.5 /usr/local/bin/php; \
+  rm -rf /var/lib/apt/lists/*
 
-RUN apk add --no-cache redis 
+RUN set -eux; \
+  curl -fSsL https://github.com/adrianschubek/utpp/releases/download/0.5.0/utpp-linux -o /usr/local/bin/utpp; \
+  chmod +x /usr/local/bin/utpp
 
-RUN apk add --no-cache nginx
-
-RUN apk add --no-cache bash
-
-RUN apk add --no-cache curl \
-  && curl -fSsL https://github.com/adrianschubek/utpp/releases/download/0.5.0/utpp-alpine -o /usr/local/bin/utpp && chmod +x /usr/local/bin/utpp\
-  && apk del curl
-
-RUN apk add --no-cache composer
+RUN set -eux; \
+  curl -fsSL https://getcomposer.org/installer -o /tmp/composer-setup.php; \
+  php8.5 /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer; \
+  rm -f /tmp/composer-setup.php
 
 WORKDIR /var/www/html
 
@@ -40,9 +55,12 @@ COPY server/nginx/nginx.conf /etc/nginx/nginx.conf
 
 COPY server/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf
 
-COPY server/php/fpm-pool.conf /usr/local/etc/php-fpm.d/www.conf
+COPY server/php/fpm-pool.conf /etc/php/8.5/fpm/pool.d/www.conf
 
-COPY server/php/php.ini /usr/local/etc/php/conf.d/custom.ini
+COPY server/php/php.ini /etc/php/8.5/fpm/conf.d/99-custom.ini
+COPY server/php/php.ini /etc/php/8.5/cli/conf.d/99-custom.ini
+
+COPY server/redis/redis.conf /etc/redis/redis.conf
 
 COPY src/index.php /var/www/html
 
@@ -134,6 +152,12 @@ ENV AUTH_COOKIE_LIFETIME=2592000
 ENV AUTH_COOKIE_HTTPONLY=true
 
 ENV TITLE="dir-browser"
+
+ENV MEM_LIMIT=-1
+
+ENV MAX_EXEC_TIME=600
+
+ENV DISPLAY_ERRORS=Off
 
 EXPOSE 8080
 
