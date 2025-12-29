@@ -663,6 +663,10 @@ function downloadBatch(array $urls) {
 }
 $[end]$
 
+$max_pages = 1;
+$page_start_offset = 0;
+$pages = [];
+
 // local path exists
 if ($path_is_dir) {
   $[if `process.env.DOWNLOAD_COUNTER === "true"`]$
@@ -766,7 +770,7 @@ if ($path_is_dir) {
         if (isset($meta->description)) { // escape meta->description 
           $meta->description = htmlspecialchars($meta->description, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
         }
-        if ($meta?->hidden === true) {
+        if (isset($meta->hidden) && $meta->hidden === true) {
           continue;
         }
       }
@@ -848,6 +852,7 @@ if ($path_is_dir) {
 
   // readme
   $[if `process.env.README_RENDER === "true"`]$
+  $readme = null;
   // check if readme exists
   foreach (explode(';', "${{`process.env.README_NAME`}}$") as $readme_name) {
     foreach ($sorted_files as $file) {
@@ -1414,7 +1419,7 @@ end:
         
         <?php
         $now = new DateTime();
-        foreach ($sorted as $file) {
+        foreach ($sorted ?? [] as $file) {
           $fileDate = new DateTime($file->modified_date);
           $diff = $now->diff($fileDate)->days;
         ?>
@@ -1452,16 +1457,18 @@ end:
             <?php } ?>
             <?php 
               if ($file->meta !== null) {
-                if ($file->meta->description !== null) {
+                if (isset($file->meta->description)) {
             ?> 
                   <span class="text-body-secondary"><?= $file->meta->description ?></span>
             <?php
                 }
-                foreach ($file->meta->labels as $lbl) {
-                  $l = explode(":", $lbl, 2);
+                if (isset($file->meta->labels) && is_array($file->meta->labels)) {
+                  foreach ($file->meta->labels as $lbl) {
+                    $l = explode(":", $lbl, 2);
             ?>
-                  <span class="badge bg-<?= $l[0] ?>"><?= $l[1] ?></span>
+                    <span class="badge bg-<?= $l[0] ?>"><?= $l[1] ?></span>
             <?php
+                  }
                 }
                 // per-file password protection via .dbmeta.json was removed in favor of folder-level .access.json
               }
