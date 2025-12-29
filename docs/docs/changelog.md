@@ -5,6 +5,30 @@ sidebar_position: 1.5
 
 All notable changes to this project will be documented in this file.
 
+## [4.3.2] - 2025-12-29
+
+### 🚀 Features
+
+- Use debian-slim instead of alpine as base image ([3b00d3e](https://github.com/adrianschubek/dir-browser/commit/3b00d3ed31be4aa28711eac1419f057087d08d0a))
+
+### 🐛 Bug Fixes
+
+- Don't escape forward slashes anywhere in API ([a74e977](https://github.com/adrianschubek/dir-browser/commit/a74e9775417956b3f1c8a4852e2c27e2698d65e8))
+- Php warnings ([fbc7c3c](https://github.com/adrianschubek/dir-browser/commit/fbc7c3c7204677cf48c44c461467c0e4d02a829b))
+
+### 📚 Documentation
+
+- Clarify preview dialog ([96a3c40](https://github.com/adrianschubek/dir-browser/commit/96a3c40383e82a9dcefac921d6e2e9bf3ccd8a4e))
+- Remove exp flag ([e7d58c2](https://github.com/adrianschubek/dir-browser/commit/e7d58c2cf09469f82627582090ec187f021a293c))
+- Fix hash config ([1197009](https://github.com/adrianschubek/dir-browser/commit/11970099aadce1e6e72b2d948a29950a160ee940))
+- Update metadata ([833dd6b](https://github.com/adrianschubek/dir-browser/commit/833dd6bc21be32b7c5f742a1c7d1b147d0a0c960))
+- Update batch & pagination ([2a0e67e](https://github.com/adrianschubek/dir-browser/commit/2a0e67ebfb770c6e1a29868ed1e6b285186f16fc))
+- Fix API warning ([9f4e5d7](https://github.com/adrianschubek/dir-browser/commit/9f4e5d75c61911c3e312d00dea389cd1ad279539))
+- Update API ([57bf066](https://github.com/adrianschubek/dir-browser/commit/57bf0667801fc9f682f386d43687f322fbe4ecd0))
+- Remove outdated images from API ([88065bd](https://github.com/adrianschubek/dir-browser/commit/88065bd9c6d5455b8c7e20409f571a10202d2aab))
+- API make links clickable ([24de4d0](https://github.com/adrianschubek/dir-browser/commit/24de4d0103d49872177ad936cb314674122465ba))
+- Glob expansion is now supported ([28f5939](https://github.com/adrianschubek/dir-browser/commit/28f5939560dbc9969d48452510274c826091b886))
+
 ## [4.3.1] - 2025-12-15
 
 ### 🚀 Features
