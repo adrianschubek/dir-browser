@@ -28,7 +28,6 @@ More powerful search engine for advanced users. It is simple to use and faster t
 | `\`           | Escapes the following character.                                                             |
 
 :::info
-Expansion `{a,b,c}` is not available because it is not supported by the underlying base image (Alpine Linux).
 Globstar `**` is not supported by PHP natively.
 :::
 
