@@ -1,6 +1,6 @@
 FROM debian:trixie-slim AS base
 
-ENV DIRBROWSER_VERSION=4.3.2
+ENV DIRBROWSER_VERSION=4.3.3
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -14,8 +14,23 @@ RUN set -eux; \
     apt-transport-https \
     unzip \
     bash \
-    nginx \
-    redis-server; \
+    debian-archive-keyring; \
+  rm -rf /var/lib/apt/lists/*
+
+RUN set -eux; \
+  curl -fsSL https://nginx.org/keys/nginx_signing.key | gpg --dearmor -o /usr/share/keyrings/nginx-archive-keyring.gpg; \
+  echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] https://nginx.org/packages/mainline/debian $(lsb_release -cs) nginx" | tee /etc/apt/sources.list.d/nginx.list; \
+  printf "Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n" | tee /etc/apt/preferences.d/99nginx; \
+  apt-get update; \
+  apt-get install -y --no-install-recommends nginx; \
+  rm -rf /var/lib/apt/lists/*
+
+RUN set -eux; \
+  curl -fsSL https://packages.redis.io/gpg | gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg; \
+  chmod 644 /usr/share/keyrings/redis-archive-keyring.gpg; \
+  echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/redis.list; \
+  apt-get update; \
+  apt-get install -y --no-install-recommends redis; \
   rm -rf /var/lib/apt/lists/*
 
 # Install PHP 8.5 from Sury (https://packages.sury.org/php/README.txt)
