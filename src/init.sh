@@ -29,7 +29,7 @@ fi
 
 
 echo -e "${YELLOW}[ 1/$MAX_STEPS ] Pre-processing configs using utpp... ${NC}"
-utpp "/etc/nginx/**;/etc/php/**;/var/www/html/*.php"
+utpp "/etc/nginx/nginx.conf;/etc/nginx/conf.d/default.conf;/etc/php/**;/var/www/html/*.php"
 
 echo -e "${YELLOW}[ 2/$MAX_STEPS ] Starting php-fpm... ${NC}"
 php-fpm8.5 -F -R &
