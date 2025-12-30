@@ -327,6 +327,16 @@ $url_parts = array_filter(explode(separator: '/', string: $request_uri), fn ($pa
 
 // get real path and check if accessible (open_basedir)
 $local_path = realpath(PUBLIC_FOLDER . $request_uri);
+
+// Initialize variables to avoid warnings in case of early exit (404)
+$path_is_dir = false;
+$max_pages = 1;
+$page_start_offset = 0;
+$total_items = 0;
+$total_size = 0;
+$pages = [];
+$current_page = 1;
+
 if (!str_starts_with($local_path, PUBLIC_FOLDER)) {
   goto skip; /* File should be ignored so skip to 404 */
 } 
@@ -354,9 +364,6 @@ class File
 
 /* @var array<File> */
 $sorted = [];
-
-$total_items = 0;
-$total_size = 0;
 
 /**
  * Check if file/folder should be hidden (ignored)
@@ -662,10 +669,6 @@ function downloadBatch(array $urls) {
   }
 }
 $[end]$
-
-$max_pages = 1;
-$page_start_offset = 0;
-$pages = [];
 
 // local path exists
 if ($path_is_dir) {
