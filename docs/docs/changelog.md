@@ -5,6 +5,14 @@ sidebar_position: 1.5
 
 All notable changes to this project will be documented in this file.
 
+## [4.3.3] - 2025-12-30
+
+### 🐛 Bug Fixes
+
+- Initialize variables to prevent warnings on early exit ([588d5f8](https://github.com/adrianschubek/dir-browser/commit/588d5f8028e7028cbc6149a4d39200dfdbe5d79f))
+- Make utpp scan paths more specific ([ef1327d](https://github.com/adrianschubek/dir-browser/commit/ef1327d41ad96216019ac7e760a91bc4c2cdf420))
+- Use official APT repo for redis and nginx ([9362402](https://github.com/adrianschubek/dir-browser/commit/9362402f3481e8ce9163861500b140777f13db37))
+
 ## [4.3.2] - 2025-12-29
 
 ### 🚀 Features
