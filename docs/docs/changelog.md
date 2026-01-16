@@ -5,6 +5,18 @@ sidebar_position: 1.5
 
 All notable changes to this project will be documented in this file.
 
+## [4.4.0] - 2026-01-16
+
+### 🚀 Features
+
+- Add support for PDF previews ([98d9a93](https://github.com/adrianschubek/dir-browser/commit/98d9a9343bdac87e035d956ec5d1fdb6db2d5b8b))
+- Add support for markdown previews. closes #42 ([49545de](https://github.com/adrianschubek/dir-browser/commit/49545de71698971e7987e94419a311a4219ac3e6))
+
+### ⚙️ Miscellaneous Tasks
+
+- Remove experimental caching ([3618116](https://github.com/adrianschubek/dir-browser/commit/361811696167ddec730d8e3f090f5e4f2b17818a))
+- Bump version ([c59377e](https://github.com/adrianschubek/dir-browser/commit/c59377e07cde153f4d07422ceea6674943458f12))
+
 ## [4.3.3] - 2025-12-30
 
 ### 🐛 Bug Fixes
