@@ -1014,6 +1014,8 @@ if ($path_is_dir) {
     $kind = "none";
     if (str_starts_with($mime, "image/")) {
       $kind = "image";
+    } elseif ($mime === "application/pdf" || $ext === "pdf") {
+      $kind = "pdf";
     } elseif (str_starts_with($mime, "video/")) {
       $kind = "video";
     } elseif (str_starts_with($mime, "audio/") || in_array($ext, ["mp3", "m4a", "aac", "wav", "ogg", "oga", "opus", "flac"])) {
@@ -2120,6 +2122,15 @@ end:
           img.alt = 'Preview';
           img.src = rawUrl;
           node.appendChild(img);
+          return;
+        }
+
+        if (preview.kind === 'pdf') {
+          const iframe = document.createElement('iframe');
+          iframe.className = 'w-100 rounded';
+          iframe.style.height = '80vh';
+          iframe.src = rawUrl;
+          node.appendChild(iframe);
           return;
         }
 
