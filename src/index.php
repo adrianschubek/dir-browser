@@ -1024,7 +1024,9 @@ if ($path_is_dir) {
       $kind = "json";
     } elseif ($mime === "text/csv" || $ext === "csv") {
       $kind = "csv";
-    } elseif (str_starts_with($mime, "text/") || in_array($ext, ["txt", "log", "md", "yaml", "yml", "ini", "conf", "xml", "html", "css", "js", "ts", "php"])) {
+    } elseif ($ext === "md") {
+      $kind = "markdown";
+    } elseif (str_starts_with($mime, "text/") || in_array($ext, ["txt", "log", "yaml", "yml", "ini", "conf", "xml", "html", "css", "js", "ts", "php"])) {
       $kind = "text";
     }
 
@@ -1036,7 +1038,7 @@ if ($path_is_dir) {
     ];
 
     // For media we don't inline bytes; client will request ?raw=1.
-    if ($kind === "text" || $kind === "json" || $kind === "csv") {
+    if ($kind === "text" || $kind === "json" || $kind === "csv" || $kind === "markdown") {
       $max_bytes = 128 * 1024;
       $raw = @file_get_contents($local_path, false, null, 0, $max_bytes + 1);
       if ($raw === false) {
@@ -1059,6 +1061,27 @@ if ($path_is_dir) {
             // Invalid JSON; fall back to raw text preview.
             $preview["kind"] = "text";
             $preview["text"] = $raw;
+          }
+        } elseif ($kind === "markdown") {
+          if (class_exists('\\League\\CommonMark\\Environment\\Environment')) {
+            try {
+              $config = [];
+              $environment = new \League\CommonMark\Environment\Environment($config);
+              $environment->addExtension(new \League\CommonMark\Extension\CommonMark\CommonMarkCoreExtension());
+              $environment->addExtension(new \League\CommonMark\Extension\Autolink\AutolinkExtension());
+              ${{`!process.env.ALLOW_RAW_HTML ? "$environment->addExtension(new \\League\\CommonMark\\Extension\\DisallowedRawHtml\\DisallowedRawHtmlExtension());" : ""`}}$
+              $environment->addExtension(new \League\CommonMark\Extension\Strikethrough\StrikethroughExtension());
+              $environment->addExtension(new \League\CommonMark\Extension\Table\TableExtension());
+              $environment->addExtension(new \League\CommonMark\Extension\TaskList\TaskListExtension());
+              $converter = new \League\CommonMark\MarkdownConverter($environment);
+              $preview["text"] = (string) $converter->convert($raw);
+            } catch (Exception $e) {
+              $preview["kind"] = "text";
+              $preview["text"] = $raw;
+            }
+          } else {
+             $preview["kind"] = "text";
+             $preview["text"] = $raw;
           }
         } else {
           $preview["text"] = $raw;
@@ -2156,6 +2179,16 @@ end:
           source.type = preview.mime || 'audio/mpeg';
           audio.appendChild(source);
           node.appendChild(audio);
+          return;
+        }
+
+        if (preview.kind === 'markdown') {
+          const div = document.createElement('div');
+          div.className = 'markdown-body p-3 rounded';
+          div.style.maxHeight = '60vh';
+          div.style.overflow = 'auto';
+          div.innerHTML = preview.text || '';
+          node.appendChild(div);
           return;
         }
 
