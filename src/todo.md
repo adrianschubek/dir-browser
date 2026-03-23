@@ -9,4 +9,6 @@
 
 - maybe use react/shadcn for frontend
 
-- bun zp libraries: https://arena.ai/c/019d1ba7-fb1c-7fd6-a6f9-8044db8663ef. archiver or @zip-js/zip-js with TransformStream
+- bun zip libraries: https://arena.ai/c/019d1ba7-fb1c-7fd6-a6f9-8044db8663ef. archiver or @zip-js/zip-js with TransformStream
+
+- bun markdown: https://bun.com/docs/runtime/markdown
