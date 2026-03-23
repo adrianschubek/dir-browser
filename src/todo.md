@@ -9,6 +9,14 @@
 
 - maybe use react/shadcn for frontend
 
-- bun zip libraries: https://arena.ai/c/019d1ba7-fb1c-7fd6-a6f9-8044db8663ef. archiver or @zip-js/zip-js with TransformStream
 
-- bun markdown: https://bun.com/docs/runtime/markdown
+
+Refactor the entire old codebase (remove php, nginx, redis) to use the new NextJs and Bun server. Implement all API routes in the Bun server and connect them to the NextJs frontend. Implement UI using shadcn/ui components (see components folder). Make it look professional. Don't use server actions (use the Bun server).
+
+- bun zip libraries: https://github.com/gildas-lormeau/zip.js use @zip-js/zip-js with TransformStream 
+
+- bun markdown: https://bun.com/docs/runtime/markdown Bun.markdown.html(text, options) -> string
+
+- remove redis and use an in-memory sqlite database instead using Bun's sqlite API https://bun.com/docs/runtime/sqlite . Periodically serialize() it to disk. On startup load it back into memory with deserialize(). 
+
+- Adjust Dockerfile as needed.
