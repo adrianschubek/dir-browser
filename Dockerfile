@@ -1,6 +1,6 @@
 FROM debian:trixie-slim AS base
 
-ENV DIRBROWSER_VERSION=4.4.0
+ENV DIRBROWSER_VERSION=4.4.1
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -63,8 +63,6 @@ RUN composer require "league/commonmark:^2.8"
 RUN composer require "maennchen/zipstream-php:^3.2"
 
 RUN mkdir -p /data/nginx/cache
-# for batch downloads
-RUN mkdir -p /var/www/html/tmp
 
 COPY server/nginx/nginx.conf /etc/nginx/nginx.conf
 

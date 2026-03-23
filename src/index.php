@@ -599,8 +599,6 @@ function downloadBatch(array $urls) {
   $[end]$
   $[if `process.env.BATCH_DOWNLOAD === "true"`]$
   try {
-    $streaming_started = false;
-
     // Disable buffering/compression where possible to allow true streaming.
     @ini_set('zlib.output_compression', 'Off');
     @ini_set('implicit_flush', '1');
@@ -638,9 +636,6 @@ function downloadBatch(array $urls) {
       flushOutput: true,
     );
 
-    // At this point, ZipStream may start emitting bytes as files are added.
-    $streaming_started = true;
-
     foreach ($files_to_zip as $f) {
       $lastMod = null;
       if ($f['mtime'] !== null) {
@@ -651,7 +646,7 @@ function downloadBatch(array $urls) {
         path: $f['full_path'],
         lastModificationDateTime: $lastMod,
         exactSize: (int) $f['size'],
-        enableZeroHeader: false,
+        enableZeroHeader: true,
       );
     }
 
@@ -660,7 +655,7 @@ function downloadBatch(array $urls) {
   } catch (\Throwable $th) {
     // If we've already started streaming ZIP bytes, do NOT write any additional
     // output (it corrupts the archive). Best effort is to terminate.
-    if (!$streaming_started && !headers_sent()) {
+    if (!headers_sent()) {
       http_response_code(500);
       header('Content-Type: text/plain; charset=utf-8');
       echo "Batch download error: " . $th->getMessage();
@@ -1588,13 +1583,16 @@ end:
       <div class="modal-content rounded ">
         <div class="modal-header">
           <h1 class="modal-title fs-5" id="staticBackdropLabel">Modal title</h1>
+          <button type="button" class="btn btn-sm me-2 border-0" id="file-popup-fullscreen-toggle" aria-label="Toggle Fullscreen">
+            <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-arrows-maximize"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16 4l4 0l0 4" /><path d="M14 10l6 -6" /><path d="M8 20l-4 0l0 -4" /><path d="M4 20l6 -6" /><path d="M16 20l4 0l0 -4" /><path d="M14 14l6 6" /><path d="M8 4l-4 0l0 4" /><path d="M4 4l6 6" /></svg>
+          </button>
           <button type="button" class="btn-close" id="file-popup-x" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
           <div id="file-popup-preview" class="mb-3">
             <div class="text-body-secondary">Loading…</div>
           </div>
-          <div class="border-top pt-2">
+          <div id="file-popup-meta-container" class="border-top pt-2">
             <div class="fw-semibold mb-2">Metadata</div>
             <dl class="row mb-0" id="file-popup-meta"></dl>
           </div>
@@ -2151,7 +2149,7 @@ end:
         if (preview.kind === 'pdf') {
           const iframe = document.createElement('iframe');
           iframe.className = 'w-100 rounded';
-          iframe.style.height = '80vh';
+          iframe.style.height = '85vh';
           iframe.src = rawUrl;
           node.appendChild(iframe);
           return;
@@ -2185,7 +2183,7 @@ end:
         if (preview.kind === 'markdown') {
           const div = document.createElement('div');
           div.className = 'markdown-body p-3 rounded';
-          div.style.maxHeight = '60vh';
+          div.style.maxHeight = '85vh';
           div.style.overflow = 'auto';
           div.innerHTML = preview.text || '';
           node.appendChild(div);
@@ -2194,7 +2192,7 @@ end:
 
         const pre = document.createElement('pre');
         pre.className = 'bg-body-tertiary p-2 rounded small';
-        pre.style.maxHeight = '50vh';
+        pre.style.maxHeight = '85vh';
         pre.style.overflow = 'auto';
         pre.textContent = preview.text || '';
         node.appendChild(pre);
@@ -2374,6 +2372,27 @@ end:
     document.querySelector('#file-popup-x').addEventListener('click', (e) => {
       document.querySelector('#file-popup').classList.remove("d-block");
       document.querySelector('#file-popup').classList.remove("show");
+    });
+    document.querySelector('#file-popup-fullscreen-toggle').addEventListener('click', (e) => {
+      e.preventDefault();
+      const dialog = document.querySelector('#file-popup .modal-dialog');
+      dialog.classList.toggle('modal-fullscreen');
+      
+      const metaContainer = document.querySelector('#file-popup-meta-container');
+      if (metaContainer) {
+        if (dialog.classList.contains('modal-fullscreen')) {
+             metaContainer.classList.add('d-none');
+        } else {
+             metaContainer.classList.remove('d-none');
+        }
+      }
+
+      const icon = e.currentTarget.querySelector('svg');
+      if (dialog.classList.contains('modal-fullscreen')) {
+         icon.innerHTML = '<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M5 9l4 0l0 -4" /><path d="M3 3l6 6" /><path d="M5 15l4 0l0 4" /><path d="M3 21l6 -6" /><path d="M19 9l-4 0l0 -4" /><path d="M21 3l-6 6" /><path d="M19 15l-4 0l0 4" /><path d="M21 21l-6 -6" />';
+      } else {
+         icon.innerHTML = '<path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M16 4l4 0l0 4" /><path d="M14 10l6 -6" /><path d="M8 20l-4 0l0 -4" /><path d="M4 20l6 -6" /><path d="M16 20l4 0l0 -4" /><path d="M14 14l6 6" /><path d="M8 4l-4 0l0 4" /><path d="M4 4l6 6" />';
+      }
     });
     $[end]$
 
