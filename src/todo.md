@@ -11,7 +11,7 @@
 
 
 
-Refactor the entire old codebase (remove php, nginx, redis) to use the new NextJs and Bun server. Implement all API routes in the Bun server and connect them to the NextJs frontend. Implement UI using shadcn/ui components (see components folder). Make it look professional. Don't use server actions (use the Bun server).
+<!-- Refactor the entire old codebase (remove php, nginx, redis) to use the new NextJs and Bun server. Implement all API routes in the Bun server and connect them to the NextJs frontend. Implement UI using shadcn/ui components (see components folder). Make it look professional. Don't use server actions (use the Bun server).
 
 - bun zip libraries: https://github.com/gildas-lormeau/zip.js use @zip-js/zip-js with TransformStream 
 
@@ -19,4 +19,4 @@ Refactor the entire old codebase (remove php, nginx, redis) to use the new NextJ
 
 - remove redis and use an in-memory sqlite database instead using Bun's sqlite API https://bun.com/docs/runtime/sqlite . Periodically serialize() it to disk. On startup load it back into memory with deserialize(). 
 
-- Adjust Dockerfile as needed.
+- Adjust Dockerfile as needed. -->

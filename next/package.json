@@ -4,8 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
-    "dev:api": "bun run --hot server/server.ts",
+    "dev": "bun --bun next dev --turbopack",
+    "dev:api": "bun --bun --watch run server/server.ts",
     "build": "next build",
     "start": "next start",
     "start:api": "bun run server/server.ts",
