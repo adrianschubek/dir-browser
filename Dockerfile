@@ -38,8 +38,7 @@ USER app
 ENV NODE_ENV=production
 ENV PORT=8080
 ENV NEXT_PORT=3000
-ENV NEXT_HOST=127.0.0.1
-ENV UI_BASE_PATH=/ui
+ENV NEXT_PUBLIC_API_BASE_URL=http://127.0.0.1:8080
 ENV PUBLIC_FOLDER=/var/www/html/public
 ENV COUNTER_SNAPSHOT_PATH=/data/counters.sqlite.bin
 ENV COUNTER_FLUSH_INTERVAL_MS=10000
@@ -66,6 +65,6 @@ ENV TITLE=dir-browser
 
 VOLUME ["/var/www/html/public", "/data"]
 
-EXPOSE 8080
+EXPOSE 8080 3000
 
 CMD ["/init.sh"]

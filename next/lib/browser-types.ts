@@ -23,6 +23,11 @@ export type ListDirectoryResponse = {
   items: BrowserItem[]
 }
 
+export type DirectoryReadmeResponse = {
+  path: string
+  readme_html: string | null
+}
+
 export type SearchDirectoryResponse = {
   total: number
   truncated: boolean

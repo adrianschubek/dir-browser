@@ -1,5 +1,5 @@
-import { redirect } from "next/navigation"
+import { FileBrowserPage } from "@/components/browser/file-browser-page"
 
 export default function Page() {
-  redirect("/ui")
+  return <FileBrowserPage initialPath="/" />
 }

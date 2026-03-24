@@ -1,9 +1,12 @@
 import {
+  type DirectoryReadmeResponse,
   type FileInfoResponse,
   type FilePreviewResponse,
   type ListDirectoryResponse,
   type SearchDirectoryResponse,
 } from "@/lib/browser-types"
+
+const API_BASE_URL = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8080").replace(/\/+$/, "")
 
 function encodeUserPath(pathname: string): string {
   const normalized = pathname.startsWith("/") ? pathname : `/${pathname}`
@@ -14,6 +17,10 @@ function encodeUserPath(pathname: string): string {
 function getApiPath(pathname: string): string {
   const encoded = encodeUserPath(pathname)
   return `/api/fs${encoded === "/" ? "/" : encoded}`
+}
+
+function buildApiUrl(pathname: string, query = ""): string {
+  return `${API_BASE_URL}${getApiPath(pathname)}${query}`
 }
 
 function withAuthHeaders(accessKey?: string): HeadersInit {
@@ -31,12 +38,24 @@ async function handleResponse<T>(response: Response): Promise<T> {
   return (await response.json()) as T
 }
 
-export async function listDirectory(pathname: string, accessKey?: string): Promise<ListDirectoryResponse> {
-  const response = await fetch(`${getApiPath(pathname)}?ls`, {
+export async function listDirectory(
+  pathname: string,
+  accessKey?: string,
+  includeReadme = true
+): Promise<ListDirectoryResponse> {
+  const response = await fetch(buildApiUrl(pathname, `?ls&readme=${includeReadme ? "1" : "0"}`), {
     headers: withAuthHeaders(accessKey),
     cache: "no-store",
   })
   return handleResponse<ListDirectoryResponse>(response)
+}
+
+export async function getDirectoryReadme(pathname: string, accessKey?: string): Promise<DirectoryReadmeResponse> {
+  const response = await fetch(buildApiUrl(pathname, "?readme=1"), {
+    headers: withAuthHeaders(accessKey),
+    cache: "no-store",
+  })
+  return handleResponse<DirectoryReadmeResponse>(response)
 }
 
 export async function searchDirectory(
@@ -45,7 +64,7 @@ export async function searchDirectory(
   engine: "s" | "g" | "r",
   accessKey?: string
 ): Promise<SearchDirectoryResponse> {
-  const response = await fetch(`${getApiPath(pathname)}?q=${encodeURIComponent(query)}&e=${engine}`, {
+  const response = await fetch(buildApiUrl(pathname, `?q=${encodeURIComponent(query)}&e=${engine}`), {
     headers: withAuthHeaders(accessKey),
     cache: "no-store",
   })
@@ -53,7 +72,7 @@ export async function searchDirectory(
 }
 
 export async function getFileInfo(pathname: string, accessKey?: string): Promise<FileInfoResponse> {
-  const response = await fetch(`${getApiPath(pathname)}?info`, {
+  const response = await fetch(buildApiUrl(pathname, "?info"), {
     headers: withAuthHeaders(accessKey),
     cache: "no-store",
   })
@@ -61,7 +80,7 @@ export async function getFileInfo(pathname: string, accessKey?: string): Promise
 }
 
 export async function getFilePreview(pathname: string, accessKey?: string): Promise<FilePreviewResponse> {
-  const response = await fetch(`${getApiPath(pathname)}?preview`, {
+  const response = await fetch(buildApiUrl(pathname, "?preview"), {
     headers: withAuthHeaders(accessKey),
     cache: "no-store",
   })
@@ -69,22 +88,22 @@ export async function getFilePreview(pathname: string, accessKey?: string): Prom
 }
 
 export function getRawFileUrl(pathname: string): string {
-  return `${getApiPath(pathname)}?raw=1`
+  return buildApiUrl(pathname, "?raw=1")
 }
 
 export function getDownloadUrl(pathname: string): string {
-  return getApiPath(pathname)
+  return buildApiUrl(pathname)
 }
 
 export function getUiPath(pathname: string): string {
   const normalized = pathname.startsWith("/") ? pathname : `/${pathname}`
-  if (normalized === "/") return "/ui"
+  if (normalized === "/") return "/"
   const encoded = normalized
     .split("/")
     .filter(Boolean)
     .map(encodeURIComponent)
     .join("/")
-  return `/ui/${encoded}`
+  return `/${encoded}`
 }
 
 export async function batchDownload(pathname: string, selectedPaths: string[], accessKey?: string): Promise<Blob> {
@@ -93,7 +112,7 @@ export async function batchDownload(pathname: string, selectedPaths: string[], a
     formData.append("download_batch[]", item)
   }
 
-  const response = await fetch(getApiPath(pathname), {
+  const response = await fetch(buildApiUrl(pathname), {
     method: "POST",
     headers: withAuthHeaders(accessKey),
     body: formData,

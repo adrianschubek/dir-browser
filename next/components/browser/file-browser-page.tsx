@@ -2,10 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
-import Image from "next/image"
 import { useTheme } from "next-themes"
 import {
   AudioLines,
+  ChevronLeft,
   Code,
   Copy,
   Download,
@@ -38,7 +38,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import {
-  batchDownload,
+  getDirectoryReadme,
   getDownloadUrl,
   getFilePreview,
   getRawFileUrl,
@@ -115,12 +115,22 @@ function getFileIcon(item: BrowserItem) {
   return File
 }
 
+function decodePathSegment(segment: string): string {
+  try {
+    return decodeURIComponent(segment)
+  } catch {
+    return segment
+  }
+}
+
 export function FileBrowserPage({ initialPath }: FileBrowserPageProps) {
   const router = useRouter()
   const { theme, setTheme } = useTheme()
 
   const [currentPath, setCurrentPath] = useState(initialPath)
   const [directoryData, setDirectoryData] = useState<ListDirectoryResponse | null>(null)
+  const [readmeHtml, setReadmeHtml] = useState<string | null>(null)
+  const [readmeLoading, setReadmeLoading] = useState(false)
   const [searchData, setSearchData] = useState<SearchDirectoryResponse | null>(null)
   const [searchText, setSearchText] = useState("")
   const [showSearch, setShowSearch] = useState(false)
@@ -140,6 +150,7 @@ export function FileBrowserPage({ initialPath }: FileBrowserPageProps) {
 
   useEffect(() => {
     setCurrentPath(initialPath)
+    setReadmeHtml(null)
     setSearchData(null)
   }, [initialPath])
 
@@ -159,7 +170,7 @@ export function FileBrowserPage({ initialPath }: FileBrowserPageProps) {
     setLoading(true)
     setError(null)
     try {
-      const response = await listDirectory(currentPath, accessKey || undefined)
+      const response = await listDirectory(currentPath, accessKey || undefined, false)
       setDirectoryData(response)
     } catch (requestError) {
       if (getErrorStatus(requestError) === 401) {
@@ -175,6 +186,26 @@ export function FileBrowserPage({ initialPath }: FileBrowserPageProps) {
   useEffect(() => {
     void loadDirectory()
   }, [loadDirectory])
+
+  const loadReadme = useCallback(async () => {
+    setReadmeLoading(true)
+    try {
+      const response = await getDirectoryReadme(currentPath, accessKey || undefined)
+      setReadmeHtml(response.readme_html)
+    } catch (requestError) {
+      if (getErrorStatus(requestError) === 401) {
+        requestUnlock(loadReadme)
+      } else {
+        setError(getErrorMessage(requestError))
+      }
+    } finally {
+      setReadmeLoading(false)
+    }
+  }, [accessKey, currentPath, requestUnlock])
+
+  useEffect(() => {
+    void loadReadme()
+  }, [loadReadme])
 
   const items = useMemo(() => {
     if (searchData) {
@@ -195,6 +226,33 @@ export function FileBrowserPage({ initialPath }: FileBrowserPageProps) {
   const openDirectory = (userPath: string) => {
     router.push(getUiPath(userPath))
   }
+
+  const breadcrumbs = useMemo(() => {
+    const segments = currentPath.split("/").filter(Boolean)
+    const crumbs = [{ label: "/", path: "/" }]
+    let pathAccumulator = ""
+
+    for (const segment of segments) {
+      pathAccumulator += `/${segment}`
+      crumbs.push({
+        label: decodePathSegment(segment),
+        path: pathAccumulator,
+      })
+    }
+
+    return crumbs
+  }, [currentPath])
+
+  const canGoBack = currentPath !== "/"
+
+  const goToParentDirectory = () => {
+    if (!canGoBack) return
+    const segments = currentPath.split("/").filter(Boolean)
+    const parentPath = segments.length <= 1 ? "/" : `/${segments.slice(0, -1).join("/")}`
+    openDirectory(parentPath)
+  }
+
+  const previewRawUrl = previewPath ? getRawFileUrl(previewPath) : null
 
   const runSearch = async () => {
     if (!searchText.trim()) {
@@ -259,10 +317,32 @@ export function FileBrowserPage({ initialPath }: FileBrowserPageProps) {
     <div className="mx-auto flex min-h-screen w-full max-w-[1000px] flex-col pb-16 pt-8">
       {/* Header */}
       <header className="mb-6 flex items-center justify-between px-4 sm:px-6">
-        <div className="flex items-center gap-2">
-          <span className="text-xl font-semibold tracking-tight text-foreground/80">
-            {currentPath === "/" ? "/" : currentPath}
-          </span>
+        <div className="flex min-w-0 items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-9 shrink-0 rounded-full text-muted-foreground hover:text-foreground"
+            disabled={!canGoBack}
+            onClick={goToParentDirectory}
+          >
+            <ChevronLeft className="size-4" />
+          </Button>
+
+          <nav className="flex min-w-0 items-center text-sm font-medium text-muted-foreground">
+            {breadcrumbs.map((crumb, index) => (
+              <div key={crumb.path} className="flex min-w-0 items-center">
+                {index > 0 && <span className="mx-1 text-muted-foreground/50">/</span>}
+                <button
+                  type="button"
+                  className="max-w-[180px] truncate rounded-sm px-1 py-0.5 text-left text-foreground/80 transition-colors hover:text-foreground disabled:cursor-default disabled:text-foreground"
+                  onClick={() => openDirectory(crumb.path)}
+                  disabled={crumb.path === currentPath}
+                >
+                  {crumb.label}
+                </button>
+              </div>
+            ))}
+          </nav>
         </div>
         
         <div className="flex items-center gap-4">
@@ -376,12 +456,19 @@ export function FileBrowserPage({ initialPath }: FileBrowserPageProps) {
         </div>
 
         {/* README Section */}
-        {directoryData?.readme_html && !searchData && (
+        {!searchData && (readmeLoading || readmeHtml) && (
           <div className="mt-8 rounded-xl border border-border/40 bg-card/40 backdrop-blur-md px-6 py-6 shadow-sm">
-            <div 
-              className="text-sm leading-6 [&_h1]:text-2xl [&_h1]:font-semibold [&_h1]:mb-6 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mt-8 [&_h2]:mb-4 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-6 [&_h3]:mb-3 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-4 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-4 [&_li]:mb-1 [&_a]:text-blue-500 [&_a:hover]:underline text-foreground/80 marker:text-foreground/80" 
-              dangerouslySetInnerHTML={{ __html: directoryData.readme_html }} 
-            />
+            {readmeLoading ? (
+              <div className="flex items-center justify-center py-6 text-sm text-muted-foreground">
+                <Loader2 className="mr-2 size-4 animate-spin" />
+                Loading README...
+              </div>
+            ) : (
+              <div
+                className="text-sm leading-6 [&_h1]:text-2xl [&_h1]:font-semibold [&_h1]:mb-6 [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:mt-8 [&_h2]:mb-4 [&_h3]:text-lg [&_h3]:font-semibold [&_h3]:mt-6 [&_h3]:mb-3 [&_p]:mb-4 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-4 [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-4 [&_li]:mb-1 [&_a]:text-blue-500 [&_a:hover]:underline text-foreground/80 marker:text-foreground/80"
+                dangerouslySetInnerHTML={{ __html: readmeHtml ?? "" }}
+              />
+            )}
           </div>
         )}
       </main>
@@ -396,30 +483,74 @@ export function FileBrowserPage({ initialPath }: FileBrowserPageProps) {
           </div>
           
           <div className="p-6">
-            <div className="mb-6 rounded-lg border border-border/40 bg-muted/20 px-4 py-8 text-center text-sm text-muted-foreground">
-              {previewLoading ? (
-                <Loader2 className="mx-auto size-4 animate-spin" />
-              ) : (
-                "No preview available for this file."
+            <div className="mb-6 rounded-lg border border-border/40 bg-muted/20 px-4 py-4 text-center text-sm text-muted-foreground">
+              {previewLoading && <Loader2 className="mx-auto size-4 animate-spin" />}
+
+              {!previewLoading && previewData?.preview.kind === "text" && (
+                <pre className="max-h-[320px] overflow-auto whitespace-pre-wrap break-words text-left text-xs text-foreground/90">
+                  {previewData.preview.text ?? ""}
+                </pre>
+              )}
+
+              {!previewLoading && previewData?.preview.kind === "json" && (
+                <pre className="max-h-[320px] overflow-auto whitespace-pre-wrap break-words text-left text-xs text-foreground/90">
+                  {previewData.preview.text ?? ""}
+                </pre>
+              )}
+
+              {!previewLoading && previewData?.preview.kind === "markdown" && (
+                <div
+                  className="max-h-[320px] overflow-auto text-left text-sm leading-6 text-foreground/90 [&_h1]:mb-4 [&_h1]:text-xl [&_h1]:font-semibold [&_h2]:mb-3 [&_h2]:mt-6 [&_h2]:text-lg [&_h2]:font-semibold [&_p]:mb-3 [&_ul]:mb-3 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:mb-3 [&_ol]:list-decimal [&_ol]:pl-5 [&_a]:text-blue-500 [&_a:hover]:underline"
+                  dangerouslySetInnerHTML={{ __html: previewData.preview.text ?? "" }}
+                />
+              )}
+
+              {!previewLoading && previewData?.preview.kind === "image" && previewRawUrl && (
+                <img src={previewRawUrl} alt={selectedItem?.name ?? "Preview image"} className="mx-auto max-h-[320px] w-auto rounded-md" />
+              )}
+
+              {!previewLoading && previewData?.preview.kind === "pdf" && previewRawUrl && (
+                <iframe src={previewRawUrl} title={selectedItem?.name ?? "PDF preview"} className="h-[360px] w-full rounded-md" />
+              )}
+
+              {!previewLoading && previewData?.preview.kind === "video" && previewRawUrl && (
+                <video src={previewRawUrl} controls className="mx-auto max-h-[320px] w-full rounded-md" />
+              )}
+
+              {!previewLoading && previewData?.preview.kind === "audio" && previewRawUrl && (
+                <audio src={previewRawUrl} controls className="w-full" />
+              )}
+
+              {!previewLoading && (!previewData || previewData.preview.kind === "none") && (
+                <span>No preview available for this file.</span>
               )}
             </div>
 
-            <div className="mb-2 text-sm font-semibold tracking-tight text-foreground/90">
+            <div className="mb-2 flex items-center gap-2 text-sm font-semibold tracking-tight text-foreground/90">
               Metadata
+              {previewData?.preview.truncated && <Badge variant="secondary">Truncated</Badge>}
             </div>
             
             <div className="rounded-lg border border-border/40 bg-card/50 overflow-hidden divide-y divide-border/40">
               <div className="flex items-center justify-between px-4 py-2.5 text-sm">
                 <span className="text-muted-foreground font-medium">Size</span>
-                <span className="text-foreground/90 font-medium">{selectedItem ? formatBytes(selectedItem.size) : "-"}</span>
+                <span className="text-foreground/90 font-medium">
+                  {previewData ? formatBytes(previewData.size) : selectedItem ? formatBytes(selectedItem.size) : "-"}
+                </span>
               </div>
               <div className="flex items-center justify-between px-4 py-2.5 text-sm">
                 <span className="text-muted-foreground font-medium">Modified</span>
-                <span className="text-foreground/90 font-medium">{selectedItem?.modified ? formatDate(selectedItem.modified) : "-"}</span>
+                <span className="text-foreground/90 font-medium">
+                  {previewData?.modified
+                    ? formatDate(previewData.modified)
+                    : selectedItem?.modified
+                      ? formatDate(selectedItem.modified)
+                      : "-"}
+                </span>
               </div>
               <div className="flex items-center justify-between px-4 py-2.5 text-sm">
                 <span className="text-muted-foreground font-medium">Downloads</span>
-                <span className="text-foreground/90 font-medium">{selectedItem?.downloads ?? 0}</span>
+                <span className="text-foreground/90 font-medium">{previewData?.downloads ?? selectedItem?.downloads ?? 0}</span>
               </div>
               <div className="flex items-center justify-between px-4 py-2.5 text-sm">
                 <span className="text-muted-foreground font-medium">MIME</span>

@@ -20,3 +20,11 @@
 - remove redis and use an in-memory sqlite database instead using Bun's sqlite API https://bun.com/docs/runtime/sqlite . Periodically serialize() it to disk. On startup load it back into memory with deserialize(). 
 
 - Adjust Dockerfile as needed. -->
+
+- batch download button missing
+- try to preview application/octet-stream files as text (truncate if too large)
+- syntax highlighting
+code: (children, meta) => {
+    const lang = meta?.language ?? "";
+    return `<pre><code class="language-${lang}">${children}</code></pre>`;
+  },

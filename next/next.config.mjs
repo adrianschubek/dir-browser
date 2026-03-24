@@ -1,14 +1,12 @@
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  async rewrites() {
-    const apiPort = process.env.PORT || "8080"
-    const apiHost = process.env.API_HOST || "localhost"
-    return [
-      {
-        source: "/api/:path*",
-        destination: `http://${apiHost}:${apiPort}/api/:path*`,
-      },
-    ]
+  turbopack: {
+    root: path.join(__dirname),
   },
 }
 

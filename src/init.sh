@@ -22,11 +22,12 @@ mkdir -p "$(dirname "${COUNTER_SNAPSHOT_PATH:-/data/counters.sqlite.bin}")"
 cd /app/next
 
 echo -e "${YELLOW}[1/3] Starting Next.js server...${NC}"
-bun run start -- -H 0.0.0.0 -p "${NEXT_PORT:-3000}" &
+NEXT_PUBLIC_API_BASE_URL="${NEXT_PUBLIC_API_BASE_URL:-http://127.0.0.1:${PORT:-8080}}" \
+  bun run start -- -H 0.0.0.0 -p "${NEXT_PORT:-3000}" &
 NEXT_PID=$!
 
 echo -e "${YELLOW}[2/3] Starting Bun API server...${NC}"
-PORT="${PORT:-8080}" NEXT_PORT="${NEXT_PORT:-3000}" bun run start:api &
+PORT="${PORT:-8080}" bun run start:api &
 API_PID=$!
 
 cleanup() {
