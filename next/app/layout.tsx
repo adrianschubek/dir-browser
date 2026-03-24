@@ -1,4 +1,4 @@
-import { Geist, Geist_Mono, Inter } from "next/font/google"
+import { Geist_Mono, Inter } from "next/font/google"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -29,7 +29,6 @@ export default function RootLayout({
     >
       <body>
         <ThemeProvider>
-          {" "}
           <TooltipProvider>{children}</TooltipProvider>
         </ThemeProvider>
       </body>

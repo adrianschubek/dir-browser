@@ -42,7 +42,7 @@ https://dir-demo.adriansoftware.de
 ## Features
 - **Download counter** for all files
 - Secure by default. **Read-only** access
-- Extremely **fast** file serving through **nginx**
+- Extremely **fast** file serving through **Bun** streaming
 - **README** markdown rendering support
 - **JSON API** for programmatic access
 - **Batch download** of files and folders in a zip archive
@@ -56,7 +56,7 @@ https://dir-demo.adriansoftware.de
 - Many **Themes** available
 - **Clean URLs** equivalent to file system paths
 - **Low memory** footprint (~10MB)
-- Easy setup using single **Docker** image
+- Easy setup using a single **Docker** image
 - **Responsive** design for mobile devices and desktop
 - Easily configurable using **environment variables**
 - File stats like modification dates and sizes
@@ -72,9 +72,9 @@ Serve a local folder read-only at http://localhost:8080:
 ```bash
 docker run -d \
   --name dir-browser \
-  -p 8080:80 \
+  -p 8080:8080 \
   -v /my/local/folder:/var/www/html/public:ro \
-  -v rdb:/var/lib/redis/ \
+  -v dir-browser-data:/data \
   adrianschubek/dir-browser:latest
 ```
 
