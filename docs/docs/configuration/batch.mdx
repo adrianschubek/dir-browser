@@ -16,7 +16,9 @@ Or download the current folder.
 Selecting a folder will also recursively select all files and folders inside it if the user has permission to access them (see [Password Protection](./password.mdx)).
 :::
 
-
+:::info
+Some archive unpacker tools (e.g. Windows built-in) may have issues with some large files inside generated ZIP files due to the use of zero-headers. In that case, you can use a more robust tool like [7-Zip](https://www.7-zip.org/) or [WinRAR](https://www.win-rar.com/).
+:::
 
 import EnvConfig from "@site/src/components/EnvConfig";
 

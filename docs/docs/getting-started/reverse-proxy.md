@@ -18,6 +18,15 @@ server {
 
   location / {
     proxy_pass http://127.0.0.1:8080/;
+
+    # Required for large streaming responses (Batch ZIP downloads if enabled)
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+    proxy_buffering off;
+    proxy_max_temp_file_size 0;
+    proxy_request_buffering off;
+    proxy_read_timeout 1h;
+    proxy_send_timeout 1h;
   }
 
   ssl_certificate /path/to/cert.pem;
