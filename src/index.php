@@ -651,7 +651,7 @@ function downloadBatch(array $urls) {
         path: $f['full_path'],
         lastModificationDateTime: $lastMod,
         exactSize: (int) $f['size'],
-        enableZeroHeader: false,
+        enableZeroHeader: true,
       );
     }
 
