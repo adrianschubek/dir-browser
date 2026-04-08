@@ -4,6 +4,15 @@ define('VERSION', '${{`process.env.DIRBROWSER_VERSION`}}$');
 
 define('PUBLIC_FOLDER', __DIR__ . '/public');
 
+$[if `process.env.PASSWORD_URL_KEY !== undefined`]$
+if (!isset($_GET['auth']) || !is_string($_GET['auth']) || $_GET['auth'] === '' || !hash_equals('${{`process.env.PASSWORD_URL_KEY`}}$', $_GET['auth'])) {
+  header('HTTP/1.0 401 Unauthorized');
+  header('Content-Type: text/plain; charset=utf-8');
+  echo "Authentication required. This dir-browser instance requires ?auth=<key>.";
+  die;
+}
+$[end]$
+
 $[if `process.env.PASSWORD_HASH !== undefined`]$
 if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']) || $_SERVER['PHP_AUTH_USER'] !== '${{`process.env.PASSWORD_USER`}}$' || !password_verify($_SERVER['PHP_AUTH_PW'], '${{`process.env.PASSWORD_HASH`}}$')) {
 $[if `process.env.PASSWORD_HASH === undefined && process.env.PASSWORD_RAW !== undefined`]$
@@ -125,6 +134,40 @@ function redirect_without_key_param(): void
   header('Location: ' . $path . ($qs !== '' ? ('?' . $qs) : ''));
   http_response_code(303);
   die();
+}
+
+function request_url_auth_key(): ?string
+{
+  if (isset($_GET['auth']) && is_string($_GET['auth']) && $_GET['auth'] !== '') {
+    return $_GET['auth'];
+  }
+  return null;
+}
+
+function with_auth_query_param(string $url): string
+{
+  $auth = request_url_auth_key();
+  if ($auth === null) return $url;
+
+  $fragment = '';
+  $hashPos = strpos($url, '#');
+  if ($hashPos !== false) {
+    $fragment = substr($url, $hashPos);
+    $url = substr($url, 0, $hashPos);
+  }
+
+  $parts = explode('?', $url, 2);
+  $base = $parts[0];
+  $query = [];
+  if (isset($parts[1]) && $parts[1] !== '') {
+    parse_str($parts[1], $query);
+  }
+  if (!array_key_exists('auth', $query)) {
+    $query['auth'] = $auth;
+  }
+
+  $qs = http_build_query($query);
+  return $base . ($qs !== '' ? ('?' . $qs) : '') . $fragment;
 }
 
 // Simple route: /some/path?logout (clears cookie-based auth).
@@ -1342,7 +1385,7 @@ end:
           </form>
         </div>
         <div class="card-footer text-center">
-          <a href="${{`process.env.BASE_PATH ?? ''`}}$/">Back to Home</a>
+          <a href="<?= htmlspecialchars(with_auth_query_param('${{`process.env.BASE_PATH ?? ''`}}$/')) ?>">Back to Home</a>
         </div>
       </div>
     <?php } else if (!$path_is_dir) { ?>
@@ -1356,7 +1399,7 @@ end:
             <path d="M12 14a1.5 1.5 0 1 0 -1.14 -2.474"></path>
           </svg>
           Not Found<br>
-          <a class="btn rounded btn-secondary mt-2" href="${{`process.env.BASE_PATH ?? ''`}}$/">Back to Home</a>
+          <a class="btn rounded btn-secondary mt-2" href="<?= htmlspecialchars(with_auth_query_param('${{`process.env.BASE_PATH ?? ''`}}$/')) ?>">Back to Home</a>
         </div>
       </div>
 
@@ -1364,13 +1407,14 @@ end:
       <div class="rounded container position-sticky card  px-3" style="top:0; z-index: 5;border-bottom-left-radius: 0 !important;border-bottom-right-radius: 0 !important;">
         <div class="row db-row py-2 text-muted">          
           <div class="col" id="path">
-            <a href="${{`process.env.BASE_PATH ?? ''`}}$/">/</a><?php
+            <a href="<?= htmlspecialchars(with_auth_query_param('${{`process.env.BASE_PATH ?? ''`}}$/')) ?>">/</a><?php
             // create links e.g. from ["foo","bar","foobar"] to ["/foo", "/foo/bar", "/foo/bar/foobar"]
             $urls = [];
             foreach ($url_parts as $i => $part) {
               $urls[] = end($urls) . '/' . $part;
               // var_dump($i, $part, $urls);
-              echo '<a style="vertical-align: middle;" href="${{`process.env.BASE_PATH ?? ''`}}$' . $urls[$i - 1] . '/">' . $part . '/</a>';
+              $crumb_href = with_auth_query_param('${{`process.env.BASE_PATH ?? ''`}}$' . $urls[$i - 1] . '/');
+              echo '<a style="vertical-align: middle;" href="' . htmlspecialchars($crumb_href) . '">' . $part . '/</a>';
             }
             ?>
           </div>
@@ -1384,7 +1428,7 @@ end:
                 parse_str(parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY) ?? '', $logout_query);
                 $logout_query['logout'] = '1';
                 $logout_qs = http_build_query($logout_query);
-                $logout_href = $logout_path . ($logout_qs !== '' ? ('?' . $logout_qs) : '');
+                $logout_href = with_auth_query_param($logout_path . ($logout_qs !== '' ? ('?' . $logout_qs) : ''));
               }
             ?>
             <?php if ($show_logout) { ?>
@@ -1451,7 +1495,7 @@ end:
           $fileDate = new DateTime($file->modified_date);
           $diff = $now->diff($fileDate)->days;
         ?>
-        <a data-turbo-prefetch="<?= $file->is_dir ? "${{env:PREFETCH_FOLDERS}}$" : "${{env:PREFETCH_FILES}}$" ?>" data-turbo-action="advance" data-file-selected="0" data-file-isdir="<?= $file->is_dir ? "1" : "0" ?>" data-auth-required="<?= ($file->is_dir && $file->auth_required) ? "1" : "0" ?>" data-auth-locked="<?= ($file->is_dir && $file->auth_locked) ? "1" : "0" ?>" data-file-name="<?= $file->name ?>" data-file-dl="$[if `process.env.DOWNLOAD_COUNTER === "true"`]$<?= $file->dl_count ?>$[end]$" data-file-size="<?= $file->size ?>" data-file-mod="<?= $file->modified_date ?>"  href="${{`process.env.BASE_PATH ?? ''`}}$<?= $file->url ?><?= /* extra slash for dirs */ $file->is_dir ? "/" : "" ?>" class="row db-row py-2 db-file">
+        <a data-turbo-prefetch="<?= $file->is_dir ? "${{env:PREFETCH_FOLDERS}}$" : "${{env:PREFETCH_FILES}}$" ?>" data-turbo-action="advance" data-file-selected="0" data-file-isdir="<?= $file->is_dir ? "1" : "0" ?>" data-auth-required="<?= ($file->is_dir && $file->auth_required) ? "1" : "0" ?>" data-auth-locked="<?= ($file->is_dir && $file->auth_locked) ? "1" : "0" ?>" data-file-name="<?= $file->name ?>" data-file-dl="$[if `process.env.DOWNLOAD_COUNTER === "true"`]$<?= $file->dl_count ?>$[end]$" data-file-size="<?= $file->size ?>" data-file-mod="<?= $file->modified_date ?>"  href="<?= htmlspecialchars(with_auth_query_param('${{`process.env.BASE_PATH ?? ''`}}$' . $file->url . ($file->is_dir ? '/' : ''))) ?>" class="row db-row py-2 db-file">
           <div class="col col-auto multiselect" style="display:none">
             <input class="form-check-input" style="padding:5px;pointer-events:none" type="checkbox" aria-label="..." />
           </div>
@@ -1565,11 +1609,11 @@ end:
   <div class="container pb-3" style="display:flex;justify-content:center;">
     <nav aria-label="Page navigation example">
     <ul class="pagination">
-      <li class="page-item"><a data-turbo-prefetch="false" class="page-link <?= $current_page <= 1 ? "disabled" : "" ?>" href="${{`process.env.BASE_PATH ?? ''`}}$<?= $request_uri . "?p=" . ($current_page - 1) ?>"><svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="iconX icon-tabler icons-tabler-outline icon-tabler-chevron-left"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 6l-6 6l6 6" /></svg></a></li>
+      <li class="page-item"><a data-turbo-prefetch="false" class="page-link <?= $current_page <= 1 ? "disabled" : "" ?>" href="<?= htmlspecialchars(with_auth_query_param('${{`process.env.BASE_PATH ?? ''`}}$' . $request_uri . '?p=' . ($current_page - 1))) ?>"><svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="iconX icon-tabler icons-tabler-outline icon-tabler-chevron-left"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 6l-6 6l6 6" /></svg></a></li>
       <?php foreach ($pages as $p) { ?>
-      <li class="page-item"><a data-turbo-prefetch="false" class="page-link <?= $p == $current_page ? "active" : "" ?> <?= $p == ".." ? "disabled" : "" ?>" href="${{`process.env.BASE_PATH ?? ''`}}$<?= $request_uri . "?p=" . ($p) ?>"><?= $p ?></a></li>
+      <li class="page-item"><a data-turbo-prefetch="false" class="page-link <?= $p == $current_page ? "active" : "" ?> <?= $p == ".." ? "disabled" : "" ?>" href="<?= htmlspecialchars(with_auth_query_param('${{`process.env.BASE_PATH ?? ''`}}$' . $request_uri . '?p=' . ($p))) ?>"><?= $p ?></a></li>
       <?php } ?>
-      <li class="page-item"><a data-turbo-prefetch="false" class="page-link <?= $current_page >= $max_pages ? "disabled" : "" ?>" href="${{`process.env.BASE_PATH ?? ''`}}$<?= $request_uri . "?p=" . ($current_page + 1) ?>"><svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="iconX icon-tabler icons-tabler-outline icon-tabler-chevron-right"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l6 6l-6 6" /></svg></a></li>
+      <li class="page-item"><a data-turbo-prefetch="false" class="page-link <?= $current_page >= $max_pages ? "disabled" : "" ?>" href="<?= htmlspecialchars(with_auth_query_param('${{`process.env.BASE_PATH ?? ''`}}$' . $request_uri . '?p=' . ($current_page + 1))) ?>"><svg  xmlns="http://www.w3.org/2000/svg"  width="16"  height="16"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="iconX icon-tabler icons-tabler-outline icon-tabler-chevron-right"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l6 6l-6 6" /></svg></a></li>
     </ul>
     </nav>
   </div>
@@ -1577,7 +1621,7 @@ end:
 
   <div class="mt-auto">
     <div class="container py-2 text-center" id="footer">
-      Displaying <?= max(1, $page_start_offset) ?>-<?= min($page_start_offset - 1 + ${{`process.env.PAGINATION_PER_PAGE`}}$, $total_items) ?> of <?= $total_items ?> | <?= human_filesize($total_size) ?> $[if `process.env.TIMING === "true"`]$| <?= (hrtime(true) - $time_start)/1000000 ?> ms $[end]$$[if `process.env.API === "true"`]$| <a href="<?= '/' . implode(separator: '/', array: $url_parts) . '?ls' ?>" target="_blank"><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-api"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 13h5" /><path d="M12 16v-8h3a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2h-3" /><path d="M20 8v8" /><path d="M9 16v-5.5a2.5 2.5 0 0 0 -5 0v5.5" /></svg></a>$[end]$<br>
+      Displaying <?= max(1, $page_start_offset) ?>-<?= min($page_start_offset - 1 + ${{`process.env.PAGINATION_PER_PAGE`}}$, $total_items) ?> of <?= $total_items ?> | <?= human_filesize($total_size) ?> $[if `process.env.TIMING === "true"`]$| <?= (hrtime(true) - $time_start)/1000000 ?> ms $[end]$$[if `process.env.API === "true"`]$| <a href="<?= htmlspecialchars(with_auth_query_param('/' . implode(separator: '/', array: $url_parts) . '?ls')) ?>" target="_blank"><svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-api"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M4 13h5" /><path d="M12 16v-8h3a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2h-3" /><path d="M20 8v8" /><path d="M9 16v-5.5a2.5 2.5 0 0 0 -5 0v5.5" /></svg></a>$[end]$<br>
     <span style="opacity:0.8"><span style="opacity: 0.8;">Powered by</span>  <a href="https://dir.adriansoftware.de" class="text-decoration-none text-primary" target="_blank">dir-browser</a> v<?= VERSION ?></span>  
     </div>
   </div>
@@ -1696,6 +1740,19 @@ end:
       }
     };
 
+    const AUTH_QUERY_VALUE = new URLSearchParams(window.location.search).get('auth');
+
+    const withAuthQuery = (urlString) => {
+      if (typeof urlString !== 'string' || urlString.length === 0) return urlString;
+      if (!AUTH_QUERY_VALUE || AUTH_QUERY_VALUE.length === 0) return urlString;
+      const url = new URL(urlString, window.location.href);
+      if (url.origin !== window.location.origin) return urlString;
+      if (!url.searchParams.has('auth')) {
+        url.searchParams.set('auth', AUTH_QUERY_VALUE);
+      }
+      return url.toString();
+    };
+
     $[if `process.env.DATE_FORMAT === "relative"`]$
     function getRelativeTimeString(date, lang = navigator.language) {
       const timeMs = typeof date === "number" ? date : date.getTime();
@@ -1732,7 +1789,7 @@ end:
       : null;
 
     const getHashViaApi = async (url) => {
-      const res = await fetch(url);
+      const res = await fetch(withAuthQuery(url));
       if (!res.ok) {
         if (res.status === 413) throw new Error('too_large');
         throw new Error('request_failed');
@@ -1752,7 +1809,7 @@ end:
       // create form and submit
       const form = document.createElement('form');
       form.method = 'POST';
-      form.action = '${{`process.env.BASE_PATH ?? ''`}}$';
+      form.action = withAuthQuery('${{`process.env.BASE_PATH ?? ''`}}$');
       form.style.display = 'none';
       const basePath = '${{`process.env.BASE_PATH ?? ''`}}$';
       document.querySelectorAll('.db-file').forEach((file) => {
@@ -1781,7 +1838,7 @@ end:
 
       const form = document.createElement('form');
       form.method = 'POST';
-      form.action = '${{`process.env.BASE_PATH ?? ''`}}$';
+      form.action = withAuthQuery('${{`process.env.BASE_PATH ?? ''`}}$');
       form.style.display = 'none';
 
       const basePath = '${{`process.env.BASE_PATH ?? ''`}}$';
@@ -1876,7 +1933,7 @@ end:
     const createSearchResult = (result) => {
       const item = document.createElement('a');
       item.classList.add('list-group-item', 'list-group-item-action', 'db-file');
-      item.href = "${{`process.env.BASE_PATH ?? ''`}}$" + result.url;
+      item.href = withAuthQuery("${{`process.env.BASE_PATH ?? ''`}}$" + result.url);
       item.setAttribute('data-file-isdir', result.is_dir);
       if (result.is_dir) {
         item.setAttribute('data-auth-required', result.auth_required ? '1' : '0');
@@ -1916,7 +1973,8 @@ end:
       const search = document.querySelector('#search').value;
       const searchengine = document.querySelector('#searchengine').value;
       if (search.length === 0) return;
-      const api = await fetch(`${{`process.env.BASE_PATH ?? ''`}}$?q=${search}&e=${searchengine}`).then((res) => res.json());
+      const apiUrl = withAuthQuery(`${{`process.env.BASE_PATH ?? ''`}}$?q=${encodeURIComponent(search)}&e=${encodeURIComponent(searchengine)}`);
+      const api = await fetch(apiUrl).then((res) => res.json());
       console.log(api.results)
 
       document.querySelector('#resultstree').innerHTML = '';
@@ -2018,7 +2076,8 @@ end:
 
       try {
         if (submit) submit.disabled = true;
-        const res = await fetch(authPopupState.targetUrl, {
+        const targetUrl = withAuthQuery(authPopupState.targetUrl);
+        const res = await fetch(targetUrl, {
           method: 'POST',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
           body: 'key=' + encodeURIComponent(key),
@@ -2034,7 +2093,7 @@ end:
         }
 
         // Success: cookie should be set; navigate normally.
-        window.location.href = authPopupState.targetUrl;
+        window.location.href = targetUrl;
       } catch (ex) {
         if (err) {
           err.textContent = 'Authentication failed. Please try again.';
@@ -2086,7 +2145,7 @@ end:
       };
 
       const fileUrlWithParam = (urlString, key, value) => {
-        const url = new URL(urlString, window.location.href);
+        const url = new URL(withAuthQuery(urlString), window.location.href);
         url.searchParams.set(key, value);
         return url.toString();
       };
@@ -2215,7 +2274,7 @@ end:
         const apiBtn = document.querySelector('#file-info-url-api');
         popupState.apiInfoUrl = fileUrlWithParam(data.url, 'info', '');
         if (apiBtn) apiBtn.href = popupState.apiInfoUrl;
-        document.querySelector('#file-info-url').href = data.url;
+        document.querySelector('#file-info-url').href = withAuthQuery(data.url);
 
         const popup = document.querySelector('#file-popup');
         popup.classList.add('d-block');

@@ -27,6 +27,10 @@ if [ -n "${PASSWORD_USER}" ] && ( [ -n "${PASSWORD_RAW}" ] || [ -n "${PASSWORD_H
   fi
 fi
 
+if [ -n "${PASSWORD_URL_KEY}" ]; then
+  echo -e "${GREEN}[ Info ] Global password protection is enabled using URL key auth (?auth=...).${NC}"
+fi
+
 
 echo -e "${YELLOW}[ 1/$MAX_STEPS ] Pre-processing configs using utpp... ${NC}"
 utpp "/etc/nginx/nginx.conf;/etc/nginx/conf.d/default.conf;/etc/php/**;/var/www/html/*.php"
