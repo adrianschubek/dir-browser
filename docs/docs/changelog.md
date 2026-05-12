@@ -5,6 +5,26 @@ sidebar_position: 1.5
 
 All notable changes to this project will be documented in this file.
 
+## [4.5.1] - 2026-05-12
+
+### 🐛 Bug Fixes
+
+- Improve HTML escaping for file names, badges and URL ([86b76fc](https://github.com/adrianschubek/dir-browser/commit/86b76fc1dfdc4d598b368171f03d18aec51c2e3b))
+
+### 🚜 Refactor
+
+- Better search results list generation ([5ccbd05](https://github.com/adrianschubek/dir-browser/commit/5ccbd05821924c811ea08627e9094f8f2c3b0439))
+
+### ⚙️ Miscellaneous Tasks
+
+- Bump version ([5ed0123](https://github.com/adrianschubek/dir-browser/commit/5ed0123a51455b6f9ab4d0c23fda66684a982ef8))
+
+## [4.5.0] - 2026-04-08
+
+### 🚀 Features
+
+- Add global password protection with URL key ([99ba2d7](https://github.com/adrianschubek/dir-browser/commit/99ba2d71af2baebb30d7291acb8cfceb580ad56a))
+
 ## [4.4.0] - 2026-01-16
 
 ### 🚀 Features
