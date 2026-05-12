@@ -1183,7 +1183,7 @@ end:
   <meta name="turbo-refresh-method" content="morph">
   <meta name="view-transition" content="same-origin" />
   $[end]$
-  <title>${{`process.env.TITLE`}}$ - <?= '/' . implode(separator: '/', array: $url_parts) ?></title>
+  <title>${{`process.env.TITLE`}}$ - <?= htmlspecialchars('/' . implode(separator: '/', array: $url_parts), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></title>
   $[ifeq env:THEME cerulean]$
   <link href="https://cdn.jsdelivr.net/npm/bootswatch@5.3.8/dist/cerulean/bootstrap.min.css" rel="stylesheet" data-turbo-eval="false">
   $[ifeq env:THEME materia]$
@@ -1414,7 +1414,7 @@ end:
               $urls[] = end($urls) . '/' . $part;
               // var_dump($i, $part, $urls);
               $crumb_href = with_auth_query_param('${{`process.env.BASE_PATH ?? ''`}}$' . $urls[$i - 1] . '/');
-              echo '<a style="vertical-align: middle;" href="' . htmlspecialchars($crumb_href) . '">' . $part . '/</a>';
+              echo '<a style="vertical-align: middle;" href="' . htmlspecialchars($crumb_href) . '">' . htmlspecialchars($part, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '/</a>';
             }
             ?>
           </div>
@@ -1441,12 +1441,12 @@ end:
             <a class="btn rounded btn-sm text-muted" onclick="toggleMultiselect()" title="Multiple select">
             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-copy-check"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path stroke="none" d="M0 0h24v24H0z" /><path d="M7 9.667a2.667 2.667 0 0 1 2.667 -2.667h8.666a2.667 2.667 0 0 1 2.667 2.667v8.666a2.667 2.667 0 0 1 -2.667 2.667h-8.666a2.667 2.667 0 0 1 -2.667 -2.667z" /><path d="M4.012 16.737a2 2 0 0 1 -1.012 -1.737v-10c0 -1.1 .9 -2 2 -2h10c.75 0 1.158 .385 1.5 1" /><path d="M11 14l2 2l4 -4" /></svg>
             </a>
-            <a class="btn rounded btn-sm text-muted" onclick="downloadThisFolder('<?= $request_uri ?>')" title="Download this folder">
+            <a class="btn rounded btn-sm text-muted" onclick="downloadThisFolder(<?= htmlspecialchars(json_encode($request_uri), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>)" title="Download this folder">
             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-folder-down"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M12 19h-7a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2h4l3 3h7a2 2 0 0 1 2 2v3.5" /><path d="M19 16v6" /><path d="M22 19l-3 3l-3 -3" /></svg>
             </a>
             $[end]$
             $[if `process.env.SEARCH === "true"`]$
-            <a class="btn rounded btn-sm text-muted" onclick="toggleSearch()" title="Search in <?= $request_uri ?>">
+            <a class="btn rounded btn-sm text-muted" onclick="toggleSearch()" title="Search in <?= htmlspecialchars($request_uri, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
             <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
             </a>            
             $[end]$
@@ -1458,7 +1458,7 @@ end:
         <div class="row db-row py-2 text-muted d-none" id="search-container">
           <div class="col">
             <div class="input-group">
-              <input type="text" class="form-control rounded-start-3" placeholder="Search in <?= $request_uri ?>*" id="search">
+              <input type="text" class="form-control rounded-start-3" placeholder="Search in <?= htmlspecialchars($request_uri, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>*" id="search">
               <select class="form-select rounded-end-3" aria-label="Engine" id="searchengine" style="max-width:7em">
                 $[if `process.env.SEARCH_ENGINE.includes("s")`]$
                 <option value="s">Simple</option>
@@ -1495,7 +1495,7 @@ end:
           $fileDate = new DateTime($file->modified_date);
           $diff = $now->diff($fileDate)->days;
         ?>
-        <a data-turbo-prefetch="<?= $file->is_dir ? "${{env:PREFETCH_FOLDERS}}$" : "${{env:PREFETCH_FILES}}$" ?>" data-turbo-action="advance" data-file-selected="0" data-file-isdir="<?= $file->is_dir ? "1" : "0" ?>" data-auth-required="<?= ($file->is_dir && $file->auth_required) ? "1" : "0" ?>" data-auth-locked="<?= ($file->is_dir && $file->auth_locked) ? "1" : "0" ?>" data-file-name="<?= $file->name ?>" data-file-dl="$[if `process.env.DOWNLOAD_COUNTER === "true"`]$<?= $file->dl_count ?>$[end]$" data-file-size="<?= $file->size ?>" data-file-mod="<?= $file->modified_date ?>"  href="<?= htmlspecialchars(with_auth_query_param('${{`process.env.BASE_PATH ?? ''`}}$' . $file->url . ($file->is_dir ? '/' : ''))) ?>" class="row db-row py-2 db-file">
+        <a data-turbo-prefetch="<?= $file->is_dir ? "${{env:PREFETCH_FOLDERS}}$" : "${{env:PREFETCH_FILES}}$" ?>" data-turbo-action="advance" data-file-selected="0" data-file-isdir="<?= $file->is_dir ? "1" : "0" ?>" data-auth-required="<?= ($file->is_dir && $file->auth_required) ? "1" : "0" ?>" data-auth-locked="<?= ($file->is_dir && $file->auth_locked) ? "1" : "0" ?>" data-file-name="<?= htmlspecialchars($file->name, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" data-file-dl="$[if `process.env.DOWNLOAD_COUNTER === "true"`]$<?= $file->dl_count ?>$[end]$" data-file-size="<?= $file->size ?>" data-file-mod="<?= $file->modified_date ?>"  href="<?= htmlspecialchars(with_auth_query_param('${{`process.env.BASE_PATH ?? ''`}}$' . $file->url . ($file->is_dir ? '/' : ''))) ?>" class="row db-row py-2 db-file">
           <div class="col col-auto multiselect" style="display:none">
             <input class="form-check-input" style="padding:5px;pointer-events:none" type="checkbox" aria-label="..." />
           </div>
@@ -1506,14 +1506,14 @@ end:
                 <path d="M18 18h-6a3 3 0 0 1 -3 -3v-10l-4 4m8 0l-4 -4"></path>
               </svg>
             <?php } elseif ($file->is_dir) { ?>
-              <div class="dir-icon-placeholder" dirname="<?= $file->name ?>">
+              <div class="dir-icon-placeholder" dirname="<?= htmlspecialchars($file->name, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folder-filled" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                   <path d="M9 3a1 1 0 0 1 .608 .206l.1 .087l2.706 2.707h6.586a3 3 0 0 1 2.995 2.824l.005 .176v8a3 3 0 0 1 -2.824 2.995l-.176 .005h-14a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-11a3 3 0 0 1 2.824 -2.995l.176 -.005h4z" stroke-width="0" fill="currentColor"></path>
                 </svg>
               </div>
             <?php } else { ?>
-              <div class="file-icon-placeholder" filename="<?= $file->name ?>">
+              <div class="file-icon-placeholder" filename="<?= htmlspecialchars($file->name, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>">
                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                   <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
@@ -1523,7 +1523,7 @@ end:
             <?php } ?>
             </div> 
             <div class="col">
-            <?= $file->name ?>
+            <?= htmlspecialchars($file->name, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>
             <?php if ($file->auth_locked) { ?>
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="var(--bs-tertiary-color)" class="icon icon-tabler icons-tabler-filled icon-tabler-shield-lock"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M11.998 2l.118 .007l.059 .008l.061 .013l.111 .034a.993 .993 0 0 1 .217 .112l.104 .082l.255 .218a11 11 0 0 0 7.189 2.537l.342 -.01a1 1 0 0 1 1.005 .717a13 13 0 0 1 -9.208 16.25a1 1 0 0 1 -.502 0a13 13 0 0 1 -9.209 -16.25a1 1 0 0 1 1.005 -.717a11 11 0 0 0 7.531 -2.527l.263 -.225l.096 -.075a.993 .993 0 0 1 .217 -.112l.112 -.034a.97 .97 0 0 1 .119 -.021l.115 -.007zm.002 7a2 2 0 0 0 -1.995 1.85l-.005 .15l.005 .15a2 2 0 0 0 .995 1.581v1.769l.007 .117a1 1 0 0 0 1.993 -.117l.001 -1.768a2 2 0 0 0 -1.001 -3.732z" /></svg>
             <?php } ?>
@@ -1538,7 +1538,7 @@ end:
                   foreach ($file->meta->labels as $lbl) {
                     $l = explode(":", $lbl, 2);
             ?>
-                    <span class="badge bg-<?= $l[0] ?>"><?= $l[1] ?></span>
+                    <span class="badge bg-<?= htmlspecialchars($l[0] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>"><?= htmlspecialchars($l[1] ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?></span>
             <?php
                   }
                 }
