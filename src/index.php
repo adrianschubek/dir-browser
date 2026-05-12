@@ -1934,7 +1934,7 @@ end:
       const item = document.createElement('a');
       item.classList.add('list-group-item', 'list-group-item-action', 'db-file');
       item.href = withAuthQuery("${{`process.env.BASE_PATH ?? ''`}}$" + result.url);
-      item.setAttribute('data-file-isdir', result.is_dir);
+      item.setAttribute('data-file-isdir', result.is_dir ? '1' : '0');
       if (result.is_dir) {
         item.setAttribute('data-auth-required', result.auth_required ? '1' : '0');
         item.setAttribute('data-auth-locked', result.auth_locked ? '1' : '0');
@@ -1944,29 +1944,44 @@ end:
       // item.setAttribute('data-file-dl', result.dl);
       // item.setAttribute('data-file-size', result.size);
       // item.setAttribute('data-file-mod', result.modified_date);
-      item.innerHTML = `
-        <div class="row py-2 ">
-          <div class="col col-auto pe-0">
-            <div class="file-icon-placeholder" filename="${result.name}">
-            ${!result.is_dir ? `
-              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
-                <path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
-              </svg>` : `<div class="dir-icon-placeholder" dirname="">
-                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folder-filled" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                  <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                  <path d="M9 3a1 1 0 0 1 .608 .206l.1 .087l2.706 2.707h6.586a3 3 0 0 1 2.995 2.824l.005 .176v8a3 3 0 0 1 -2.824 2.995l-.176 .005h-14a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-11a3 3 0 0 1 2.824 -2.995l.176 -.005h4z" stroke-width="0" fill="currentColor"></path>
-                </svg>
-              </div>`}
-            </div>
-          </div>
-          <div class="col">
-            ${result.name}
-            ${result.auth_locked ? `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="var(--bs-tertiary-color)" class="icon icon-tabler icons-tabler-filled icon-tabler-shield-lock"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M11.998 2l.118 .007l.059 .008l.061 .013l.111 .034a.993 .993 0 0 1 .217 .112l.104 .082l.255 .218a11 11 0 0 0 7.189 2.537l.342 -.01a1 1 0 0 1 1.005 .717a13 13 0 0 1 -9.208 16.25a1 1 0 0 1 -.502 0a13 13 0 0 1 -9.209 -16.25a1 1 0 0 1 1.005 -.717a11 11 0 0 0 7.531 -2.527l.263 -.225l.096 -.075a.993 .993 0 0 1 .217 -.112l.112 -.034a.97 .97 0 0 1 .119 -.021l.115 -.007zm.002 7a2 2 0 0 0 -1.995 1.85l-.005 .15l.005 .15a2 2 0 0 0 .995 1.581v1.769l.007 .117a1 1 0 0 0 1.993 -.117l.001 -1.768a2 2 0 0 0 -1.001 -3.732z" /></svg>` : ''}
-          </div>          
-        </div>
-      `;
+      const row = document.createElement('div');
+      row.className = 'row py-2 ';
+
+      const iconCol = document.createElement('div');
+      iconCol.className = 'col col-auto pe-0';
+
+      const iconWrapper = document.createElement('div');
+      iconWrapper.className = 'file-icon-placeholder';
+      iconWrapper.setAttribute('filename', String(result.name ?? ''));
+
+      if (result.is_dir) {
+        const dirWrapper = document.createElement('div');
+        dirWrapper.className = 'dir-icon-placeholder';
+        dirWrapper.setAttribute('dirname', '');
+        dirWrapper.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folder-filled" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M9 3a1 1 0 0 1 .608 .206l.1 .087l2.706 2.707h6.586a3 3 0 0 1 2.995 2.824l.005 .176v8a3 3 0 0 1 -2.824 2.995l-.176 .005h-14a3 3 0 0 1 -2.995 -2.824l-.005 -.176v-11a3 3 0 0 1 2.824 -2.995l.176 -.005h4z" stroke-width="0" fill="currentColor"></path></svg>';
+        iconWrapper.appendChild(dirWrapper);
+      } else {
+        iconWrapper.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M14 3v4a1 1 0 0 0 1 1h4"></path><path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path></svg>';
+      }
+
+      iconCol.appendChild(iconWrapper);
+
+      const nameCol = document.createElement('div');
+      nameCol.className = 'col';
+      nameCol.textContent = String(result.name ?? '');
+
+      if (result.auth_locked) {
+        nameCol.appendChild(document.createTextNode(' '));
+        const lockWrap = document.createElement('span');
+        lockWrap.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="var(--bs-tertiary-color)" class="icon icon-tabler icons-tabler-filled icon-tabler-shield-lock"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M11.998 2l.118 .007l.059 .008l.061 .013l.111 .034a.993 .993 0 0 1 .217 .112l.104 .082l.255 .218a11 11 0 0 0 7.189 2.537l.342 -.01a1 1 0 0 1 1.005 .717a13 13 0 0 1 -9.208 16.25a1 1 0 0 1 -.502 0a13 13 0 0 1 -9.209 -16.25a1 1 0 0 1 1.005 -.717a11 11 0 0 0 7.531 -2.527l.263 -.225l.096 -.075a.993 .993 0 0 1 .217 -.112l.112 -.034a.97 .97 0 0 1 .119 -.021l.115 -.007zm.002 7a2 2 0 0 0 -1.995 1.85l-.005 .15l.005 .15a2 2 0 0 0 .995 1.581v1.769l.007 .117a1 1 0 0 0 1.993 -.117l.001 -1.768a2 2 0 0 0 -1.001 -3.732z" /></svg>';
+        if (lockWrap.firstElementChild) {
+          nameCol.appendChild(lockWrap.firstElementChild);
+        }
+      }
+
+      row.appendChild(iconCol);
+      row.appendChild(nameCol);
+      item.appendChild(row);
       return item;
     }
     const search = async () => {
