@@ -1,6 +1,6 @@
 FROM debian:trixie-slim AS base
 
-ENV DIRBROWSER_VERSION=4.5.0
+ENV DIRBROWSER_VERSION=4.5.1
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -136,7 +136,7 @@ ENV SEARCH_MAX_RESULTS=100
 
 # multi select batch file download
 ENV BATCH_DOWNLOAD=true
-# TODO: add more: https://www.php.net/manual/en/book.zlib.php
+
 ENV BATCH_TYPE=zip
 # https://www.php.net/manual/en/zip.constants.php#ziparchive.constants.cm-default. keep STORE highly recommended for performance
 ENV BATCH_ZIP_COMPRESS_ALGO=STORE
