@@ -95,13 +95,13 @@ function Hero() {
       <div className="db-orbit db-orbit--one" />
       <div className="db-orbit db-orbit--two" />
       <div className="db-shell db-hero__inner">
-        <div className="db-eyebrow"><span>v4.0</span> Your files, beautifully indexed</div>
+        <div className="db-eyebrow"><span>v5.0</span> Your files, beautifully indexed</div>
         <h1>Turn any folder into a <em>fast, polished</em> file browser.</h1>
         <p className="db-hero__lead">
           A secure, read-only directory listing with search, previews, metadata and a JSON API—packaged in one tiny Docker image.
         </p>
         <div className="db-actions">
-          <Link className="db-button db-button--primary" to="/v4/intro">
+          <Link className="db-button db-button--primary" to="/v5/intro">
             Get started <Arrow />
           </Link>
           <Link className="db-button db-button--ghost" to="https://dir-demo.adriansoftware.de">
@@ -171,7 +171,7 @@ function Features() {
           ))}
         </div>
         <div className="db-capabilities" aria-label="More capabilities">
-          {['Batch downloads', 'Clean URLs', 'Dark mode', 'File hashes', 'Custom themes', 'ARM64 ready', 'Hidden paths', 'JSON API'].map((item) => (
+          {['File previews', 'Clean URLs', 'Dark mode', 'File hashes', 'Custom metadata', 'ARM64 ready', 'Hidden paths', 'JSON API'].map((item) => (
             <span key={item}><i>+</i>{item}</span>
           ))}
         </div>
@@ -180,26 +180,75 @@ function Features() {
   );
 }
 
-function Showcase() {
+function FeatureSpotlight() {
   return (
-    <section className="db-showcase">
-      <div className="db-shell db-showcase__grid">
-        <div className="db-showcase__copy">
-          <div className="db-kicker">Made to fit</div>
-          <h2>Your directory.<br />Your way.</h2>
-          <p>Choose a theme, switch to dark mode, add descriptions and labels, or bring your own CSS and JavaScript. Directory Browser stays out of the way while your content takes the stage.</p>
-          <div className="db-mini-list">
-            <span><b>10+</b> included themes</span>
-            <span><b>100%</b> responsive</span>
+    <section className="db-spotlight">
+      <div className="db-shell">
+        <div className="db-section-head db-spotlight__head">
+          <div>
+            <div className="db-kicker">Every file tells a story</div>
+            <h2>Useful details.<br />Built right in.</h2>
           </div>
-          <Link className="db-text-link" to="/v4/configuration/themes">Browse configuration <Arrow /></Link>
+          <p>Go beyond a plain directory listing with live download data, rich previews and tools that make large file collections easy to navigate.</p>
         </div>
-        <div className="db-showcase__visual">
-          <div className="db-dark-card">
-            <div className="db-dark-card__bar"><span>Dark mode</span><i>ON</i></div>
-            <img src="/img/main1.png" alt="Directory Browser in dark mode" loading="lazy" />
-          </div>
-          <div className="db-palette" aria-hidden="true"><i /><i /><i /><i /><i /></div>
+
+        <div className="db-bento">
+          <Link className="db-bento-card db-bento-card--counter" to="/v4/configuration/download-count">
+            <div className="db-bento-card__label"><span>01</span> Download counters</div>
+            <div className="db-counter-demo" aria-hidden="true">
+              <div><span>release-v4.5.zip</span><b>12,847</b></div>
+              <i><span /></i>
+              <small>+18% this week</small>
+            </div>
+            <div className="db-bento-card__copy">
+              <h3>Know what gets downloaded.</h3>
+              <p>Persistent Redis-backed counters track every file—even files included in a batch download.</p>
+            </div>
+          </Link>
+
+          <Link className="db-bento-card db-bento-card--search" to="/v4/configuration/search">
+            <div className="db-bento-card__label"><span>02</span> Search &amp; sort</div>
+            <div className="db-search-demo" aria-hidden="true">
+              <span>⌕</span><b>quarterly report</b><kbd>3 results</kbd>
+            </div>
+            <h3>Find it fast.</h3>
+            <p>Search deep collections and sort by the details that matter.</p>
+          </Link>
+
+          <Link className="db-bento-card db-bento-card--batch" to="/v4/configuration/batch">
+            <div className="db-bento-card__label"><span>03</span> Batch downloads</div>
+            <div className="db-stack-demo" aria-hidden="true"><i /><i /><i><b>ZIP</b></i></div>
+            <h3>One click. One archive.</h3>
+            <p>Bundle selected files or an entire folder into a streaming ZIP.</p>
+          </Link>
+
+          <Link className="db-bento-card db-bento-card--readme" to="/v4/configuration/readme">
+            <div className="db-bento-card__label"><span>04</span> README rendering</div>
+            <div className="db-readme-demo" aria-hidden="true"><b># Release notes</b><i /><i /><i /></div>
+            <h3>Context beside the content.</h3>
+            <p>Render Markdown automatically, above or below the file list.</p>
+          </Link>
+
+          <Link className="db-bento-card db-bento-card--integrity" to="/v4/configuration/hashes">
+            <div className="db-bento-card__label"><span>05</span> File integrity</div>
+            <div className="db-hash-demo" aria-hidden="true"><span>SHA256</span><code>8102c637…30a9bb</code><b>✓</b></div>
+            <h3>Verify every byte.</h3>
+            <p>Generate hashes and require integrity checks before a file is served.</p>
+          </Link>
+
+          <Link className="db-bento-card db-bento-card--api" to="/v4/configuration/http">
+            <div className="db-bento-card__label"><span>06</span> Metadata &amp; API</div>
+            <div className="db-api-demo" aria-hidden="true"><code>{'{'}<br />&nbsp;&nbsp;"downloads": 12847,<br />&nbsp;&nbsp;"size": "84 MB"<br />{'}'}</code></div>
+            <div className="db-bento-card__copy">
+              <h3>Made for humans and machines.</h3>
+              <p>Add labels and descriptions, preview file details, or consume everything through a clean JSON API.</p>
+            </div>
+          </Link>
+        </div>
+
+        <div className="db-spotlight__footer">
+          <span>And that is only the useful part of the list.</span>
+          <Link className="db-text-link" to="/v4/intro">Explore every feature <Arrow /></Link>
         </div>
       </div>
     </section>
@@ -285,16 +334,23 @@ const pageStyles = `
   .db-feature__top { display:flex;justify-content:space-between;align-items:start;margin-bottom:80px;font:500 11px 'DM Mono',monospace; }.db-feature__top svg { width:36px;height:36px;fill:none;stroke:currentColor;stroke-width:1.4; }
   .db-feature h3 { margin-bottom:14px;font-size:23px;letter-spacing:-.035em; }.db-feature p { margin:0;color:#575c57;font-size:14px;line-height:1.7; }.db-feature:hover p { color:#2f3825; }
   .db-capabilities { display:grid;grid-template-columns:repeat(4,1fr);margin-top:34px;gap:0 20px; }.db-capabilities span { padding:14px 0;border-bottom:1px solid var(--db-line);font:500 12px 'DM Mono',monospace; }.db-capabilities i { margin-right:12px;color:#669900;font-style:normal;font-size:16px; }
-  .db-showcase { padding:120px 0;background:#dfe3d7;border-top:1px solid var(--db-ink); }
-  .db-showcase__grid { display:grid;grid-template-columns:.65fr 1.35fr;gap:100px;align-items:center; }.db-showcase__copy>p { color:#596058;line-height:1.75; }.db-mini-list { display:flex;gap:32px;margin:32px 0; }.db-mini-list span { font:400 11px 'DM Mono',monospace;color:#666c65; }.db-mini-list b { display:block;color:var(--db-ink);font:700 24px 'Manrope',sans-serif;margin-bottom:2px; }
-  .db-showcase__visual { position:relative; }.db-dark-card { border:1px solid #0a0d0a;background:#111511;box-shadow:16px 16px 0 rgba(18,21,18,.18);transform:rotate(1.5deg);overflow:hidden; }.db-dark-card__bar { height:43px;padding:0 15px;display:flex;align-items:center;justify-content:space-between;color:#ccd1cc;border-bottom:1px solid #343934;font:400 10px 'DM Mono',monospace; }.db-dark-card__bar i { color:var(--db-green);font-style:normal; }.db-dark-card img { width:100%;display:block; }.db-palette { position:absolute;left:-35px;bottom:-25px;padding:11px;display:flex;gap:6px;border:1px solid var(--db-ink);background:var(--db-paper);box-shadow:4px 4px 0 var(--db-ink); }.db-palette i { width:17px;height:17px;border-radius:50%;background:#b7f34b; }.db-palette i:nth-child(2){background:#ff8b6b}.db-palette i:nth-child(3){background:#ead85b}.db-palette i:nth-child(4){background:#8cb9f8}.db-palette i:nth-child(5){background:#262a26}
+  .db-spotlight { padding:120px 0;background:#dfe3d7;border-top:1px solid var(--db-ink); }
+  .db-spotlight__head { margin-bottom:58px; }.db-bento { display:grid;grid-template-columns:repeat(12,1fr);border-top:1px solid var(--db-ink);border-left:1px solid var(--db-ink);background:var(--db-ink);gap:1px; }
+  .db-bento-card { position:relative;min-height:330px;padding:25px;display:flex;flex-direction:column;background:#eef0e9;color:var(--db-ink)!important;text-decoration:none!important;overflow:hidden;transition:background .25s,transform .25s; }.db-bento-card:hover { z-index:2;background:#f7f8f3;transform:translateY(-5px);box-shadow:0 6px 0 var(--db-green); }.db-bento-card--counter,.db-bento-card--api { grid-column:span 7; }.db-bento-card--search,.db-bento-card--integrity { grid-column:span 5; }.db-bento-card--batch,.db-bento-card--readme { grid-column:span 6; }
+  .db-bento-card__label { display:flex;gap:12px;font:500 10px 'DM Mono',monospace;letter-spacing:.1em;text-transform:uppercase;color:#656b65; }.db-bento-card__label span { color:#3d453c; }.db-bento-card h3 { margin:auto 0 9px;font-size:25px;letter-spacing:-.04em; }.db-bento-card p { max-width:480px;margin:0;color:#596059;font-size:13px;line-height:1.65; }.db-bento-card__copy { position:relative;z-index:1; }
+  .db-bento-card--counter { min-height:430px;background:var(--db-green); }.db-counter-demo { margin:48px 0 35px;padding:22px;border:1px solid var(--db-ink);background:#f5f4ec;box-shadow:7px 7px 0 var(--db-ink);transform:rotate(-1deg); }.db-counter-demo div { display:flex;justify-content:space-between;align-items:end;font:500 12px 'DM Mono',monospace; }.db-counter-demo b { font:700 31px 'Manrope',sans-serif;letter-spacing:-.05em; }.db-counter-demo i { display:block;height:7px;margin:17px 0 10px;background:#daddd3; }.db-counter-demo i span { display:block;width:78%;height:100%;background:var(--db-ink); }.db-counter-demo small { font:500 9px 'DM Mono',monospace;color:#4c7023; }
+  .db-search-demo { margin:48px 0 32px;padding:15px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--db-ink);font:400 12px 'DM Mono',monospace; }.db-search-demo>span { font-size:22px; }.db-search-demo b { flex:1;font-weight:400; }.db-search-demo kbd { padding:4px 6px;border:0;background:#d9ddd3;box-shadow:none;font:400 8px 'DM Mono',monospace; }
+  .db-stack-demo { position:relative;width:120px;height:105px;margin:45px auto 32px; }.db-stack-demo i { position:absolute;inset:0;border:1px solid var(--db-ink);background:#f7f7f1;transform:rotate(-7deg); }.db-stack-demo i:nth-child(2){transform:rotate(5deg);background:#ccd2c5}.db-stack-demo i:nth-child(3){display:grid;place-items:center;transform:none;background:var(--db-green);font-style:normal}.db-stack-demo b { font:700 19px 'DM Mono',monospace; }
+  .db-readme-demo { margin:44px 0 32px;padding:24px;border-left:4px solid var(--db-green);background:#181b18;color:white;font:400 11px 'DM Mono',monospace; }.db-readme-demo b { display:block;margin-bottom:17px;color:var(--db-green); }.db-readme-demo i { display:block;width:90%;height:4px;margin:8px 0;background:#4c514c; }.db-readme-demo i:nth-child(3){width:72%}.db-readme-demo i:nth-child(4){width:84%}
+  .db-hash-demo { margin:48px 0 35px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:16px;border:1px solid var(--db-ink);font:400 10px 'DM Mono',monospace; }.db-hash-demo span { padding:5px;background:var(--db-ink);color:var(--db-green); }.db-hash-demo code { overflow:hidden;background:none;color:#555c55;white-space:nowrap; }.db-hash-demo b { color:#578500;font-size:18px; }
+  .db-bento-card--api { min-height:370px;background:#1a1d1a;color:#f4f3eb!important; }.db-bento-card--api .db-bento-card__label,.db-bento-card--api p { color:#969c96; }.db-bento-card--api .db-bento-card__label span { color:var(--db-green); }.db-api-demo { position:absolute;right:-18px;top:46px;width:52%;padding:26px;background:#0d0f0d;border:1px solid #414641;box-shadow:-7px 7px 0 var(--db-green);transform:rotate(2deg); }.db-api-demo code { background:none;color:#c8d0c6;font:400 11px/1.9 'DM Mono',monospace; }.db-bento-card--api .db-bento-card__copy { max-width:44%;margin-top:auto; }.db-spotlight__footer { margin-top:34px;display:flex;justify-content:space-between;align-items:center;color:#606660;font:400 11px 'DM Mono',monospace; }
   .db-final { padding:110px 0;background:var(--db-green);color:var(--db-ink); }.db-final__inner { display:grid;grid-template-columns:100px 1fr .55fr;gap:50px;align-items:center; }.db-final__mark { width:76px;height:76px;display:grid;place-items:center;border:2px solid var(--db-ink);border-radius:50%;font:500 42px 'DM Mono',monospace; }.db-final h2 { margin:0; }.db-final__action p { font-size:14px; }.db-button--light { background:var(--db-paper);width:100%; }.db-github { display:block;text-align:center;margin-top:17px;color:var(--db-ink)!important;font:500 11px 'DM Mono',monospace;text-decoration:none!important; }
   html[data-theme='dark'] .db-page { --db-paper:#edece4;--db-ink:#121512;color:var(--db-ink); }
   @keyframes db-rise { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
   .db-eyebrow,.db-hero h1,.db-hero__lead,.db-actions,.db-proof,.db-browser-wrap { animation:db-rise .7s both cubic-bezier(.2,.8,.2,1); }.db-hero h1{animation-delay:.08s}.db-hero__lead{animation-delay:.16s}.db-actions{animation-delay:.24s}.db-proof{animation-delay:.3s}.db-browser-wrap{animation-delay:.38s}
   @media (prefers-reduced-motion:reduce) { .db-page * { animation:none!important;transition:none!important; } }
-  @media (max-width:900px) { .db-hero{padding-top:74px}.db-quick__grid,.db-section-head,.db-showcase__grid{grid-template-columns:1fr;gap:40px}.db-feature-grid{grid-template-columns:1fr}.db-feature{min-height:0;border-right:0;border-bottom:1px solid var(--db-ink)}.db-feature:last-child{border-bottom:0}.db-feature__top{margin-bottom:45px}.db-capabilities{grid-template-columns:repeat(2,1fr)}.db-final__inner{grid-template-columns:70px 1fr}.db-final__action{grid-column:2}.db-float{display:none}.db-showcase__copy{max-width:650px}.db-showcase__visual{width:95%;margin-left:auto} }
-  @media (max-width:600px) { .db-shell{width:min(100% - 28px,1180px)}.db-hero{padding-top:56px}.db-hero h1{font-size:47px}.db-hero h1 em{white-space:normal}.db-hero h1 em:after{display:none}.db-hero__lead{font-size:16px}.db-actions{flex-direction:column}.db-button{width:100%}.db-proof{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:left}.db-proof span{padding:0;border:0}.db-proof span:last-child{grid-column:span 2}.db-browser-wrap{margin-bottom:-50px}.db-browser__bar{grid-template-columns:auto 1fr}.db-address{min-width:0;margin-left:12px;overflow:hidden;white-space:nowrap}.db-live{display:none}.db-quick{padding:120px 0 75px}.db-features,.db-showcase{padding:80px 0}.db-capabilities{grid-template-columns:1fr 1fr}.db-showcase__grid{gap:55px}.db-palette{left:-8px}.db-final{padding:75px 0}.db-final__inner{grid-template-columns:1fr;gap:24px}.db-final__mark{width:56px;height:56px;font-size:28px}.db-final__action{grid-column:auto}.db-page h2{font-size:42px} }
+  @media (max-width:900px) { .db-hero{padding-top:74px}.db-quick__grid,.db-section-head{grid-template-columns:1fr;gap:40px}.db-feature-grid{grid-template-columns:1fr}.db-feature{min-height:0;border-right:0;border-bottom:1px solid var(--db-ink)}.db-feature:last-child{border-bottom:0}.db-feature__top{margin-bottom:45px}.db-capabilities{grid-template-columns:repeat(2,1fr)}.db-bento-card--counter,.db-bento-card--api,.db-bento-card--search,.db-bento-card--integrity,.db-bento-card--batch,.db-bento-card--readme{grid-column:span 12}.db-final__inner{grid-template-columns:70px 1fr}.db-final__action{grid-column:2}.db-float{display:none} }
+  @media (max-width:600px) { .db-shell{width:min(100% - 28px,1180px)}.db-hero{padding-top:56px}.db-hero h1{font-size:47px}.db-hero h1 em{white-space:normal}.db-hero h1 em:after{display:none}.db-hero__lead{font-size:16px}.db-actions{flex-direction:column}.db-button{width:100%}.db-proof{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:left}.db-proof span{padding:0;border:0}.db-proof span:last-child{grid-column:span 2}.db-browser-wrap{margin-bottom:-50px}.db-browser__bar{grid-template-columns:auto 1fr}.db-address{min-width:0;margin-left:12px;overflow:hidden;white-space:nowrap}.db-live{display:none}.db-quick{padding:120px 0 75px}.db-features,.db-spotlight{padding:80px 0}.db-capabilities{grid-template-columns:1fr 1fr}.db-bento-card{min-height:315px;padding:20px}.db-bento-card--counter{min-height:390px}.db-counter-demo{margin-top:38px;padding:16px}.db-api-demo{position:relative;right:auto;top:auto;width:100%;margin:35px 0 28px}.db-bento-card--api .db-bento-card__copy{max-width:none}.db-spotlight__footer{align-items:flex-start;flex-direction:column;gap:20px}.db-final{padding:75px 0}.db-final__inner{grid-template-columns:1fr;gap:24px}.db-final__mark{width:56px;height:56px;font-size:28px}.db-final__action{grid-column:auto}.db-page h2{font-size:42px} }
 `;
 
 export default function Home() {
@@ -307,7 +363,7 @@ export default function Home() {
         <Hero />
         <QuickStart />
         <Features />
-        <Showcase />
+        <FeatureSpotlight />
         <FinalCta />
       </main>
     </Layout>

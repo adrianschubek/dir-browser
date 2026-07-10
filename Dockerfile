@@ -1,6 +1,6 @@
 FROM debian:trixie-slim AS base
 
-ENV DIRBROWSER_VERSION=4.5.1
+ENV DIRBROWSER_VERSION=5.0.0
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -77,7 +77,7 @@ COPY server/php/php.ini /etc/php/8.5/cli/conf.d/99-custom.ini
 
 COPY server/redis/redis.conf /etc/redis/redis.conf
 
-COPY src/index.php /var/www/html
+COPY src/ /var/www/html/
 
 # skipped in v3.9
 # COPY src/worker.php /var/www/html
@@ -95,8 +95,6 @@ ENV HASH=true
 ENV HASH_MAX_FILE_SIZE_MB=100
 
 ENV TRANSITION=false
-
-ENV HASH_FOLDER=false	
 
 ENV HASH_REQUIRED=false
 
@@ -134,24 +132,19 @@ ENV SEARCH_MAX_DEPTH=25
 
 ENV SEARCH_MAX_RESULTS=100
 
+ENV SEARCH_MAX_QUERY_LENGTH=256
+
 # multi select batch file download
 ENV BATCH_DOWNLOAD=true
 
-ENV BATCH_TYPE=zip
-# https://www.php.net/manual/en/zip.constants.php#ziparchive.constants.cm-default. keep STORE highly recommended for performance
+# Keep STORE highly recommended for performance.
 ENV BATCH_ZIP_COMPRESS_ALGO=STORE
 # MB (not strictly necessary anymore due to streaming, but still good to have a limit) 500 GB
 ENV BATCH_MAX_TOTAL_SIZE=500000
 # MB per file (not strictly necessary anymore due to streaming, but still good to have a limit) 500 GB
 ENV BATCH_MAX_FILE_SIZE=500000
-# MB, how much system disk space to keep free at all times
-ENV BATCH_MIN_SYSTEM_FREE_DISK=500
-# watch filesystem
-ENV WORKER_WATCH=true
-# seconds re-scan
-ENV WORKER_SCAN_INTERVAL=60
 
-ENV WORKER_FORCE_RESCAN=
+ENV BATCH_MAX_FILES=10000
 
 ENV PAGINATION_PER_PAGE=100
 
@@ -159,12 +152,15 @@ ENV PREFETCH_FOLDERS=true
 
 ENV PREFETCH_FILES=false
 
-ENV CORS_ALLOW_ANY_ORIGIN=true
+ENV CORS_ALLOW_ANY_ORIGIN=false
 
 # seconds. default 60 * 60 * 24 * 30
 ENV AUTH_COOKIE_LIFETIME=2592000
 
 ENV AUTH_COOKIE_HTTPONLY=true
+
+# auto,true,false. auto honors HTTPS and X-Forwarded-Proto.
+ENV AUTH_COOKIE_SECURE=auto
 
 ENV TITLE="dir-browser"
 
@@ -174,6 +170,9 @@ ENV MAX_EXEC_TIME=600
 
 ENV DISPLAY_ERRORS=Off
 
-EXPOSE 8080
+EXPOSE 80
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD curl --fail --silent http://127.0.0.1/__health >/dev/null || exit 1
 
 CMD ["/init.sh"]

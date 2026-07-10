@@ -25,6 +25,7 @@ https://dir-demo.adriansoftware.de
 - **Hide** files and folders
 - Light and **Dark mode**
 - File **icons**
+- Many **Themes** available
 - **Clean URLs** equivalent to file system paths
 - **Low memory** footprint (~10MB)
 - Easy setup using single **Docker** image

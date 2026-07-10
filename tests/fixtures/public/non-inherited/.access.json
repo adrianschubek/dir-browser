@@ -1,0 +1,4 @@
+{
+  "password_raw": "non-inherited-secret",
+  "inherit": false
+}

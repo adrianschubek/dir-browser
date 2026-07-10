@@ -90,10 +90,15 @@ const config = {
               banner: "unmaintained",
               path: '/v3',
             },
-            "current": {
-              label: 'v4 (latest✅)',
-              banner: "none",
+            "4.x": {
+              label: 'v4',
+              banner: "unmaintained",
               path: '/v4',
+            },
+            "current": {
+              label: 'v5 (latest✅)',
+              banner: "none",
+              path: '/v5',
             },
           },
         },

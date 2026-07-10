@@ -33,7 +33,16 @@ fi
 
 
 echo -e "${YELLOW}[ 1/$MAX_STEPS ] Pre-processing configs using utpp... ${NC}"
-utpp "/etc/nginx/nginx.conf;/etc/nginx/conf.d/default.conf;/etc/php/**;/var/www/html/*.php"
+# Only preprocess files shipped by the image. /var/www/html/public is a
+# user-provided, read-only mount and may itself contain PHP files.
+utpp "/etc/nginx/nginx.conf;/etc/nginx/conf.d/default.conf;/etc/php/**;/var/www/html/index.php;/var/www/html/app/*.php;/var/www/html/views/*.php;/var/www/html/views/partials/*.php"
+
+# Folder-auth cookies contain only an opaque session id. Generate a per-container
+# secret for credential fingerprints unless the operator supplied one.
+if [ -z "${AUTH_SESSION_SECRET}" ] && [ ! -s /var/www/html/tmp/auth-session-secret ]; then
+  umask 077
+  head -c 32 /dev/urandom | base64 > /var/www/html/tmp/auth-session-secret
+fi
 
 echo -e "${YELLOW}[ 2/$MAX_STEPS ] Starting php-fpm... ${NC}"
 php-fpm8.5 -F -R &

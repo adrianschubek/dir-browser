@@ -1,0 +1,8 @@
+# Prefetching on Hover
+
+By default, hovering over a folder link in the filetree will prefetch the contents of the folder. This can be disabled by setting the `PREFETCH_FOLDERS` environment variable to `false`.
+Prefetching of files is disabled by default because it downloads the file in the background and may increase the counter inadvertently. This can be enabled again by setting the `PREFETCH_FILES` environment variable to `true`.
+
+import EnvConfig from '@site/src/components/EnvConfig';
+
+<EnvConfig name="PREFETCH_FOLDERS|PREFETCH_FILES" init="true|false" values="true,false|true,false" versions="3.12|3.12"/>

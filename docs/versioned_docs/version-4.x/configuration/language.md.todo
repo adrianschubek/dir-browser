@@ -1,0 +1,9 @@
+---
+sidebar_position: 4
+---
+
+# Language
+
+dir-browser does not currently provide full UI translations via a `LANGUAGE` environment variable.
+
+If you want to influence language output, the main supported knob is for **relative time strings** (for example “2 days ago”). See [Date & Time](./i18n.md) and use `DATE_FORMAT_RELATIVE_LANG`.
