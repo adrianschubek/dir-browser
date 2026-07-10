@@ -4,20 +4,20 @@ This documentation site is built with [Docusaurus](https://docusaurus.io/).
 
 Prerequisites:
 - Node.js (see the required version in `docs/package.json`)
-- A package manager (this repo uses Yarn in the examples)
+- npm (the repository includes `package-lock.json`)
 
 ### Installation
 
 ```
 $ cd docs
-$ yarn
+$ npm ci
 ```
 
 ### Local Development
 
 ```
 $ cd docs
-$ yarn start
+$ npm start
 ```
 
 This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
@@ -26,7 +26,7 @@ This command starts a local development server and opens up a browser window. Mo
 
 ```
 $ cd docs
-$ yarn build
+$ npm run build
 ```
 
 This command generates static content into the `build` directory and can be served using any static contents hosting service.
