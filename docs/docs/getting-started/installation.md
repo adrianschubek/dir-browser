@@ -28,6 +28,9 @@ THEME=cosmo
 DATE_FORMAT=local
 ```
 
+To expose a nested directory or a git-sync link as URL `/`, see
+[Public Root](../configuration/public-root.md).
+
 ## Docker Compose
 
 You can also use [Docker Compose](https://docs.docker.com/compose/) to run the container.

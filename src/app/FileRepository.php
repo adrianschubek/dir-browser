@@ -14,7 +14,7 @@ final class FileRepository
     if ($this->paths->isAccessConfig($normalized)) return false;
 
     $path = $this->paths->resolve($normalized);
-    if ($path === false || hidden($path)) return false;
+    if ($path === false || isIgnoredUrlPath($this->paths->toUrl($path))) return false;
 
     $status = $this->access->statusForPath($path, $includeProtected);
     if ($status['hidden']) return false;

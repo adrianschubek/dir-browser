@@ -1,8 +1,10 @@
 FROM debian:trixie-slim AS base
 
-ENV DIRBROWSER_VERSION=5.0.0
+ENV DIRBROWSER_VERSION=5.0.1
 
 ENV DEBIAN_FRONTEND=noninteractive
+
+ENV PUBLIC_ROOT=/var/www/html/public
 
 RUN set -eux; \
   apt-get update; \

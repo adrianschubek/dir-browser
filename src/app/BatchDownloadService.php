@@ -93,7 +93,10 @@ final class BatchDownloadService
         if (isset($visitedDirectories[$path])) continue;
         $visitedDirectories[$path] = true;
         $children = array_diff(scandir($path) ?: [], ['.', '..']);
-        foreach (array_reverse($children) as $child) $stack[] = $this->paths->toUrl($path . '/' . $child);
+        foreach (array_reverse($children) as $child) {
+          $childPath = $this->paths->canonicalize($path . '/' . $child);
+          if ($childPath !== false) $stack[] = $this->paths->toUrl($childPath);
+        }
         continue;
       }
 

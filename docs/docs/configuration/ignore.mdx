@@ -12,13 +12,14 @@ In contrast to using [metadata](./metadata.md) the file or folder is completely 
 
 Hide specific files or folders by defining ignore patterns as regular expressions.
 
-Internally, each pattern is evaluated against the full file path using [preg_match](https://www.php.net/manual/en/function.preg-match.php). Matching is case-insensitive.
+Internally, each pattern is evaluated with [preg_match](https://www.php.net/manual/en/function.preg-match.php) against the browser-visible URL path. Matching is case-insensitive.
 If any pattern matches, the file/folder will be hidden.
 
 Notes:
-- The path always starts with `/`, which is the mounted folder.
+- The path always starts with `/`, which represents the configured [public root](./public-root.md).
+- Canonical filesystem paths and implementation details such as git-sync's worktree directory names are never matched.
 - Patterns are wrapped as `#<pattern>#im` internally. Avoid using `#` in patterns.
-The path always starts with a `/`, which is the mounted folder.
+- Invalid regular expressions are logged and skipped.
 
 #### Examples
 

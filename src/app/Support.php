@@ -7,6 +7,7 @@ final class File
   public string $size;
   public bool $is_dir;
   public string $modified_date;
+  public string $local_path;
   public int $dl_count = 0;
   public ?object $meta = null;
   public bool $auth_required = false;

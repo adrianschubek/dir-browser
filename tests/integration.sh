@@ -6,9 +6,14 @@ IMAGE="${DIR_BROWSER_TEST_IMAGE:-dir-browser:test}"
 CONTAINER="dir-browser-integration-$RANDOM"
 PORT="${DIR_BROWSER_TEST_PORT:-18080}"
 BASE_URL="http://127.0.0.1:${PORT}"
+GITSYNC_FIXTURE="$(mktemp -d)"
 
 cleanup() {
   docker rm -f "$CONTAINER" >/dev/null 2>&1 || true
+  docker run --rm --entrypoint bash -v "$GITSYNC_FIXTURE:/fixture" "$IMAGE" \
+    -c 'if [ -d /fixture/.worktrees/rev-b/owned ]; then chmod -R a+rwX /fixture/.worktrees/rev-b/owned; fi' \
+    >/dev/null 2>&1 || true
+  rm -rf "$GITSYNC_FIXTURE"
 }
 trap cleanup EXIT
 
@@ -24,6 +29,8 @@ for _ in $(seq 1 30); do
   sleep 1
 done
 curl --fail --silent "$BASE_URL/__health" | grep -q '"status":"ok"'
+docker exec "$CONTAINER" grep -q 'alias /var/www/html/.dir-browser-public-root/;' /etc/nginx/conf.d/default.conf
+docker exec "$CONTAINER" test "$(docker exec "$CONTAINER" readlink /var/www/html/.dir-browser-public-root)" = /var/www/html/public
 
 # Startup preprocessing must not traverse into the read-only public mount,
 # even when user content contains nested PHP templates.
@@ -33,10 +40,11 @@ assert_status() {
   local expected="$1"
   shift
   local actual
-  actual="$(curl --silent --output /tmp/dir-browser-test-response --write-out '%{http_code}' "$@")"
+  actual="$(curl --silent --output /tmp/dir-browser-test-response --write-out '%{http_code}' "$@" || true)"
   if [ "$actual" != "$expected" ]; then
     echo "Expected HTTP $expected, got $actual for: $*" >&2
     sed -n '1,20p' /tmp/dir-browser-test-response >&2
+    if [ "$actual" = "000" ]; then docker logs "$CONTAINER" >&2 || true; fi
     exit 1
   fi
 }
@@ -212,5 +220,160 @@ assert_status 401 --user 'admin:wrong-password' "$BASE_URL/?auth=global-url-secr
 assert_status 200 --user 'admin:global-password' "$BASE_URL/?auth=global-url-secret"
 assert_body_contains 'auth=global-url-secret'
 assert_status 200 --user 'admin:global-password' "$BASE_URL/locked.txt?auth=global-url-secret&hash=2c0cf24749273cf66978a30ffab07782563e8c45a636d92929a9d21859fc11b9"
+
+# Build a writable git-sync-like content tree. The whole tree is mounted, but
+# PUBLIC_ROOT selects only its atomically updated link.
+mkdir -p \
+  "$GITSYNC_FIXTURE/.worktrees/rev-a/protected" \
+  "$GITSYNC_FIXTURE/.worktrees/rev-a/nested" \
+  "$GITSYNC_FIXTURE/.worktrees/rev-b/owned" \
+  "$GITSYNC_FIXTURE/public-backup"
+printf 'revision-a\n' > "$GITSYNC_FIXTURE/.worktrees/rev-a/file-a.txt"
+printf '# custom-root-readme\n' > "$GITSYNC_FIXTURE/.worktrees/rev-a/README.md"
+printf 'space-and-unicode\n' > "$GITSYNC_FIXTURE/.worktrees/rev-a/space name ü.txt"
+printf 'nested-custom-root\n' > "$GITSYNC_FIXTURE/.worktrees/rev-a/nested/result.txt"
+printf 'protected-custom-root\n' > "$GITSYNC_FIXTURE/.worktrees/rev-a/protected/secret.txt"
+printf '{"password_raw":"custom-secret"}\n' > "$GITSYNC_FIXTURE/.worktrees/rev-a/protected/.access.json"
+printf 'hash-required-custom-root\n' > "$GITSYNC_FIXTURE/.worktrees/rev-a/locked.txt"
+printf '{"hash_required":true}\n' > "$GITSYNC_FIXTURE/.worktrees/rev-a/locked.txt.dbmeta.json"
+printf 'revision-b\n' > "$GITSYNC_FIXTURE/.worktrees/rev-b/file-b.txt"
+printf 'owned-by-git-sync\n' > "$GITSYNC_FIXTURE/.worktrees/rev-b/owned/uid-65533.txt"
+printf 'must-not-cross-custom-root\n' > "$GITSYNC_FIXTURE/public-backup/secret.txt"
+ln -s .worktrees/rev-a "$GITSYNC_FIXTURE/link"
+ln -s ../rev-a "$GITSYNC_FIXTURE/.worktrees/rev-b/sibling-link"
+ln -s /var/www/html/public-backup "$GITSYNC_FIXTURE/.worktrees/rev-b/outside-link"
+
+# Populate git-sync-owned content as root without changing the user's checkout.
+docker run --rm --entrypoint bash \
+  -v "$GITSYNC_FIXTURE:/fixture" \
+  "$IMAGE" -c 'chown -R 65533:65533 /fixture/.worktrees/rev-b/owned && chmod 0755 /fixture/.worktrees/rev-b/owned && chmod 0744 /fixture/.worktrees/rev-b/owned/uid-65533.txt'
+
+docker rm -f "$CONTAINER" >/dev/null
+docker run -d --name "$CONTAINER" \
+  -p "${PORT}:80" \
+  -e PUBLIC_ROOT=/var/www/html/public/link \
+  -e 'IGNORE=/\..*' \
+  -e SEARCH_ENGINE=s,g,r \
+  -v "$GITSYNC_FIXTURE:/var/www/html/public" \
+  -v "$GITSYNC_FIXTURE/public-backup:/var/www/html/public-backup:ro" \
+  "$IMAGE" >/dev/null
+for _ in $(seq 1 30); do
+  if curl --fail --silent "$BASE_URL/__health" >/dev/null; then break; fi
+  sleep 1
+done
+
+# The logical root and its generated Nginx alias agree, while canonical
+# git-sync implementation directories never enter browser-visible URLs.
+docker exec "$CONTAINER" grep -q 'alias /var/www/html/.dir-browser-public-root/;' /etc/nginx/conf.d/default.conf
+docker exec "$CONTAINER" test "$(docker exec "$CONTAINER" readlink /var/www/html/.dir-browser-public-root)" = /var/www/html/public/link
+assert_status 200 "$BASE_URL/"
+assert_body_contains 'file-a.txt'
+assert_body_contains 'custom-root-readme'
+assert_body_excludes '.worktrees'
+assert_status 200 "$BASE_URL/?ls=1"
+assert_body_contains '"url":"/file-a.txt"'
+assert_body_excludes '.worktrees'
+assert_status 200 "$BASE_URL/file-a.txt"
+assert_body_contains 'revision-a'
+assert_status 200 "$BASE_URL/file-a.txt?info=1"
+assert_body_contains '"url":"/file-a.txt"'
+assert_status 200 "$BASE_URL/file-a.txt?preview=1"
+assert_body_contains 'revision-a'
+assert_status 200 --get --data-urlencode 'q=file-a' --data-urlencode 'e=s' "$BASE_URL/"
+assert_body_contains '"url":"/file-a.txt"'
+assert_status 200 --get --data-urlencode 'q=file-a' --data-urlencode 'e=r' "$BASE_URL/"
+assert_body_contains '"url":"/file-a.txt"'
+assert_status 200 --get --data-urlencode 'q=*.txt' --data-urlencode 'e=g' "$BASE_URL/"
+assert_body_contains '"url":"/file-a.txt"'
+assert_status 401 "$BASE_URL/protected/secret.txt"
+assert_status 200 --header 'X-Key: custom-secret' "$BASE_URL/protected/secret.txt"
+assert_body_contains 'protected-custom-root'
+custom_hash="$(sha256sum "$GITSYNC_FIXTURE/.worktrees/rev-a/locked.txt" | cut -d ' ' -f 1)"
+assert_status 403 "$BASE_URL/locked.txt"
+assert_status 200 "$BASE_URL/locked.txt?hash=$custom_hash"
+assert_body_contains 'hash-required-custom-root'
+assert_status 200 "$BASE_URL/space%20name%20%C3%BC.txt"
+assert_body_contains 'space-and-unicode'
+assert_status 200 --request POST --data-urlencode 'download_batch[]=/nested/result.txt' "$BASE_URL/"
+unzip -p /tmp/dir-browser-test-response nested/result.txt | grep -q 'nested-custom-root'
+
+# Child symlinks may not escape the selected repository, and encoded and batch
+# traversal remain bounded.
+assert_status 400 --path-as-is "$BASE_URL/%2e%2e/public-backup/secret.txt"
+assert_status 400 --request POST --data-urlencode 'download_batch[]=/../public-backup/secret.txt' "$BASE_URL/"
+assert_status 400 --get --data-urlencode 'q=../*' --data-urlencode 'e=g' "$BASE_URL/"
+
+# A git-sync link rotation is visible to both PHP and Nginx without a restart.
+ln -sfn .worktrees/rev-b "$GITSYNC_FIXTURE/link"
+assert_status 200 "$BASE_URL/"
+assert_body_contains 'file-b.txt'
+assert_body_excludes 'file-a.txt'
+assert_status 200 "$BASE_URL/file-b.txt"
+assert_body_contains 'revision-b'
+assert_status 404 "$BASE_URL/sibling-link/file-a.txt"
+assert_status 404 "$BASE_URL/outside-link/secret.txt"
+assert_status 200 "$BASE_URL/owned/uid-65533.txt?preview=1"
+assert_body_contains 'owned-by-git-sync'
+assert_status 200 "$BASE_URL/owned/uid-65533.txt"
+assert_body_contains 'owned-by-git-sync'
+
+# A root that resolves outside the content mount is unavailable but cannot
+# affect the orchestration health endpoint or expose the sibling mount.
+ln -s /var/www/html/public-backup "$GITSYNC_FIXTURE/escape"
+docker rm -f "$CONTAINER" >/dev/null
+docker run -d --name "$CONTAINER" \
+  -p "${PORT}:80" \
+  -e PUBLIC_ROOT=/var/www/html/public/escape \
+  -v "$GITSYNC_FIXTURE:/var/www/html/public" \
+  -v "$GITSYNC_FIXTURE/public-backup:/var/www/html/public-backup:ro" \
+  "$IMAGE" >/dev/null
+for _ in $(seq 1 30); do
+  if curl --fail --silent "$BASE_URL/__health" >/dev/null; then break; fi
+  sleep 1
+done
+assert_status 200 "$BASE_URL/__health"
+assert_status 503 "$BASE_URL/"
+assert_body_excludes 'must-not-cross-custom-root'
+docker logs "$CONTAINER" 2>&1 | grep -q 'resolves outside the content mount'
+
+# Startup may race with git-sync. A missing link reports content unavailability
+# and begins serving as soon as the link appears.
+docker rm -f "$CONTAINER" >/dev/null
+docker run -d --name "$CONTAINER" \
+  -p "${PORT}:80" \
+  -e PUBLIC_ROOT=/var/www/html/public/late-link \
+  -v "$GITSYNC_FIXTURE:/var/www/html/public" \
+  "$IMAGE" >/dev/null
+for _ in $(seq 1 30); do
+  if curl --fail --silent "$BASE_URL/__health" >/dev/null; then break; fi
+  sleep 1
+done
+assert_status 200 "$BASE_URL/__health"
+assert_status 503 "$BASE_URL/"
+docker logs "$CONTAINER" 2>&1 | grep -q 'PUBLIC_ROOT is not currently available'
+ln -s .worktrees/rev-b "$GITSYNC_FIXTURE/late-link"
+assert_status 200 "$BASE_URL/file-b.txt"
+assert_body_contains 'revision-b'
+
+# Without DAC override, a non-traversable configured directory produces an
+# accurate permission diagnostic rather than an ownership mutation.
+mkdir "$GITSYNC_FIXTURE/non-traversable" "$GITSYNC_FIXTURE/redis-data"
+chmod 0644 "$GITSYNC_FIXTURE/non-traversable"
+chmod 0755 "$GITSYNC_FIXTURE"
+chmod 0777 "$GITSYNC_FIXTURE/redis-data"
+docker rm -f "$CONTAINER" >/dev/null
+docker run -d --name "$CONTAINER" \
+  --cap-drop DAC_OVERRIDE \
+  --cap-drop DAC_READ_SEARCH \
+  -p "${PORT}:80" \
+  -e PUBLIC_ROOT=/var/www/html/public/non-traversable \
+  -v "$GITSYNC_FIXTURE:/var/www/html/public" \
+  -v "$GITSYNC_FIXTURE/redis-data:/var/lib/redis" \
+  "$IMAGE" >/dev/null
+for _ in $(seq 1 30); do
+  if ! docker inspect --format '{{.State.Running}}' "$CONTAINER" 2>/dev/null | grep -q true; then break; fi
+  sleep 1
+done
+docker logs "$CONTAINER" 2>&1 | grep -q 'execute permission on every ancestor'
 
 echo 'Integration checks passed.'

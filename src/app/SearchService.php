@@ -27,7 +27,7 @@ final class SearchService
     $results = [];
     $limit = max(1, (int) '${{`process.env.SEARCH_MAX_RESULTS`}}$');
     foreach ($iterator as $path) {
-      $resolved = realpath((string) $path);
+      $resolved = $this->paths->canonicalize((string) $path);
       if ($resolved === false || !$this->paths->containsWithin($resolved, $rootFolder)) continue;
 
       $available = $this->files->available($this->paths->toUrl($resolved));
@@ -42,10 +42,12 @@ final class SearchService
         $authLocked = $authRequired && !$status['authorized'];
       }
 
-      $relativeName = ltrim(substr($available, strlen(rtrim($rootFolder, DIRECTORY_SEPARATOR))), DIRECTORY_SEPARATOR);
+      $availableUrl = $this->paths->toUrl($available);
+      $rootUrl = rtrim($this->paths->toUrl($rootFolder), '/');
+      $relativeName = ltrim(substr($availableUrl, strlen($rootUrl)), '/');
       $results[] = [
-        'url' => $this->paths->toUrl($available),
-        'href' => $this->paths->encodeUrlPath($this->paths->toUrl($available)),
+        'url' => $availableUrl,
+        'href' => $this->paths->encodeUrlPath($availableUrl),
         'name' => safe_utf8($relativeName),
         'is_dir' => $isDirectory,
         'auth_required' => $authRequired,

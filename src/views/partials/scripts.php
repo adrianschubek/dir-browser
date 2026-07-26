@@ -128,7 +128,7 @@
           const input = document.createElement('input');
           input.type = 'hidden';
           input.name = 'download_batch[]';
-          // Always send just the path (relative to dir-browser PUBLIC_FOLDER), without BASE_PATH and without query params.
+          // Always send just the browser-visible path, without BASE_PATH and without query params.
           const href = file.getAttribute('href');
           const url = new URL(href, window.location.origin);
           let path = url.pathname;

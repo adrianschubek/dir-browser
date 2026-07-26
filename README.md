@@ -78,6 +78,10 @@ docker run -d \
   adrianschubek/dir-browser:latest
 ```
 
+Set `PUBLIC_ROOT` to a path below `/var/www/html/public` when the mounted
+content root is nested, for example
+`-e PUBLIC_ROOT=/var/www/html/public/link` for a git-sync shared volume.
+
 ## Documentation
 
 - Docs: https://dir.adriansoftware.de

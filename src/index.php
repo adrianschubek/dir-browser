@@ -2,7 +2,7 @@
 
 define('VERSION', '${{`process.env.DIRBROWSER_VERSION`}}$');
 
-define('PUBLIC_FOLDER', __DIR__ . '/public');
+define('CONTENT_MOUNT_ROOT', __DIR__ . '/public');
 
 $request_path = rawurldecode((string) (parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/'));
 if ($request_path === '/__health') {
@@ -55,7 +55,19 @@ $[end]$
 
 require_once __DIR__ . '/app/bootstrap.php';
 
-$pathPolicy = new PathPolicy(PUBLIC_FOLDER);
+try {
+  $configuredPublicRoot = getenv('PUBLIC_ROOT');
+  $pathPolicy = new PathPolicy(
+    CONTENT_MOUNT_ROOT,
+    $configuredPublicRoot === false || $configuredPublicRoot === '' ? CONTENT_MOUNT_ROOT : $configuredPublicRoot
+  );
+} catch (PublicRootUnavailableException $exception) {
+  error_log('[dir-browser] Public content unavailable: ' . $exception->getMessage());
+  http_response_code(503);
+  header('Content-Type: text/plain; charset=utf-8');
+  echo 'Public content is temporarily unavailable.';
+  die();
+}
 $authSessions = new AuthSessionStore();
 $accessControl = new AccessControl($pathPolicy, $authSessions);
 $metadataRepository = new MetadataRepository();
@@ -122,7 +134,7 @@ if ($path_is_dir) {
   $[end]$
 
   // parent folder is hidden so skip
-  if (hidden(substr($local_path, strlen(PUBLIC_FOLDER)))) {
+  if (isIgnoredUrlPath($pathPolicy->toUrl($local_path))) {
     $path_is_dir = false;
     goto skip; /* Folder should be ignored so skip to 404 */
   }  
@@ -184,14 +196,16 @@ if ($path_is_dir) {
   foreach ($iterator as $path => $fileinfo) {
     /* @var SplFileInfo $fileinfo */
     $filename = $fileinfo->getFilename();
-    $url = substr($path, strlen(PUBLIC_FOLDER));
+    $path = $pathPolicy->canonicalize($path);
+    if ($path === false) continue;
+    $url = $pathPolicy->toUrl($path);
 
     // Skip hidden files or metadata files
-    if ($filename === '.access.json' || hidden($url) $[if `process.env.METADATA === "true"`]$ || str_contains($filename, ".dbmeta.")$[end]$) {
+    if ($filename === '.access.json' || isIgnoredUrlPath($url) $[if `process.env.METADATA === "true"`]$ || str_contains($filename, ".dbmeta.")$[end]$) {
       continue;
     }
 
-    $is_dir = $fileinfo->isDir();
+    $is_dir = is_dir($path);
     $meta = null;
 
     // Folder access state for UI
@@ -217,9 +231,10 @@ if ($path_is_dir) {
     $item = new File();
     $item->name = $filename;
     $item->url = $url;
-    $item->size = $is_dir ? 0 : $fileinfo->getSize(); // Dirs don't have a relevant size here
+    $item->local_path = $path;
+    $item->size = $is_dir ? 0 : filesize($path); // Dirs don't have a relevant size here
     $item->is_dir = $is_dir;
-    $item->modified_date = gmdate('Y-m-d\TH:i:s\Z', $fileinfo->getMTime());
+    $item->modified_date = gmdate('Y-m-d\TH:i:s\Z', filemtime($path));
     $item->meta = $meta;
     $item->auth_required = $auth_required;
     $item->auth_locked = $auth_locked;
@@ -304,8 +319,12 @@ if ($path_is_dir) {
   $[if `process.env.README_RENDER === "true" && process.env.README_META === "true"`]$
   // check if ".dbmeta.md" exists. overwrite previous readme
   if (file_exists($local_path . '/.dbmeta.md')) {
-    $readme = new File();
-    $readme->url = substr($local_path, strlen(PUBLIC_FOLDER)) . '/.dbmeta.md';
+    $readmePath = $pathPolicy->canonicalize($local_path . '/.dbmeta.md');
+    if ($readmePath !== false) {
+      $readme = new File();
+      $readme->url = $pathPolicy->toUrl($readmePath);
+      $readme->local_path = $readmePath;
+    }
   }
   $[end]$
 
@@ -323,7 +342,7 @@ if ($path_is_dir) {
     $environment->addExtension(new TaskListExtension());
     $converter = new MarkdownConverter($environment);
 
-    $readme_render = $converter->convert(file_get_contents(PUBLIC_FOLDER . $readme->url));
+    $readme_render = $converter->convert(file_get_contents($readme->local_path));
   }
   $[end]$
 
@@ -352,10 +371,10 @@ if ($path_is_dir) {
 } elseif (file_exists($local_path)) {
   // local path is file. serve it directly using nginx
 
-  $relative_path = substr($local_path, strlen(PUBLIC_FOLDER));
+  $relative_path = $pathPolicy->toUrl($local_path);
   $internal_redirect = '/__internal_public__' . $pathPolicy->encodeUrlPath($relative_path);
 
-  if (hidden($relative_path)) {      
+  if (isIgnoredUrlPath($relative_path)) {
     goto skip; /* File should be ignored so skip to 404 */
   }
 

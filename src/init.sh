@@ -7,10 +7,41 @@ RED='\033[0;31m'
 GREEN_BG_BLACK_TEXT='\033[42;30m'
 NC='\033[0m' # reset
 MAX_STEPS=5
+CONTENT_MOUNT_ROOT=/var/www/html/public
+PUBLIC_ROOT="${PUBLIC_ROOT:-$CONTENT_MOUNT_ROOT}"
+export PUBLIC_ROOT
 
 dbv=$DIRBROWSER_VERSION
 echo -e "${GREEN_BG_BLACK_TEXT} dir-browser v${dbv} by Adrian Schubek${NC}"
 echo -e "${CYAN} -> https://dir.adriansoftware.de <- ${NC}"
+
+# PUBLIC_ROOT is inserted into the generated Nginx configuration as a quoted
+# string. Keep it absolute, normalized, and within the fixed mount boundary.
+if [[ "$PUBLIC_ROOT" != /* ]] \
+  || [[ "$PUBLIC_ROOT" =~ [[:cntrl:]] ]] \
+  || [[ "$PUBLIC_ROOT" == */ ]] \
+  || [[ "$PUBLIC_ROOT" == *//* ]] \
+  || [[ "$PUBLIC_ROOT" == *"/./"* || "$PUBLIC_ROOT" == */. ]] \
+  || [[ "$PUBLIC_ROOT" == *"/../"* || "$PUBLIC_ROOT" == */.. ]] \
+  || [[ "$PUBLIC_ROOT" != "$CONTENT_MOUNT_ROOT" && "$PUBLIC_ROOT" != "$CONTENT_MOUNT_ROOT/"* ]]; then
+  echo -e "${RED}[ Error ] PUBLIC_ROOT must be an absolute, normalized path at or below ${CONTENT_MOUNT_ROOT}.${NC}"
+  exit 1
+fi
+
+ln -sfn -- "$PUBLIC_ROOT" /var/www/html/.dir-browser-public-root
+
+resolved_mount="$(readlink -f -- "$CONTENT_MOUNT_ROOT" 2>/dev/null || true)"
+resolved_public_root="$(readlink -f -- "$PUBLIC_ROOT" 2>/dev/null || true)"
+if [ -z "$resolved_public_root" ] || [ ! -d "$resolved_public_root" ]; then
+  echo -e "${YELLOW}[ Warning ] PUBLIC_ROOT is not currently available: configured=${PUBLIC_ROOT}. Content requests will return 503 until it appears.${NC}"
+elif [ -z "$resolved_mount" ] \
+  || { [ "$resolved_public_root" != "$resolved_mount" ] && [[ "$resolved_public_root" != "$resolved_mount/"* ]]; }; then
+  echo -e "${RED}[ Error ] PUBLIC_ROOT resolves outside the content mount: configured=${PUBLIC_ROOT}, resolved=${resolved_public_root}.${NC}"
+elif [ ! -r "$resolved_public_root" ] || [ ! -x "$resolved_public_root" ]; then
+  echo -e "${RED}[ Error ] PUBLIC_ROOT is not readable/traversable: configured=${PUBLIC_ROOT}, resolved=${resolved_public_root}. Directories need read permission and execute permission on every ancestor.${NC}"
+else
+  echo -e "${GREEN}[ Info ] Public root: configured=${PUBLIC_ROOT}, resolved=${resolved_public_root}.${NC}"
+fi
 
 # crash if PASSWORD_USER is set but neither PASSWORD_RAW nor PASSWORD_HASH is set
 if [ -n "${PASSWORD_USER}" ] && [ -z "${PASSWORD_RAW}" ] && [ -z "${PASSWORD_HASH}" ]; then
