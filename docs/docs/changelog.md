@@ -3,6 +3,28 @@ sidebar_position: 1.5
 ---
 # Changelog
 
+## [5.0.1] - 2026-07-26
+
+### 🐛 Bug Fixes
+
+- Remove docs test ([7d548db](https://github.com/adrianschubek/dir-browser/commit/7d548db44774d0c56945caaece9efa984a3b0f98))
+- Update docs demo image ([51e8aea](https://github.com/adrianschubek/dir-browser/commit/51e8aeab2b20b647c611c905ef1c9270a636bb85))
+- Custom public root, symlinks and refactor path handling. closes #43 ([393932d](https://github.com/adrianschubek/dir-browser/commit/393932d033017789c57235e6b689f810e61074b1))
+
+### 📚 Documentation
+
+- Update demo image ([1ebce29](https://github.com/adrianschubek/dir-browser/commit/1ebce29af555b0a6576d8364cc7c7f317e8dffc9))
+
+## [5.0.0] - 2026-07-10
+
+### 🚀 Features
+
+- Full refactor and updated UI ([48602ee](https://github.com/adrianschubek/dir-browser/commit/48602ee2a10b10879efb9d196f0a9abed6036355))
+
+### 📚 Documentation
+
+- Update landing page ([e7d9bde](https://github.com/adrianschubek/dir-browser/commit/e7d9bdef61cdd4e6d6fed6e83acee2034300a2cb))
+
 All notable changes to this project will be documented in this file.
 
 ## [4.5.1] - 2026-05-12
