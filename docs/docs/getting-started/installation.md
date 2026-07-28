@@ -21,10 +21,9 @@ You may want to run the container with the `--restart always` flag to ensure tha
 ## Configuration
 
 To set configuration options you can use `docker run`
-- with the `-e THEME=cosmo -e DATE_FORMAT=local` arguments
+- with the `-e DATE_FORMAT=local` arguments
 - or load it from an environment file using [`--env-file .env`](https://docs.docker.com/reference/cli/docker/container/run/#env).
 ```ini title=".env"
-THEME=cosmo
 DATE_FORMAT=local
 ```
 
@@ -45,9 +44,12 @@ services:
     volumes:
       - /my/local/folder:/var/www/html/public:ro
       - rdb:/var/lib/redis/
-    environment:
-      THEME: cosmo
-      DATE_FORMAT: local
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "--silent", "http://127.0.0.1/__health"]
+      interval: 30s
+      timeout: 3s
+      start_period: 10s
+      retries: 3
 
 volumes:
   rdb:
