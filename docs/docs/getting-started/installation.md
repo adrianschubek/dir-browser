@@ -18,6 +18,22 @@ Access the directory browser at `http://localhost:8080`.
 You may want to run the container with the `--restart always` flag to ensure that the container is always running even after a system reboot.
 :::
 
+## Multiple source folders
+
+Bind-mount each host folder into a different subdirectory of `/var/www/html/public`.
+With the default public root, the folders appear as `documents` and `photos` in the browser.
+
+```bash
+docker run -d -p 8080:80 \
+  -v /my/local/documents:/var/www/html/public/documents:ro \
+  -v /my/local/photos:/var/www/html/public/photos:ro \
+  -v rdb:/var/lib/redis/ \
+  adrianschubek/dir-browser
+```
+
+In Docker Compose, replace the single content mount under `services.dir-browser.volumes`
+with one entry per source folder, using the same `host:container:ro` format.
+
 ## Configuration
 
 To set configuration options you can use `docker run`
