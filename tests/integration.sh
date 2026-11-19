@@ -198,6 +198,30 @@ fi
 
 rm -f "$COOKIE_JAR" "$LOGIN_HEADERS" "$LOGOUT_HEADERS" "$LEGACY_HEADERS"
 
+# The URL-key-only page offers a form on the requested path and preserves
+# unrelated query parameters when the browser submits it.
+docker rm -f "$CONTAINER" >/dev/null
+URL_KEY="global 'key+&"
+docker run -d --name "$CONTAINER" \
+  -p "${PORT}:80" \
+  -e "PASSWORD_URL_KEY=$URL_KEY" \
+  -v "$ROOT_DIR/tests/fixtures/public:/var/www/html/public:ro" \
+  "$IMAGE" >/dev/null
+for _ in $(seq 1 30); do
+  if curl --fail --silent "$BASE_URL/__health" >/dev/null; then break; fi
+  sleep 1
+done
+assert_status 401 "$BASE_URL/nested/?p=1"
+assert_body_contains 'Authentication required'
+assert_body_contains 'name="auth" type="password"'
+assert_body_contains 'name="p" value="1"'
+assert_body_excludes 'Incorrect authentication key'
+assert_status 401 "$BASE_URL/nested/?p=1&auth=invalid-url-key"
+assert_body_contains 'Incorrect authentication key'
+assert_body_excludes 'invalid-url-key'
+assert_status 200 --get --data-urlencode 'p=1' --data-urlencode "auth=$URL_KEY" "$BASE_URL/nested/"
+assert_body_contains 'index.php'
+
 # Exercise instance-wide URL-key and Basic authentication together. Health is
 # deliberately available without credentials for container orchestration.
 docker rm -f "$CONTAINER" >/dev/null
@@ -214,7 +238,13 @@ for _ in $(seq 1 30); do
 done
 assert_status 200 "$BASE_URL/__health"
 assert_status 401 "$BASE_URL/"
+assert_body_contains 'Open the access link'
+assert_body_excludes 'name="auth"'
 assert_status 401 "$BASE_URL/?auth=global-url-secret"
+assert_body_contains 'sign-in prompt'
+assert_body_excludes 'name="auth"'
+headers="$(curl --silent --head "$BASE_URL/?auth=global-url-secret")"
+grep -qi '^WWW-Authenticate: Basic realm="dir-browser"' <<<"$headers"
 assert_status 401 --user 'admin:global-password' "$BASE_URL/"
 assert_status 401 --user 'admin:wrong-password' "$BASE_URL/?auth=global-url-secret"
 assert_status 200 --user 'admin:global-password' "$BASE_URL/?auth=global-url-secret"

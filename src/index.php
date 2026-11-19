@@ -11,27 +11,31 @@ if ($request_path === '/__health') {
   die();
 }
 
-$[if `process.env.PASSWORD_URL_KEY !== undefined`]$
-if (!isset($_GET['auth']) || !is_string($_GET['auth']) || $_GET['auth'] === '' || !hash_equals('${{`process.env.PASSWORD_URL_KEY`}}$', $_GET['auth'])) {
-  header('HTTP/1.0 401 Unauthorized');
-  header('Content-Type: text/plain; charset=utf-8');
-  echo "Authentication required. This dir-browser instance requires ?auth=<key>.";
-  die;
-}
-$[end]$
+$urlKey = getenv('PASSWORD_URL_KEY');
+$passwordHash = getenv('PASSWORD_HASH');
+$passwordRaw = getenv('PASSWORD_RAW');
+$usesBasicAuth = $passwordHash !== false || $passwordRaw !== false;
 
-$[if `process.env.PASSWORD_HASH !== undefined`]$
-if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']) || $_SERVER['PHP_AUTH_USER'] !== '${{`process.env.PASSWORD_USER`}}$' || !password_verify($_SERVER['PHP_AUTH_PW'], '${{`process.env.PASSWORD_HASH`}}$')) {
-$[if `process.env.PASSWORD_HASH === undefined && process.env.PASSWORD_RAW !== undefined`]$
-if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']) || $_SERVER['PHP_AUTH_USER'] !== '${{`process.env.PASSWORD_USER`}}$' || $_SERVER['PHP_AUTH_PW'] !== '${{`process.env.PASSWORD_RAW`}}$') {
-$[end]$
-$[if `process.env.PASSWORD_RAW !== undefined || process.env.PASSWORD_HASH !== undefined`]$
-  header('WWW-Authenticate: Basic realm="dir-browser"');
-  header('HTTP/1.0 401 Unauthorized');
-  echo "Authentication required. This dir-browser instance is password protected.";
-  die;
+if ($urlKey !== false) {
+  $providedKey = $_GET['auth'] ?? null;
+  if (!is_string($providedKey) || $providedKey === '' || !hash_equals($urlKey, $providedKey)) {
+    $authMode = $usesBasicAuth ? 'link' : 'key';
+    require __DIR__ . '/views/authentication.php';
+    exit;
+  }
 }
-$[end]$
+
+if ($usesBasicAuth) {
+  $password = $_SERVER['PHP_AUTH_PW'] ?? null;
+  if (($_SERVER['PHP_AUTH_USER'] ?? null) !== (string) getenv('PASSWORD_USER')
+    || $password === null
+    || ($passwordHash !== false ? !password_verify($password, $passwordHash) : $password !== $passwordRaw)) {
+    header('WWW-Authenticate: Basic realm="dir-browser"');
+    $authMode = 'basic';
+    require __DIR__ . '/views/authentication.php';
+    exit;
+  }
+}
 
 $[if `process.env.TIMING`]$
 $time_start = hrtime(true); 

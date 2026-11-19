@@ -1,6 +1,6 @@
 FROM debian:trixie-slim AS base
 
-ENV DIRBROWSER_VERSION=5.0.2
+ENV DIRBROWSER_VERSION=5.0.3
 
 ENV DEBIAN_FRONTEND=noninteractive
 
